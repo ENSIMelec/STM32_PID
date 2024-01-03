@@ -22,7 +22,9 @@ float Kp_D = 1, Ki_D = 1, Kd_D = 1; //coefficients PID vitesse moteur droit
 PID PID_vitesse_G(&vitesse_G, &Output_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, Ki_G, Kd_G, DIRECT);
 PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, Ki_D, Kd_D, DIRECT);
 
-bool useSimulation = true;
+// #define useSimulation // commenter pour ne pas utiliser la simulation du moteur;
+
+#ifdef useSimulation
   #include "SimFirstOrder.h"
   float process_sim_motor = 0; // variable qui va stocker la valeur de sortie de la simulation du moteur si on lui donne juste la consigne
   float Output_Sim_PID_vitesse_G= 0; // variable qui stocke la sortie du PID simulé pour le moteur Gauche
@@ -32,6 +34,7 @@ bool useSimulation = true;
   SimFirstOrder simFirstOrder_G(dt, tau_Motor_G, K_Motor_G); // first order system for motor Gauche
   SimFirstOrder simFirstOrder_G2(dt, tau_Motor_G, K_Motor_G); // first order system simulation of motor Gauche
   PID Sim_PID_vitesse_G(&process_sim_motor_PID, &Output_Sim_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, Ki_G, Kd_G, DIRECT);
+#endif
 
 void setup()
 {
@@ -48,13 +51,12 @@ void setup()
       ;
   }
 
-  if(useSimulation)
-  {
+  #ifdef useSimulation
     Sim_PID_vitesse_G.SetMode(AUTOMATIC); //turn the PID on
-  } else {
+  #else
     PID_vitesse_G.SetMode(AUTOMATIC); //turn the PID on
     PID_vitesse_D.SetMode(AUTOMATIC); //turn the PID on
-  }
+  #endif
 
   TIM_TypeDef *Instance = TIM4;
   HardwareTimer *MyTim = new HardwareTimer(Instance);
@@ -66,20 +68,19 @@ void setup()
 void Update_IT_callback(void)
 {
 
-  if (useSimulation)
-    {
-    // Utilisation de la simulation SimFirstOrder qui donc simule le comportement du moteur Gauche selon la consigne donnée
+  #ifdef useSimulation
+    // Utilisation de la simulation SimFirstOrder qui donc simule le comportement du moteur Gauche selon la consigne donnée en gros on voit le comportement du moteur sans PID
     process_sim_motor = simFirstOrder_G.process(cmd_vitesse_G);
     Serial.print("Simu : ");
     Serial.println(process_sim_motor,5);
-    // Ici c'est la simulation du comportement de mon PID sur le moteur Gauche car ducoup je donne mon erreur lié à la différence entre mon PID et la consigne que j'injecte dans la simulation de mon moteur ce qui me donne ce que fait théoriquement mon moteur
-    Sim_PID_vitesse_G.Compute();
+    // Ici c'est la simulation du comportement de mon PID sur le moteur Gauche 
+    Sim_PID_vitesse_G.Compute(); // on calcule la sortie du PID
     Serial.print("Output_PID_vitesse_G : ");
     Serial.println(Output_Sim_PID_vitesse_G,5);
-    process_sim_motor_PID = simFirstOrder_G2.process(Output_Sim_PID_vitesse_G);
+    process_sim_motor_PID = simFirstOrder_G2.process(Output_Sim_PID_vitesse_G); // on applique cette sortie sur la simulation du moteur
     Serial.print("Sim_PID_V_G : ");
     Serial.println(process_sim_motor_PID,5);
-  } else {
+  #else
     encDroit.loop();
     encGauche.loop();
     Serial.print("Droit: ");
@@ -100,7 +101,7 @@ void Update_IT_callback(void)
     Serial.println(Output_PID_vitesse_G,5);
     Serial.print("PID_V_D : ");
     Serial.println(Output_PID_vitesse_D,5);
-  }
+  #endif
 }
 
 void loop() {}
