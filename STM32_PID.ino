@@ -4,23 +4,13 @@
 Encoder encDroit(PA0, PA1, SINGLE, 250); // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
 Encoder encGauche(PB4, PB5, SINGLE, 250);
 
-
 float dt = 10e-3; // 10ms
 
-float cmd_vitesse_G = 10; //commande vitesse moteur gauche / consigne
+float cmd_vitesse_G = 0; //commande vitesse moteur gauche / consigne
 float cmd_vitesse_D = 0; //commande vitesse moteur droite / consigne
-
-float vitesse_G = 0; //vitesse réel moteur gauche
-float vitesse_D = 0; //vitesse réel moteur droite
-
-float Output_PID_vitesse_G = 0; // Valeur sortante du PID vitesse moteur gauche, une PMW donc
-float Output_PID_vitesse_D = 0; // Valeur sortante du PID vitesse moteur droit, une PMW donc
 
 float Kp_G = 2, Ki_G = 10, Kd_G = 0; //coefficients PID vitesse moteur gauche
 float Kp_D = 1, Ki_D = 1, Kd_D = 1; //coefficients PID vitesse moteur droit
-
-PID PID_vitesse_G(&vitesse_G, &Output_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, Ki_G, Kd_G, DIRECT);
-PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, Ki_D, Kd_D, DIRECT);
 
 // #define useSimulation // commenter pour ne pas utiliser la simulation du moteur;
 
@@ -34,6 +24,15 @@ PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, K
   SimFirstOrder simFirstOrder_G(dt, tau_Motor_G, K_Motor_G); // first order system for motor Gauche
   SimFirstOrder simFirstOrder_G2(dt, tau_Motor_G, K_Motor_G); // first order system simulation of motor Gauche
   PID Sim_PID_vitesse_G(&process_sim_motor_PID, &Output_Sim_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, Ki_G, Kd_G, DIRECT);
+#else
+  float vitesse_G = 0; //vitesse réel moteur gauche
+  float vitesse_D = 0; //vitesse réel moteur droite
+
+  float Output_PID_vitesse_G = 0; // Valeur sortante du PID vitesse moteur gauche, une PMW donc
+  float Output_PID_vitesse_D = 0; // Valeur sortante du PID vitesse moteur droit, une PMW donc
+
+  PID PID_vitesse_G(&vitesse_G, &Output_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, Ki_G, Kd_G, DIRECT);
+  PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, Ki_D, Kd_D, DIRECT);
 #endif
 
 void setup()
@@ -60,7 +59,7 @@ void setup()
 
   TIM_TypeDef *Instance = TIM4;
   HardwareTimer *MyTim = new HardwareTimer(Instance);
-  MyTim->setOverflow(1/dt, HERTZ_FORMAT); // 100 Hz
+  MyTim->setOverflow(1/dt, HERTZ_FORMAT); // 100 Hz -> 10ms
   MyTim->attachInterrupt(Update_IT_callback);
   MyTim->resume();
 }
