@@ -8,6 +8,8 @@ float cmd_vitesse_D = 0; //commande vitesse moteur droite / consigne
 float Kp_G = 2, Ki_G = 10, Kd_G = 0; //coefficients PID vitesse moteur gauche
 float Kp_D = 1, Ki_D = 1, Kd_D = 1; //coefficients PID vitesse moteur droit
 
+#define DEBUG // commenter pour ne pas utiliser le mode debug
+
 // #define useSimulation // commenter pour ne pas utiliser la simulation du moteur;
 
 #ifdef useSimulation
@@ -39,15 +41,14 @@ float Kp_D = 1, Ki_D = 1, Kd_D = 1; //coefficients PID vitesse moteur droit
   PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, Ki_D, Kd_D, DIRECT);
 #endif
 
-#define DEBUG
-
 void setup()
 {
+  Serial.begin(115200);
+
   #ifdef useSimulation
     Sim_PID_vitesse_G.SetMode(AUTOMATIC); //turn the PID on
   #else
     #ifdef DEBUG
-      Serial.begin(115200);
       if (encDroit.init() && encGauche.init())
       {
         Serial.println("Encoder Initialization OK");
@@ -61,7 +62,7 @@ void setup()
     #else
       if (!encDroit.init() && !encGauche.init())
       {
-        while (1)
+        while (1) //encoder initialization failed
           ;
       }
     #endif
@@ -69,12 +70,27 @@ void setup()
     PID_vitesse_D.SetMode(AUTOMATIC); //turn the PID on
   #endif
 
+  // Configuration de l'interruption pour déclencher sur la réception de données
+  USART1->CR1 |= USART_CR1_RXNEIE;
+  NVIC_EnableIRQ(USART1_IRQn);
+
   TIM_TypeDef *Instance = TIM4;
   HardwareTimer *MyTim = new HardwareTimer(Instance);
   MyTim->setOverflow(1/dt, HERTZ_FORMAT); // 100 Hz -> 10ms
   MyTim->attachInterrupt(Update_IT_callback);
   MyTim->resume();
 }
+
+// extern "C" void USART1_IRQHandler() {
+//   if (USART1->SR & USART_SR_RXNE) {
+//     char receivedData = USART1->DR;
+
+//     // Afficher la donnée reçue
+//     Serial.println(receivedData);
+
+//     // Autres actions...
+//   }
+// }
 
 void Update_IT_callback(void)
 {
