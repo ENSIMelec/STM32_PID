@@ -31,8 +31,9 @@ float Kp_D = 2, Ki_D = 10, Kd_D = 0; //coefficients PID vitesse moteur droit
   int32_t last_encGauche = 0; //int32_t car c'est comme ca dans la librairy des Encoder
   int32_t last_encDroit = 0;
 
-  Encoder encGauche(PB4, PB5, SINGLE, 250);
-  Encoder encDroit(PA0, PA1, SINGLE, 250); // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
+  // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only 
+  Encoder encGauche(PB4, PB5, SINGLE, 250); // PWM3/1 pin D5 et PWM3/2 pin D4
+  Encoder encDroit(PA0, PA1, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1
 
   float vitesse_G = 0; //vitesse réel moteur gauche
   float vitesse_D = 0; //vitesse réel moteur droite
@@ -46,7 +47,7 @@ float Kp_D = 2, Ki_D = 10, Kd_D = 0; //coefficients PID vitesse moteur droit
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(115200); // Par défaut utilisation de USART1 donc attention aux pin avec du UART1
 
   #ifdef useSimulation
     Sim_PID_vitesse_G.SetMode(AUTOMATIC); //turn the PID on
@@ -72,15 +73,15 @@ void setup()
     PID_vitesse_G.SetMode(AUTOMATIC); //turn the PID on
     PID_vitesse_D.SetMode(AUTOMATIC); //turn the PID on
 
-    digitalWrite(PB10,HIGH); // PB_10 = pin D6
-    digitalWrite(PA8,HIGH); // PA_8 = pin D7
+    digitalWrite(PA3,HIGH); // PA_3 = pin D0
+    digitalWrite(PA2,HIGH); // PA_2 = pin D1
   #endif
 
   // // Configuration de l'interruption pour déclencher sur la réception de données
   // USART1->CR1 |= USART_CR1_RXNEIE;
   // NVIC_EnableIRQ(USART1_IRQn);
 
-  TIM_TypeDef *Instance = TIM4;
+  TIM_TypeDef *Instance = TIM4; // le Timer 4 est inutilisable pour générer des PWM car cela peut créer des perturbations
   HardwareTimer *MyTim = new HardwareTimer(Instance);
   MyTim->setOverflow(1/dt, HERTZ_FORMAT); // 100 Hz -> 10ms
   MyTim->attachInterrupt(Update_IT_callback);
@@ -123,8 +124,8 @@ void Update_IT_callback(void)
     PID_vitesse_G.Compute();
     PID_vitesse_D.Compute();
 
-    analogWrite(PA9,Output_PID_vitesse_G); // PA_9 = pin D8
-    analogWrite(PC7,Output_PID_vitesse_D); // PC_7 = pin D9
+    pwmWrite(PA8,Output_PID_vitesse_G); // PWM1/1 pin D7
+    pwmWrite(PA7,Output_PID_vitesse_D); // PWM1/1N pin D11
     
     last_encGauche = encGauche.getTicks();
     last_encDroit = encDroit.getTicks();
