@@ -2,11 +2,11 @@
 
 float dt = 10e-3; // 10ms
 
-float cmd_vitesse_G = 0; //commande vitesse moteur gauche / consigne
-float cmd_vitesse_D = 0; //commande vitesse moteur droite / consigne
+float cmd_vitesse_G = 10; //commande vitesse moteur gauche / consigne
+float cmd_vitesse_D = 10; //commande vitesse moteur droite / consigne
 
 float Kp_G = 2, Ki_G = 10, Kd_G = 0; //coefficients PID vitesse moteur gauche
-float Kp_D = 1, Ki_D = 1, Kd_D = 1; //coefficients PID vitesse moteur droit
+float Kp_D = 2, Ki_D = 10, Kd_D = 0; //coefficients PID vitesse moteur droit
 
 #define DEBUG // commenter pour ne pas utiliser le mode debug
 
@@ -28,8 +28,11 @@ float Kp_D = 1, Ki_D = 1, Kd_D = 1; //coefficients PID vitesse moteur droit
 #else
   #include "FastInterruptEncoder.h"
 
-  Encoder encDroit(PA0, PA1, SINGLE, 250); // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
+  int32_t last_encGauche = 0; //int32_t car c'est comme ca dans la librairy des Encoder
+  int32_t last_encDroit = 0;
+
   Encoder encGauche(PB4, PB5, SINGLE, 250);
+  Encoder encDroit(PA0, PA1, SINGLE, 250); // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
 
   float vitesse_G = 0; //vitesse réel moteur gauche
   float vitesse_D = 0; //vitesse réel moteur droite
@@ -68,11 +71,14 @@ void setup()
     #endif
     PID_vitesse_G.SetMode(AUTOMATIC); //turn the PID on
     PID_vitesse_D.SetMode(AUTOMATIC); //turn the PID on
+
+    digitalWrite(PB10,HIGH); // PB_10 = pin D6
+    digitalWrite(PA8,HIGH); // PA_8 = pin D7
   #endif
 
-  // Configuration de l'interruption pour déclencher sur la réception de données
-  USART1->CR1 |= USART_CR1_RXNEIE;
-  NVIC_EnableIRQ(USART1_IRQn);
+  // // Configuration de l'interruption pour déclencher sur la réception de données
+  // USART1->CR1 |= USART_CR1_RXNEIE;
+  // NVIC_EnableIRQ(USART1_IRQn);
 
   TIM_TypeDef *Instance = TIM4;
   HardwareTimer *MyTim = new HardwareTimer(Instance);
@@ -108,20 +114,26 @@ void Update_IT_callback(void)
     Serial.print("Sim_PID_V_G : ");
     Serial.println(process_sim_motor_PID,5);
   #else
-    encDroit.loop();
     encGauche.loop();
+    encDroit.loop();
 
-    vitesse_G = encGauche.getTicks()/dt;
-    vitesse_D = encDroit.getTicks()/dt;
+    vitesse_G = (encGauche.getTicks() - last_encGauche)/dt; // d/dt
+    vitesse_D = (encDroit.getTicks() - last_encDroit)/dt;
 
     PID_vitesse_G.Compute();
     PID_vitesse_D.Compute();
+
+    analogWrite(PA9,Output_PID_vitesse_G); // PA_9 = pin D8
+    analogWrite(PC7,Output_PID_vitesse_D); // PC_7 = pin D9
     
+    last_encGauche = encGauche.getTicks();
+    last_encDroit = encDroit.getTicks();
+
     #ifdef DEBUG
-      Serial.print("Droit: ");
-      Serial.println(encDroit.getTicks());
       Serial.print("Gauche: ");
       Serial.println(encGauche.getTicks());
+      Serial.print("Droit: ");
+      Serial.println(encDroit.getTicks());
       Serial.print("V_G : ");
       Serial.println(vitesse_G,5);
       Serial.print("V_D : ");
