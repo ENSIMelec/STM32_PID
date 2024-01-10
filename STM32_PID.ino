@@ -32,8 +32,8 @@ float Kp_D = 2, Ki_D = 10, Kd_D = 0; //coefficients PID vitesse moteur droit
   int32_t last_encDroit = 0;
 
   // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only 
-  Encoder encGauche(PA0, PA1, SINGLE, 250); // PWM3/1 pin D5 et PWM3/2 pin D4
-  Encoder encDroit(PB4, PB5, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1
+  Encoder encGauche(PA0, PA1, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+  Encoder encDroit(PB4, PB5, SINGLE, 250); // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 
   float vitesse_G = 0; //vitesse réel moteur gauche
   float vitesse_D = 0; //vitesse réel moteur droite
@@ -81,7 +81,7 @@ void setup()
   // USART1->CR1 |= USART_CR1_RXNEIE;
   // NVIC_EnableIRQ(USART1_IRQn);
 
-  TIM_TypeDef *Instance = TIM6;
+  TIM_TypeDef *Instance = TIM6; 
   HardwareTimer *MyTim = new HardwareTimer(Instance);
   MyTim->setOverflow(1/dt, HERTZ_FORMAT); // 100 Hz -> 10ms
   MyTim->attachInterrupt(Update_IT_callback);
@@ -118,7 +118,7 @@ void Update_IT_callback(void)
     encGauche.loop();
     encDroit.loop();
 
-    vitesse_G = (float)(encGauche.getTicks() - last_encGauche)/dt; // d/dt
+    vitesse_G = -(float)(encGauche.getTicks() - last_encGauche)/dt; // d/dt, problème pour le codeur gauche, il est inversé donc quand le robot avance le codeur gauche décrémente tandis que le droit incrémente
     vitesse_D = (float)(encDroit.getTicks() - last_encDroit)/dt;
 
     PID_vitesse_G.Compute();
