@@ -5,8 +5,8 @@ float dt = 10e-3; // 10ms
 float cmd_vitesse_G = 10; //commande vitesse moteur gauche / consigne
 float cmd_vitesse_D = 10; //commande vitesse moteur droite / consigne
 
-float Kp_G = 2, Ki_G = 10, Kd_G = 0; //coefficients PID vitesse moteur gauche
-float Kp_D = 2, Ki_D = 10, Kd_D = 0; //coefficients PID vitesse moteur droit
+float Kp_G = 1, Ki_G = 0, Kd_G = 10; //coefficients PID vitesse moteur gauche
+float Kp_D = 1, Ki_D = 0, Kd_D = 10; //coefficients PID vitesse moteur droit
 
 #define DEBUG // commenter pour ne pas utiliser le mode debug
 
