@@ -5,8 +5,8 @@ float dt = 10e-3; // 10ms
 float cmd_vitesse_G = 10; //commande vitesse moteur gauche / consigne
 float cmd_vitesse_D = 10; //commande vitesse moteur droite / consigne
 
-float Kp_G = 1, Ki_G = 0, Kd_G = 10; //coefficients PID vitesse moteur gauche
-float Kp_D = 1, Ki_D = 0, Kd_D = 10; //coefficients PID vitesse moteur droit
+float Kp_G = 1, Ki_G = 1, Kd_G = 0; //coefficients PID vitesse moteur gauche
+float Kp_D = 1, Ki_D = 1, Kd_D = 0; //coefficients PID vitesse moteur droit
 
 #define DEBUG // commenter pour ne pas utiliser le mode debug
 
@@ -131,18 +131,22 @@ void Update_IT_callback(void)
     last_encDroit = encDroit.getTicks();
 
     #ifdef DEBUG
-      Serial.print("Gauche: ");
-      Serial.println(encGauche.getTicks());
-      Serial.print("Droit: ");
-      Serial.println(encDroit.getTicks());
-      Serial.print("V_G : ");
-      Serial.println(vitesse_G,5);
-      Serial.print("V_D : ");
-      Serial.println(vitesse_D,5);
-      Serial.print("PID_V_G : ");
-      Serial.println(Output_PID_vitesse_G,5);
-      Serial.print("PID_V_D : ");
-      Serial.println(Output_PID_vitesse_D,5);
+      Serial.print(";A"); // Valeur du codeur Gauche
+      Serial.print(encGauche.getTicks());
+      Serial.print(";B"); // Valeur du codeur Droit
+      Serial.print(encDroit.getTicks());
+      Serial.print(";C"); // Vitesse réel moteur Gauche
+      Serial.print(vitesse_G,5);
+      Serial.print(";D"); // Vitesse réel moteur Droit
+      Serial.print(vitesse_D,5);
+      Serial.print(";E"); // Sortie du PID vitesse moteur Gauche
+      Serial.print(Output_PID_vitesse_G,5);
+      Serial.print(";F"); // Sortie du PID vitesse moteur Droit
+      Serial.print(Output_PID_vitesse_D,5);
+      Serial.print(";G"); // Consigne de vitesse moteur Gauche
+      Serial.print(cmd_vitesse_G,5);
+      Serial.print(";H"); // Consigne de vitesse moteur Droit
+      Serial.print(cmd_vitesse_D,5);
     #endif
   #endif
 }
