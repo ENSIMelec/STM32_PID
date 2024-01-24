@@ -2,8 +2,8 @@
 
 float dt = 10e-3; // 10ms
 
-float cmd_vitesse_G = 10; //commande vitesse moteur gauche / consigne
-float cmd_vitesse_D = 10; //commande vitesse moteur droite / consigne
+float cmd_vitesse_G = 10 * dt; //commande vitesse moteur gauche / consigne en mm/10ms soit mm/s * 0.01 = mm/10ms
+float cmd_vitesse_D = 10 * dt; //commande vitesse moteur droite / consigne en mm/10ms
 
 float Kp_G = 1, Ki_G = 1, Kd_G = 0; //coefficients PID vitesse moteur gauche
 float Kp_D = 1, Ki_D = 1, Kd_D = 0; //coefficients PID vitesse moteur droit
@@ -31,6 +31,8 @@ float Kp_D = 1, Ki_D = 1, Kd_D = 0; //coefficients PID vitesse moteur droit
   int32_t last_encGauche = 0; //int32_t car c'est comme ca dans la librairy des Encoder
   int32_t last_encDroit = 0;
 
+  float distance_encoder = 63 * PI / 512; // Constante pour convertir les ticks en mm. On sait que le codeur fait 512 tick pour un tour de roue et que une roue fait 63mm de diamètre
+  
   // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only 
   Encoder encGauche(PA0, PA1, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
   Encoder encDroit(PB4, PB5, SINGLE, 250); // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
@@ -55,11 +57,11 @@ void setup()
     #ifdef DEBUG
       if (encDroit.init() && encGauche.init())
       {
-        Serial.println("Encoder Initialization OK");
+        Serial.println("-Encoder Initialization OK");
       }
       else
       {
-        Serial.println("Encoder Initialization Failed");
+        Serial.println("-Encoder Initialization Failed");
         while (1)
           ;
       }
@@ -78,8 +80,8 @@ void setup()
   #endif
 
   // // Configuration de l'interruption pour déclencher sur la réception de données
-  // USART1->CR1 |= USART_CR1_RXNEIE;
-  // NVIC_EnableIRQ(USART1_IRQn);
+  // USART2->CR1 |= USART_CR1_RXNEIE;
+  // NVIC_EnableIRQ(USART2_IRQn);
 
   TIM_TypeDef *Instance = TIM6; 
   HardwareTimer *MyTim = new HardwareTimer(Instance);
@@ -88,16 +90,15 @@ void setup()
   MyTim->resume();
 }
 
-// extern "C" void USART1_IRQHandler() {
-//   if (USART1->SR & USART_SR_RXNE) {
-//     char receivedData = USART1->DR;
+// extern "C" void USART2_IRQHandler() {
+//   if (USART2->SR & USART_SR_RXNE) {
+//     char receivedData = USART2->DR;
 
-//     // Afficher la donnée reçue
+//     // Traiter la donnée reçue, par exemple, l'afficher sur le port série
 //     Serial.println(receivedData);
 
 //     // Autres actions...
 //   }
-// }
 
 void Update_IT_callback(void)
 {
@@ -118,8 +119,8 @@ void Update_IT_callback(void)
     encGauche.loop();
     encDroit.loop();
 
-    vitesse_G = -(float)(encGauche.getTicks() - last_encGauche)/dt; // d/dt, problème pour le codeur gauche, il est inversé donc quand le robot avance le codeur gauche décrémente tandis que le droit incrémente
-    vitesse_D = (float)(encDroit.getTicks() - last_encDroit)/dt;
+    vitesse_G = -(float)(encGauche.getTicks() - last_encGauche) * distance_encoder / dt; // d/dt, problème pour le codeur gauche, il est inversé donc quand le robot avance le codeur gauche décrémente tandis que le droit incrémente
+    vitesse_D = (float)(encDroit.getTicks() - last_encDroit) * distance_encoder / dt;
 
     PID_vitesse_G.Compute();
     PID_vitesse_D.Compute();
@@ -131,22 +132,22 @@ void Update_IT_callback(void)
     last_encDroit = encDroit.getTicks();
 
     #ifdef DEBUG
-      Serial.print(";A"); // Valeur du codeur Gauche
-      Serial.print(encGauche.getTicks());
-      Serial.print(";B"); // Valeur du codeur Droit
-      Serial.print(encDroit.getTicks());
-      Serial.print(";C"); // Vitesse réel moteur Gauche
-      Serial.print(vitesse_G,5);
-      Serial.print(";D"); // Vitesse réel moteur Droit
-      Serial.print(vitesse_D,5);
-      Serial.print(";E"); // Sortie du PID vitesse moteur Gauche
-      Serial.print(Output_PID_vitesse_G,5);
-      Serial.print(";F"); // Sortie du PID vitesse moteur Droit
-      Serial.print(Output_PID_vitesse_D,5);
-      Serial.print(";G"); // Consigne de vitesse moteur Gauche
-      Serial.print(cmd_vitesse_G,5);
-      Serial.print(";H"); // Consigne de vitesse moteur Droit
-      Serial.print(cmd_vitesse_D,5);
+      Serial.print("A"); // Valeur du codeur Gauche
+      Serial.println(encGauche.getTicks());
+      Serial.print("B"); // Valeur du codeur Droit
+      Serial.println(encDroit.getTicks());
+      Serial.print("C"); // Vitesse réel moteur Gauche
+      Serial.println(vitesse_G,5);
+      Serial.print("D"); // Vitesse réel moteur Droit
+      Serial.println(vitesse_D,5);
+      Serial.print("E"); // Sortie du PID vitesse moteur Gauche
+      Serial.println(Output_PID_vitesse_G,5);
+      Serial.print("F"); // Sortie du PID vitesse moteur Droit
+      Serial.println(Output_PID_vitesse_D,5);
+      Serial.print("G"); // Consigne de vitesse moteur Gauche
+      Serial.println(cmd_vitesse_G,5);
+      Serial.print("H"); // Consigne de vitesse moteur Droit
+      Serial.println(cmd_vitesse_D,5);
     #endif
   #endif
 }
