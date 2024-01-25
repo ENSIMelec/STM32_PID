@@ -2,8 +2,8 @@
 
 float dt = 10e-3; // 10ms
 
-float cmd_vitesse_G = 10 * dt; //commande vitesse moteur gauche / consigne en mm/10ms soit mm/s * 0.01 = mm/10ms
-float cmd_vitesse_D = 10 * dt; //commande vitesse moteur droite / consigne en mm/10ms
+float cmd_vitesse_G = 0 * dt; //commande vitesse moteur gauche / consigne en mm/10ms soit mm/s * 0.01 = mm/10ms
+float cmd_vitesse_D = 0 * dt; //commande vitesse moteur droite / consigne en mm/10ms
 
 float Kp_G = 1, Ki_G = 1, Kd_G = 0; //coefficients PID vitesse moteur gauche
 float Kp_D = 1, Ki_D = 1, Kd_D = 0; //coefficients PID vitesse moteur droit
@@ -49,8 +49,12 @@ float Kp_D = 1, Ki_D = 1, Kd_D = 0; //coefficients PID vitesse moteur droit
 
 void setup()
 {
-  Serial.begin(115200); // Par défaut utilisation de USART1 donc attention aux pin avec du UART1
-
+  Serial1.begin(115200); // Par défaut utilisation de USART1 donc attention aux pin avec du USART1
+  USART1->CR1 |= USART_CR1_RXNEIE; // activer l'interruption par caractère spécial
+  USART1->CR1 |= USART_CR1_CMIE; // activer l'interruption par caractère spécial
+  USART1->CR2 |= USART_CR2_LBDIE; // activer l'interruption par caractère spécial
+  USART1->CR2 |= 0x0C; // choisir le caractère spécial, par exemple 0x0C pour le retour chariot
+  NVIC_EnableIRQ(USART1_IRQn); // activer l'interruption par caractère spécial
   #ifdef useSimulation
     Sim_PID_vitesse_G.SetMode(AUTOMATIC); //turn the PID on
   #else
@@ -79,10 +83,6 @@ void setup()
     digitalWrite(PA2,LOW); // PA_2 = pin D1
   #endif
 
-  // // Configuration de l'interruption pour déclencher sur la réception de données
-  // USART2->CR1 |= USART_CR1_RXNEIE;
-  // NVIC_EnableIRQ(USART2_IRQn);
-
   TIM_TypeDef *Instance = TIM6; 
   HardwareTimer *MyTim = new HardwareTimer(Instance);
   MyTim->setOverflow(1/dt, HERTZ_FORMAT); // 100 Hz -> 10ms
@@ -90,15 +90,9 @@ void setup()
   MyTim->resume();
 }
 
-// extern "C" void USART2_IRQHandler() {
-//   if (USART2->SR & USART_SR_RXNE) {
-//     char receivedData = USART2->DR;
-
-//     // Traiter la donnée reçue, par exemple, l'afficher sur le port série
-//     Serial.println(receivedData);
-
-//     // Autres actions...
-//   }
+void serialEvent() {
+  // votre code pour gérer l'interruption
+}
 
 void Update_IT_callback(void)
 {
@@ -132,24 +126,25 @@ void Update_IT_callback(void)
     last_encDroit = encDroit.getTicks();
 
     #ifdef DEBUG
-      Serial.print("A"); // Valeur du codeur Gauche
-      Serial.println(encGauche.getTicks());
-      Serial.print("B"); // Valeur du codeur Droit
-      Serial.println(encDroit.getTicks());
-      Serial.print("C"); // Vitesse réel moteur Gauche
-      Serial.println(vitesse_G,5);
-      Serial.print("D"); // Vitesse réel moteur Droit
-      Serial.println(vitesse_D,5);
-      Serial.print("E"); // Sortie du PID vitesse moteur Gauche
-      Serial.println(Output_PID_vitesse_G,5);
-      Serial.print("F"); // Sortie du PID vitesse moteur Droit
-      Serial.println(Output_PID_vitesse_D,5);
-      Serial.print("G"); // Consigne de vitesse moteur Gauche
-      Serial.println(cmd_vitesse_G,5);
-      Serial.print("H"); // Consigne de vitesse moteur Droit
-      Serial.println(cmd_vitesse_D,5);
+      Serialtest.print("A"); // Valeur du codeur Gauche
+      Serialtest.println(encGauche.getTicks());
+      Serialtest.print("B"); // Valeur du codeur Droit
+      Serialtest.println(encDroit.getTicks());
+      Serialtest.print("C"); // Vitesse réel moteur Gauche
+      Serialtest.println(vitesse_G,5);
+      Serialtest.print("D"); // Vitesse réel moteur Droit
+      Serialtest.println(vitesse_D,5);
+      Serialtest.print("E"); // Sortie du PID vitesse moteur Gauche
+      Serialtest.println(Output_PID_vitesse_G,5);
+      Serialtest.print("F"); // Sortie du PID vitesse moteur Droit
+      Serialtest.println(Output_PID_vitesse_D,5);
+      Serialtest.print("G"); // Consigne de vitesse moteur Gauche
+      Serialtest.println(cmd_vitesse_G,5);
+      Serialtest.print("H"); // Consigne de vitesse moteur Droit
+      Serialtest.println(cmd_vitesse_D,5);
     #endif
   #endif
 }
 
-void loop() {}
+void loop() {
+}
