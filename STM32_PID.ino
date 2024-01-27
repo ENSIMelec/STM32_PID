@@ -91,7 +91,13 @@ void setup()
 }
 
 void serialEvent() {
-  // votre code pour gérer l'interruption
+  String input = Serial.readStringUntil('\n');
+  if (input.startsWith("C")) { // C20.2930:33.2930 en mm/s
+    float G, D;
+    sscanf(input.c_str(), "C%f:%f", &G, &D);
+    cmd_vitesse_G = G * dt; // on multiplie par dt pour avoir la consigne en mm/10ms
+    cmd_vitesse_D = D * dt;
+  }
 }
 
 void Update_IT_callback(void)
@@ -126,22 +132,22 @@ void Update_IT_callback(void)
     last_encDroit = encDroit.getTicks();
 
     #ifdef DEBUG
-      Serialtest.print("A"); // Valeur du codeur Gauche
-      Serialtest.println(encGauche.getTicks());
-      Serialtest.print("B"); // Valeur du codeur Droit
-      Serialtest.println(encDroit.getTicks());
-      Serialtest.print("C"); // Vitesse réel moteur Gauche
-      Serialtest.println(vitesse_G,5);
-      Serialtest.print("D"); // Vitesse réel moteur Droit
-      Serialtest.println(vitesse_D,5);
-      Serialtest.print("E"); // Sortie du PID vitesse moteur Gauche
-      Serialtest.println(Output_PID_vitesse_G,5);
-      Serialtest.print("F"); // Sortie du PID vitesse moteur Droit
-      Serialtest.println(Output_PID_vitesse_D,5);
-      Serialtest.print("G"); // Consigne de vitesse moteur Gauche
-      Serialtest.println(cmd_vitesse_G,5);
-      Serialtest.print("H"); // Consigne de vitesse moteur Droit
-      Serialtest.println(cmd_vitesse_D,5);
+      Serial.print("A"); // Valeur du codeur Gauche
+      Serial.println(encGauche.getTicks());
+      Serial.print("B"); // Valeur du codeur Droit
+      Serial.println(encDroit.getTicks());
+      Serial.print("C"); // Vitesse réel moteur Gauche
+      Serial.println(vitesse_G,5);
+      Serial.print("D"); // Vitesse réel moteur Droit
+      Serial.println(vitesse_D,5);
+      Serial.print("E"); // Sortie du PID vitesse moteur Gauche
+      Serial.println(Output_PID_vitesse_G,5);
+      Serial.print("F"); // Sortie du PID vitesse moteur Droit
+      Serial.println(Output_PID_vitesse_D,5);
+      Serial.print("G"); // Consigne de vitesse moteur Gauche
+      Serial.println(cmd_vitesse_G,5);
+      Serial.print("H"); // Consigne de vitesse moteur Droit
+      Serial.println(cmd_vitesse_D,5);
     #endif
   #endif
 }
