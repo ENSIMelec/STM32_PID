@@ -5,8 +5,8 @@ float dt = 10e-3; // 10ms
 float cmd_vitesse_G = 0 * dt; //commande vitesse moteur gauche / consigne en mm/10ms soit mm/s * 0.01 = mm/10ms
 float cmd_vitesse_D = 0 * dt; //commande vitesse moteur droite / consigne en mm/10ms
 
-float Kp_G = 1, Ki_G = 1, Kd_G = 0; //coefficients PID vitesse moteur gauche
-float Kp_D = 1, Ki_D = 1, Kd_D = 0; //coefficients PID vitesse moteur droit
+float Kp_G = 0, Ki_G = 0, Kd_G = 0; //coefficients PID vitesse moteur gauche
+float Kp_D = 0, Ki_D = 0, Kd_D = 0; //coefficients PID vitesse moteur droit
 
 #define DEBUG // commenter pour ne pas utiliser le mode debug
 
@@ -30,8 +30,8 @@ float Kp_D = 1, Ki_D = 1, Kd_D = 0; //coefficients PID vitesse moteur droit
 
   int32_t last_encGauche = 0; //int32_t car c'est comme ca dans la librairy des Encoder
   int32_t last_encDroit = 0;
-
-  float distance_encoder = 63 * PI / 512; // Constante pour convertir les ticks en mm. On sait que le codeur fait 512 tick pour un tour de roue et que une roue fait 63mm de diamètre
+  // TODO : faire 1 metre avec le robot a la main pour voir combien de tick on fait les codeurs et donc comme on sait que 512 ticks font un tour alors on en déduit le diametre des codeurs
+  float distance_encoder = 35 * PI / 512; // Constante pour convertir les ticks en mm. On sait que le codeur fait 512 tick pour un tour de roue et que une roue fait 35mm de diamètre
   
   // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only 
   Encoder encGauche(PA0, PA1, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
@@ -49,12 +49,12 @@ float Kp_D = 1, Ki_D = 1, Kd_D = 0; //coefficients PID vitesse moteur droit
 
 void setup()
 {
-  Serial1.begin(115200); // Par défaut utilisation de USART1 donc attention aux pin avec du USART1
-  USART1->CR1 |= USART_CR1_RXNEIE; // activer l'interruption par caractère spécial
-  USART1->CR1 |= USART_CR1_CMIE; // activer l'interruption par caractère spécial
-  USART1->CR2 |= USART_CR2_LBDIE; // activer l'interruption par caractère spécial
-  USART1->CR2 |= 0x0C; // choisir le caractère spécial, par exemple 0x0C pour le retour chariot
-  NVIC_EnableIRQ(USART1_IRQn); // activer l'interruption par caractère spécial
+  Serial.begin(115200); // Par défaut utilisation de USART1 donc attention aux pin avec du USART1
+  // USART1->CR1 |= USART_CR1_RXNEIE; // activer l'interruption par caractère spécial
+  // USART1->CR1 |= USART_CR1_CMIE; // activer l'interruption par caractère spécial
+  // USART1->CR2 |= USART_CR2_LBDIE; // activer l'interruption par caractère spécial
+  // USART1->CR2 |= 0x0C; // choisir le caractère spécial, par exemple 0x0C pour le retour chariot
+  // NVIC_EnableIRQ(USART1_IRQn); // activer l'interruption par caractère spécial
   #ifdef useSimulation
     Sim_PID_vitesse_G.SetMode(AUTOMATIC); //turn the PID on
   #else
@@ -79,8 +79,8 @@ void setup()
     PID_vitesse_G.SetMode(AUTOMATIC); //turn the PID on
     PID_vitesse_D.SetMode(AUTOMATIC); //turn the PID on
 
-    digitalWrite(PA3,LOW); // PA_3 = pin D0
-    digitalWrite(PA2,LOW); // PA_2 = pin D1
+    digitalWrite(PA3,HIGH); // PA_3 = pin D0
+    digitalWrite(PA2,HIGH); // PA_2 = pin D1
   #endif
 
   TIM_TypeDef *Instance = TIM6; 
@@ -90,15 +90,15 @@ void setup()
   MyTim->resume();
 }
 
-void serialEvent() {
-  String input = Serial.readStringUntil('\n');
-  if (input.startsWith("C")) { // C20.2930:33.2930 en mm/s
-    float G, D;
-    sscanf(input.c_str(), "C%f:%f", &G, &D);
-    cmd_vitesse_G = G * dt; // on multiplie par dt pour avoir la consigne en mm/10ms
-    cmd_vitesse_D = D * dt;
-  }
-}
+// void serialEvent() {
+//   String input = Serial.readStringUntil('\n');
+//   if (input.startsWith("C")) { // C20.2930:33.2930 en mm/s
+//     float G, D;
+//     sscanf(input.c_str(), "C%f:%f", &G, &D);
+//     cmd_vitesse_G = G * dt; // on multiplie par dt pour avoir la consigne en mm/10ms
+//     cmd_vitesse_D = D * dt;
+//   }
+// }
 
 void Update_IT_callback(void)
 {
@@ -125,8 +125,8 @@ void Update_IT_callback(void)
     PID_vitesse_G.Compute();
     PID_vitesse_D.Compute();
 
-    analogWrite(PB6,Output_PID_vitesse_G); // PWM4/1 pin D10 donc le Timer4
-    analogWrite(PA8,Output_PID_vitesse_D); // PWM1/1 pin D7 donc le Timer1
+    // analogWrite(PB6,Output_PID_vitesse_G); // PWM4/1 pin D10 donc le Timer4
+    // analogWrite(PA8,Output_PID_vitesse_D); // PWM1/1 pin D7 donc le Timer1
     
     last_encGauche = encGauche.getTicks();
     last_encDroit = encDroit.getTicks();
@@ -151,6 +151,34 @@ void Update_IT_callback(void)
     #endif
   #endif
 }
+//313 rpm max 
+//63 mm diamètre roue
+//donc vitesse mm/s = 63 * PI * 313 / 60 = 1039.5 mm/s
+//donc vitesse mm/10ms = 1039.5 * 0.01 = 10.395 mm/10ms
+//donc 50 % vmax = 5.1975 mm/10ms
+//donc 5 % vmax = 0.51975 mm/10ms
 
+// 5 % de 255 = 13
+// 50 % de 255 = 128
 void loop() {
+  unsigned long time = millis();  // Temps écoulé en millisecondes
+  if (time >= 10000 && time < 11000) {
+    // Mettre la commande moteur à 10% de la Vmax après 10 secondes
+    analogWrite(PB6,26);
+    analogWrite(PA8,26);
+    cmd_vitesse_G = 0.51975;
+    cmd_vitesse_D = 0.51975;
+  } else if (time >= 11000 && time < 13000) {
+    // Mettre la commande moteur à 50% de la Vmax après 11 secondes
+    analogWrite(PB6,128);
+    analogWrite(PA8,128);
+    cmd_vitesse_G = 5.1975;
+    cmd_vitesse_D = 5.1975;
+  } else {
+    // Mettre la commande moteur à 0% de la Vmax avant 10 secondes
+    analogWrite(PB6,0);
+    analogWrite(PA8,0);
+    cmd_vitesse_G = 0;
+    cmd_vitesse_D = 0;
+  }
 }
