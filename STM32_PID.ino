@@ -157,8 +157,8 @@ void Update_IT_callback(void)
   /********************************************/
 #else
   /****Récupération des valeurs des codeurs****/
-  int16_t ticks_G = encGauche.getTicks();
-  int16_t ticks_D = encDroit.getTicks();
+  ticks_G = encGauche.getTicks();
+  ticks_D = encDroit.getTicks();
   /********************************************/
 
   /****Calcul des vitesses des moteurs*******/
@@ -180,6 +180,8 @@ void Update_IT_callback(void)
   last_encGauche = ticks_G;
   last_encDroit = ticks_D;
   /********************************/
+
+  Update_IT = true;
 
 #endif
 }
@@ -267,6 +269,26 @@ void setup()
 /*************************************/
 void loop()
 {
+  if (Update_IT)
+  {
+    Serial.print("A"); // Valeur du codeur Gauche
+    Serial.println(last_encGauche);
+    Serial.print("B"); // Valeur du codeur Droit
+    Serial.println(last_encDroit);
+    Serial.print("C"); // Vitesse réel moteur Gauche
+    Serial.println(vitesse_G, 5);
+    Serial.print("D"); // Vitesse réel moteur Droit
+    Serial.println(vitesse_D, 5);
+    Serial.print("E"); // Sortie du PID vitesse moteur Gauche
+    Serial.println(Output_PID_vitesse_G, 5);
+    Serial.print("F"); // Sortie du PID vitesse moteur Droit
+    Serial.println(Output_PID_vitesse_D, 5);
+    Serial.print("G"); // Consigne de vitesse moteur Gauche
+    Serial.println(cmd_vitesse_G, 5);
+    Serial.print("H"); // Consigne de vitesse moteur Droit
+    Serial.println(cmd_vitesse_D, 5);
+    Update_IT = false;
+  }
   unsigned long time = millis(); // Temps écoulé en millisecondes
   if (time >= 10000 && time < 11000)
   {
@@ -290,25 +312,6 @@ void loop()
 /*************************************/
 /*************************************/
 /*************************************/
-
-#ifdef DEBUG
-Serial.print("A"); // Valeur du codeur Gauche
-Serial.println(encGauche.getTicks());
-Serial.print("B"); // Valeur du codeur Droit
-Serial.println(encDroit.getTicks());
-Serial.print("C"); // Vitesse réel moteur Gauche
-Serial.println(vitesse_G, 5);
-Serial.print("D"); // Vitesse réel moteur Droit
-Serial.println(vitesse_D, 5);
-Serial.print("E"); // Sortie du PID vitesse moteur Gauche
-Serial.println(Output_PID_vitesse_G, 5);
-Serial.print("F"); // Sortie du PID vitesse moteur Droit
-Serial.println(Output_PID_vitesse_D, 5);
-Serial.print("G"); // Consigne de vitesse moteur Gauche
-Serial.println(cmd_vitesse_G, 5);
-Serial.print("H"); // Consigne de vitesse moteur Droit
-Serial.println(cmd_vitesse_D, 5);
-#endif
 
 // ! ||--------------------------------------------------------------------------------||
 // ! ||                                   INFORMATION                                  ||
