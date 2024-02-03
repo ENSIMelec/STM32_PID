@@ -49,7 +49,7 @@ PID Sim_PID_vitesse_G(&process_sim_motor_PID, &Output_Sim_PID_vitesse_G, &cmd_vi
 /******Declaration des codeurs************/
 // TODO : faire 1 metre avec le robot a la main pour voir combien de tick on fait les codeurs
 // et les étalonner
-float distance_encoder = 35 * PI / 512; // Constante pour convertir les ticks en mm. On sait que le codeur fait 512 tick pour un tour de roue et que une roue fait 35mm de diamètre
+const distance_encoder = 35 * PI / 512; // Constante pour convertir les ticks en mm. On sait que le codeur fait 512 tick pour un tour de roue et que une roue fait 35mm de diamètre
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
 Encoder encGauche(PA0, PA1, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
@@ -77,12 +77,9 @@ PID PID_vitesse_G(&vitesse_G, &Output_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, K
 PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, Ki_D, Kd_D, DIRECT);
 /*************************************/
 
-/********Lmite des PID ******/
+/********Coef Vitesse ******/
 float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
-float VitesseOutMin = 0;
-float coefToPWM = 255 / VitesseOutMax;
-PID_vitesse_D.SetOutputLimits(VitesseOutMin, VitesseOutMax);
-PID_vitesse_G.SetOutputLimits(VitesseOutMin, VitesseOutMax);
+const coefToPWM = 255 / VitesseOutMax;
 /**************************/
 
 /********************************************/
@@ -162,8 +159,8 @@ void Update_IT_callback(void)
   /********************************************/
 
   /****Calcul des vitesses des moteurs*******/
-  vitesse_G = (float)(ticks_G - last_encGauche) * distance_encoder / dt;
-  vitesse_D = (float)(ticks_D.getTicks() - last_encDroit) * distance_encoder / dt;
+  vitesse_G = (float)(ticks_G - last_encGauche) * distance_encoder * coefToPWM / dt;
+  vitesse_D = (float)(ticks_D.getTicks() - last_encDroit) * distance_encoder * coefToPWM / dt;
   /******************************************/
 
   /****Calcul des PID*******/
@@ -172,8 +169,8 @@ void Update_IT_callback(void)
   /***********************/
 
   /****Commande des moteurs*******/
-  analogWrite(PB6, Output_PID_vitesse_G * coefToPWM); // On fait un rapport de la sortie du PID par rapport à la vitesse max
-  analogWrite(PA8, Output_PID_vitesse_D * coefToPWM);
+  analogWrite(PB6, Output_PID_vitesse_G); // On fait un rapport de la sortie du PID par rapport à la vitesse max
+  analogWrite(PA8, Output_PID_vitesse_D);
   /*****************************/
 
   /****Sauvegarde des positions*****/
