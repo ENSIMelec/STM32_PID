@@ -53,6 +53,7 @@ float distance_encoder = 35 * PI / 512; // Constante pour convertir les ticks en
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
 Encoder encGauche(PA0, PA1, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+encGauche.setInvert(true);                // Inverser le sens de rotation du codeur
 Encoder encDroit(PB4, PB5, SINGLE, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
@@ -75,6 +76,14 @@ float Output_PID_vitesse_D = 0; // Valeur sortante du PID vitesse moteur droit, 
 PID PID_vitesse_G(&vitesse_G, &Output_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, Ki_G, Kd_G, DIRECT);
 PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, Ki_D, Kd_D, DIRECT);
 /*************************************/
+
+/********Lmite des PID ******/
+float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
+float VitesseOutMin = 0;
+float coefToPWM = 255 / VitesseOutMax;
+PID_vitesse_D.SetOutputLimits(VitesseOutMin, VitesseOutMax);
+PID_vitesse_G.SetOutputLimits(VitesseOutMin, VitesseOutMax);
+/**************************/
 
 /********************************************/
 /********************************************/
@@ -129,6 +138,9 @@ void Update_IT_callback(void)
 {
 
 #ifdef useSimulation
+  /********************************************/
+  /******Utiliser pour la simulation du moteur*/
+  /********************************************/
   // Utilisation de la simulation SimFirstOrder qui donc simule le comportement du moteur Gauche selon la consigne donnée en gros on voit le comportement du moteur sans PID
   process_sim_motor = simFirstOrder_G.process(cmd_vitesse_G);
   Serial.print("Simu : ");
@@ -140,21 +152,38 @@ void Update_IT_callback(void)
   process_sim_motor_PID = simFirstOrder_G2.process(Output_Sim_PID_vitesse_G); // on applique cette sortie sur la simulation du moteur
   Serial.print("Sim_PID_V_G : ");
   Serial.println(process_sim_motor_PID, 5);
+  /********************************************/
+  /********************************************/
+  /********************************************/
 #else
-  vitesse_G = -(float)(encGauche.getTicks() - last_encGauche) * distance_encoder / dt; // d/dt, problème pour le codeur gauche, il est inversé donc quand le robot avance le codeur gauche décrémente tandis que le droit incrémente
-  vitesse_D = (float)(encDroit.getTicks() - last_encDroit) * distance_encoder / dt;
+  /****Récupération des valeurs des codeurs****/
+  int16_t ticks_G = encGauche.getTicks();
+  int16_t ticks_D = encDroit.getTicks();
+  /********************************************/
 
+  /****Calcul des vitesses des moteurs*******/
+  vitesse_G = (float)(ticks_G - last_encGauche) * distance_encoder / dt;
+  vitesse_D = (float)(ticks_D.getTicks() - last_encDroit) * distance_encoder / dt;
+  /******************************************/
+
+  /****Calcul des PID*******/
   PID_vitesse_G.Compute();
   PID_vitesse_D.Compute();
+  /***********************/
 
-  analogWrite(PB6, Output_PID_vitesse_G); // PWM4/1 pin D10 donc le Timer4
-  analogWrite(PA8, Output_PID_vitesse_D); // PWM1/1 pin D7 donc le Timer1
+  /****Commande des moteurs*******/
+  analogWrite(PB6, Output_PID_vitesse_G * coefToPWM); // On fait un rapport de la sortie du PID par rapport à la vitesse max
+  analogWrite(PA8, Output_PID_vitesse_D * coefToPWM);
+  /*****************************/
 
-  last_encGauche = encGauche.getTicks();
-  last_encDroit = encDroit.getTicks();
+  /****Sauvegarde des positions*****/
+  last_encGauche = ticks_G;
+  last_encDroit = ticks_D;
+  /********************************/
 
 #endif
 }
+
 /*************************************/
 /*************************************/
 /*************************************/
@@ -238,23 +267,18 @@ void setup()
 /*************************************/
 void loop()
 {
-  /*Gestion des encodeurs (Surcharge etc..)*/
-  encGauche.loop();
-  encDroit.loop();
-  /*********************/
-
   unsigned long time = millis(); // Temps écoulé en millisecondes
   if (time >= 10000 && time < 11000)
   {
     // Mettre la commande moteur à 10% de la Vmax après 10 secondes
-    cmd_vitesse_G = 0.4395;
-    cmd_vitesse_D = 0.4395;
+    cmd_vitesse_G = 10.395;
+    cmd_vitesse_D = 10.395;
   }
   else if (time >= 11000 && time < 13000)
   {
     // Mettre la commande moteur à 50% de la Vmax après 11 secondes
-    cmd_vitesse_G = 0.51975;
-    cmd_vitesse_D = 0.51975;
+    cmd_vitesse_G = 519.75;
+    cmd_vitesse_D = 519.75;
   }
   else
   {
@@ -286,11 +310,11 @@ Serial.print("H"); // Consigne de vitesse moteur Droit
 Serial.println(cmd_vitesse_D, 5);
 #endif
 
-// 313 rpm max
-// 63 mm diamètre roue
-// donc vitesse mm/s = 63 * PI * 313 / 60 = 1039.5 mm/s
-// donc vitesse mm/ms = 1039.5 / 1000 = 1.0395 mm/ms
-// donc 50 % vmax = 0.51975 mm/ms
-// donc 10 % vmax = 0.10395 mm/ms
-// 5 % de 255 = 13
-// 50 % de 255 = 128
+// ! ||--------------------------------------------------------------------------------||
+// ! ||                                   INFORMATION                                  ||
+// ! ||--------------------------------------------------------------------------------||
+/*313 rpm max 63 mm diamètre roue
+* donc vitesse mm s = 63 *PI * 313 / 60 = 1039.5 mm/s 
+* donc 50 % vmax = 519.75 mm/s
+*     10 % vmax = 10.395 mm/s
+*     5 % de 255 = 13 et 50 % de 255 = 128
