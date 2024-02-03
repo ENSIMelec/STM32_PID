@@ -80,6 +80,7 @@ PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, K
 /********Coef Vitesse ******/
 float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
 const coefToPWM = 255 / VitesseOutMax;
+const float coefVitesse = distance_encoder * coefToPWM / dt;
 /**************************/
 
 /********************************************/
@@ -159,8 +160,8 @@ void Update_IT_callback(void)
   /********************************************/
 
   /****Calcul des vitesses des moteurs*******/
-  vitesse_G = (float)(ticks_G - last_encGauche) * distance_encoder * coefToPWM / dt;
-  vitesse_D = (float)(ticks_D.getTicks() - last_encDroit) * distance_encoder * coefToPWM / dt;
+  vitesse_G = (float)(ticks_G - last_encGauche) * coefVitesse;
+  vitesse_D = (float)(ticks_D - last_encDroit) * coefVitesse;
   /******************************************/
 
   /****Calcul des PID*******/
