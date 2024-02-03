@@ -238,9 +238,10 @@ void setup()
 /*************************************/
 void loop()
 {
-
+  /*Gestion des encodeurs (Surcharge etc..)*/
   encGauche.loop();
   encDroit.loop();
+  /*********************/
 
   unsigned long time = millis(); // Temps écoulé en millisecondes
   if (time >= 10000 && time < 11000)
