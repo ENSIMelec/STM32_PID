@@ -16,11 +16,15 @@ bool Update_IT = false;
 /******CONSIGNES PID**********/
 float cmd_vitesse_G = 0; // commande vitesse moteur gauche en mm/ms
 float cmd_vitesse_D = 0; // commande vitesse moteur droite en mm/ms
+float cmd_angle = 0;     // commande angle
+float cmd_distance = 0;  // commande distance
 /*****************************/
 
 /******COEFICIENTS PID************/
-float Kp_G = 6.378, Ki_G = 0.06385, Kd_G = 0; // coefficients PID vitesse moteur gauche
-float Kp_D = 5.718, Ki_D = 0.0376, Kd_D = 0;  // coefficients PID vitesse moteur droit
+float Kp_G = 6.378, Ki_G = 0.06385, Kd_G = 0;            // coefficients PID vitesse moteur gauche
+float Kp_D = 5.718, Ki_D = 0.0376, Kd_D = 0;             // coefficients PID vitesse moteur droit
+float Kp_angle = 0, Ki_angle = 0, Kd_angle = 0;          // coefficients PID angle
+float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID distance
 /*********************************/
 
 #ifdef useSimulation
@@ -62,19 +66,25 @@ int32_t last_encGauche = 0;
 int32_t last_encDroit = 0;
 /**********************************/
 
-/******Vitesse mesuré************/
+/******Constante mesuré************/
 float vitesse_G = 0; // vitesse gauche
 float vitesse_D = 0; // vitesse droite
-/*******************************/
+float angle = 0;     // angle
+float distance = 0;  // distance
+/**********************************/
 
 /******Corection PID************/
 float Output_PID_vitesse_G = 0; // Valeur sortante du PID vitesse moteur gauche, une PMW donc
 float Output_PID_vitesse_D = 0; // Valeur sortante du PID vitesse moteur droit, une PMW donc
+float Output_PID_angle = 0;     // Valeur sortante du PID angle
+float Output_PID_distance = 0;  // Valeur sortante du PID distance
 /*******************************/
 
 /******Declaration des PID************/
 PID PID_vitesse_G(&vitesse_G, &Output_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, Ki_G, Kd_G, DIRECT);
 PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, Ki_D, Kd_D, DIRECT);
+PID PID_angle(&angle, &Output_PID_angle, &cmd_angle, dt, Kp_angle, Ki_angle, Kd_angle, DIRECT);
+PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance, Ki_distance, Kd_distance, DIRECT);
 /*************************************/
 
 /********Coef Vitesse ******/
@@ -164,13 +174,28 @@ void Update_IT_callback(void)
   vitesse_D = (float)(ticks_D - last_encDroit) * coefVitesse;
   /******************************************/
 
-  /****Calcul des PID*******/
+  /****Calcul de l'angle et de la distance*******/
+  // angle = (vitesse_D - vitesse_G) * dt;
+  // distance = (vitesse_D + vitesse_G) / 2 * dt;
+  /*********************************************/
+
+  /*****Calul de PID Angle et Vitesse****/
+  // PID_angle.Compute();
+  // PID_distance.Compute();
+  /*************************************/
+
+  /***Ajustement Commandes Vitesse****/
+  // cmd_vitesse_G = Output_PID_angle + Output_PID_distance;
+  // cmd_vitesse_D = -Output_PID_angle + Output_PID_distance;
+  /***********************************/
+
+  /****Calcul des PID Vitesse*******/
   PID_vitesse_G.Compute();
   PID_vitesse_D.Compute();
-  /***********************/
+  /*********************************/
 
   /****Commande des moteurs*******/
-  analogWrite(PB6, Output_PID_vitesse_G); // On fait un rapport de la sortie du PID par rapport à la vitesse max
+  analogWrite(PB6, Output_PID_vitesse_G);
   analogWrite(PA8, Output_PID_vitesse_D);
   /*****************************/
 
