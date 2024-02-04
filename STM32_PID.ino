@@ -165,8 +165,8 @@ void Update_IT_callback(void)
   /********************************************/
 #else
   /****Récupération des valeurs des codeurs****/
-  ticks_G = encGauche.getTicks();
-  ticks_D = encDroit.getTicks();
+  int16_t ticks_G = encGauche.getTicks();
+  int16_t ticks_D = encDroit.getTicks();
   /********************************************/
 
   /****Calcul des vitesses des moteurs*******/
