@@ -53,17 +53,17 @@ PID Sim_PID_vitesse_G(&process_sim_motor_PID, &Output_Sim_PID_vitesse_G, &cmd_vi
 /******Declaration des codeurs************/
 // TODO : faire 1 metre avec le robot a la main pour voir combien de tick on fait les codeurs
 // et les étalonner
-const distance_encoder = 35 * PI / 512; // Constante pour convertir les ticks en mm. On sait que le codeur fait 512 tick pour un tour de roue et que une roue fait 35mm de diamètre
+const float distance_encoder = 35 * PI / 512; // Constante pour convertir les ticks en mm. On sait que le codeur fait 512 tick pour un tour de roue et que une roue fait 35mm de diamètre
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
 Encoder encGauche(PA0, PA1, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
-encGauche.setInvert(true);                // Inverser le sens de rotation du codeur
+//encGauche.setInvert();                // Inverser le sens de rotation du codeur
 Encoder encDroit(PB4, PB5, SINGLE, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
 /*****Sauvegarde des positions*****/
-int32_t last_encGauche = 0;
-int32_t last_encDroit = 0;
+int16_t last_encGauche = 0;
+int16_t last_encDroit = 0;
 /**********************************/
 
 /******Constante mesuré************/
@@ -89,7 +89,7 @@ PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance
 
 /********Coef Vitesse ******/
 float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
-const coefToPWM = 255 / VitesseOutMax;
+const float coefToPWM = 255 / VitesseOutMax;
 const float coefVitesse = distance_encoder * coefToPWM / dt;
 /**************************/
 
@@ -124,7 +124,7 @@ String nonBlockingReadStringUntil(char terminator)
 /*************************************/
 void serialEvent()
 {
-  String input = Serial.nonBlockingReadStringUntil('\n');
+  String input = nonBlockingReadStringUntil('\n');
   switch (input[0])
   {
   case 'C':
@@ -204,6 +204,22 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
 
+  Serial.print("A"); // Valeur du codeur Gauche
+  Serial.println(last_encGauche);
+  Serial.print("B"); // Valeur du codeur Droit
+  Serial.println(last_encDroit);
+  Serial.print("C"); // Vitesse réel moteur Gauche
+  Serial.println(vitesse_G, 5);
+  Serial.print("D"); // Vitesse réel moteur Droit
+  Serial.println(vitesse_D, 5);
+  Serial.print("E"); // Sortie du PID vitesse moteur Gauche
+  Serial.println(Output_PID_vitesse_G, 5);
+  Serial.print("F"); // Sortie du PID vitesse moteur Droit
+  Serial.println(Output_PID_vitesse_D, 5);
+  Serial.print("G"); // Consigne de vitesse moteur Gauche
+  Serial.println(cmd_vitesse_G, 5);
+  Serial.print("H"); // Consigne de vitesse moteur Droit
+  Serial.println(cmd_vitesse_D, 5);
   Update_IT = true;
 
 #endif
@@ -221,7 +237,7 @@ void setup()
   /**********INITIALISATION COMMUNICATION SÉRIE*/
   Serial.begin(115200); // Par défaut utilisation de USART1
   /*********************************************/
-
+  Serial.println("serial ok");
 #ifdef useSimulation
   /****************************/
   /********MODE SIMULATION*****/
@@ -294,22 +310,7 @@ void loop()
 {
   if (Update_IT)
   {
-    Serial.print("A"); // Valeur du codeur Gauche
-    Serial.println(last_encGauche);
-    Serial.print("B"); // Valeur du codeur Droit
-    Serial.println(last_encDroit);
-    Serial.print("C"); // Vitesse réel moteur Gauche
-    Serial.println(vitesse_G, 5);
-    Serial.print("D"); // Vitesse réel moteur Droit
-    Serial.println(vitesse_D, 5);
-    Serial.print("E"); // Sortie du PID vitesse moteur Gauche
-    Serial.println(Output_PID_vitesse_G, 5);
-    Serial.print("F"); // Sortie du PID vitesse moteur Droit
-    Serial.println(Output_PID_vitesse_D, 5);
-    Serial.print("G"); // Consigne de vitesse moteur Gauche
-    Serial.println(cmd_vitesse_G, 5);
-    Serial.print("H"); // Consigne de vitesse moteur Droit
-    Serial.println(cmd_vitesse_D, 5);
+   
     Update_IT = false;
   }
   unsigned long time = millis(); // Temps écoulé en millisecondes

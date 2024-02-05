@@ -70,7 +70,7 @@ void Encoder::setInvert(bool invert)
 int16_t Encoder::getTicks()
 {
 	uint16_t codeur_value = LL_TIM_GetCounter((TIM_TypeDef *)pinmap_peripheral(digitalPinToPinName(_pinA), PinMap_TIM));
-	if (invert)
+	if (_invert)
 		return -static_cast<int16_t>(codeur_value - 32767);
 	return static_cast<int16_t>(codeur_value - 32767);
 }
