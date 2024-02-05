@@ -1,12 +1,13 @@
 #include "Arduino.h"
 #include "FastInterruptEncoder.h"
 
-Encoder::Encoder(int pinA, int pinB, encoder_mode_t mode, uint8_t filter)
+Encoder::Encoder(int pinA, int pinB, TIM_TypeDef *timer, encoder_mode_t mode, uint8_t filter)
 {
 	_pinA = pinA;
 	_pinB = pinB;
 	_mode = mode;
 	_filter = filter;
+	_timer = timer;
 }
 
 bool Encoder::init()
@@ -48,12 +49,12 @@ bool Encoder::init()
 	sEncoderConfig.IC1Prescaler = TIM_ICPSC_DIV1;
 	sEncoderConfig.IC1Filter = _filter;
 
-	sEncoderConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+	sEncoderConfig.IC2Polarity = TIM_ICPOLARITY_FALLING;
 	sEncoderConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
 	sEncoderConfig.IC2Prescaler = TIM_ICPSC_DIV1;
 	sEncoderConfig.IC2Filter = _filter;
 
-	Encoder_Handle.Instance = (TIM_TypeDef *)pinmap_peripheral(digitalPinToPinName(_pinA), PinMap_TIM);
+	Encoder_Handle.Instance = _timer;
 	enableTimerClock(&Encoder_Handle);
 	if (HAL_TIM_Encoder_Init(&Encoder_Handle, &sEncoderConfig) != HAL_OK)
 		return 0;
@@ -69,7 +70,7 @@ void Encoder::setInvert(bool invert)
 
 int16_t Encoder::getTicks()
 {
-	uint16_t codeur_value = LL_TIM_GetCounter((TIM_TypeDef *)pinmap_peripheral(digitalPinToPinName(_pinA), PinMap_TIM));
+	uint16_t codeur_value = LL_TIM_GetCounter(_timer);
 	if (_invert)
 		return -static_cast<int16_t>(codeur_value - 32767);
 	return static_cast<int16_t>(codeur_value - 32767);
