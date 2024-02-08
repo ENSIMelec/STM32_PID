@@ -3,10 +3,12 @@
 #include "FastInterruptEncoder.h" // bibliothèque pour les codeurs incrémentaux
 #include "SimFirstOrder.h"        // bibliothèque pour la simulation du moteur
 
+/******Pin********/
 #define PWM1 = PB6 // PWM4/1 pin D10 donc le Timer4
 #define DIR1 = PC1 // pin A4
 #define PWM2 = PA8 // PWM1/1 pin D7 donc le Timer1
 #define DIR2 = PC0 // pin A5
+/******************/
 
 /******Mode********/
 #define DEBUG // mode debug
