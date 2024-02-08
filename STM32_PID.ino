@@ -5,7 +5,6 @@
 
 /******Mode********/
 #define DEBUG // mode debug
-// #define useSimulation // mode simulation moteur
 /******************/
 
 /******ECHANTILLONAGE********/
@@ -26,29 +25,6 @@ float Kp_D = 2, Ki_D = 0.0376, Kd_D = 0;                 // coefficients PID vit
 float Kp_angle = 0, Ki_angle = 0, Kd_angle = 0;          // coefficients PID angle
 float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID distance
 /*********************************/
-
-#ifdef useSimulation
-/********************************************/
-/******Utiliser pour la simulation du moteur*/
-/********************************************/
-float process_sim_motor = 0;        // variable qui va stocker la valeur de sortie de la simulation du moteur si on lui donne juste la consigne
-float Output_Sim_PID_vitesse_G = 0; // variable qui stocke la sortie du PID simulé pour le moteur Gauche
-float process_sim_motor_PID = 0;    // variable qui va stocker la valeur de sortie de la simulation du moteur part rapport au PID simulé
-
-float K_Motor_G = 1;
-float tau_Motor_G = 1;
-SimFirstOrder simFirstOrder_G(dt, tau_Motor_G, K_Motor_G);  // first order system for motor Gauche
-SimFirstOrder simFirstOrder_G2(dt, tau_Motor_G, K_Motor_G); // first order system simulation of motor Gauche
-
-PID Sim_PID_vitesse_G(&process_sim_motor_PID, &Output_Sim_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, Ki_G, Kd_G, DIRECT);
-/********************************************/
-/********************************************/
-/********************************************/
-
-#else
-/********************************************/
-/******Utiliser en condition réel************/
-/********************************************/
 
 /******Declaration des codeurs************/
 // TODO : faire 1 metre avec le robot a la main pour voir combien de tick on fait les codeurs
@@ -91,11 +67,6 @@ float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
 const float coefToPWM = 255 / VitesseOutMax;
 const float coefVitesse = distance_encoder * coefToPWM / dt;
 /**************************/
-
-/********************************************/
-/********************************************/
-/********************************************/
-#endif
 
 /*************************************/
 /*****FONCTION LECTURE SANS BLOCAGE***/
@@ -143,26 +114,6 @@ void serialEvent()
 /*************************************/
 void Update_IT_callback(void)
 {
-
-#ifdef useSimulation
-  /********************************************/
-  /******Utiliser pour la simulation du moteur*/
-  /********************************************/
-  // Utilisation de la simulation SimFirstOrder qui donc simule le comportement du moteur Gauche selon la consigne donnée en gros on voit le comportement du moteur sans PID
-  process_sim_motor = simFirstOrder_G.process(cmd_vitesse_G);
-  Serial.print("Simu : ");
-  Serial.println(process_sim_motor, 5);
-  // Ici c'est la simulation du comportement de mon PID sur le moteur Gauche
-  Sim_PID_vitesse_G.Compute(); // on calcule la sortie du PID
-  Serial.print("Output_PID_vitesse_G : ");
-  Serial.println(Output_Sim_PID_vitesse_G, 5);
-  process_sim_motor_PID = simFirstOrder_G2.process(Output_Sim_PID_vitesse_G); // on applique cette sortie sur la simulation du moteur
-  Serial.print("Sim_PID_V_G : ");
-  Serial.println(process_sim_motor_PID, 5);
-  /********************************************/
-  /********************************************/
-  /********************************************/
-#else
   /****Récupération des valeurs des codeurs****/
   int16_t ticks_G = (encGauche.getTicks());
   int16_t ticks_D = (encDroit.getTicks());
@@ -203,10 +154,7 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
   Update_IT = true;
-
-#endif
 }
-
 /*************************************/
 /*************************************/
 /*************************************/
@@ -220,14 +168,7 @@ void setup()
   Serial.begin(115200); // Par défaut utilisation de USART1
   /*********************************************/
   Serial.println("Serial OK");
-#ifdef useSimulation
-  /****************************/
-  /********MODE SIMULATION*****/
-  Sim_PID_vitesse_G.SetMode(AUTOMATIC); // Activation du PID
-  /****************************/
-  /****************************/
-#else
-
+  
 #ifdef DEBUG
   /****************************/
   /********MODE DEBUG***********/
