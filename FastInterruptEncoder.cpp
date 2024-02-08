@@ -19,7 +19,7 @@ bool Encoder::init()
 	pin_function(digitalPinToPinName(_pinB), pinmap_function(digitalPinToPinName(_pinB), PinMap_TIM));
 
 	TIM_HandleTypeDef Encoder_Handle;
-	TIM_Encoder_InitTypeDef sEncoderConfig;
+	TIM_Encoder_InitTypeDef sEncoderConfig = {0};
 
 	Encoder_Handle.Init.Period = 65535;
 	if (_mode == SINGLE)

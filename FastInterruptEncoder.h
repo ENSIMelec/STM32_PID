@@ -16,7 +16,7 @@ typedef enum
 class Encoder
 {
 public:
-	Encoder(int pinA, int pinB, TIM_TypeDef* timer, encoder_mode_t mode = SINGLE, uint8_t filter = 0);
+	Encoder(int pinA, int pinB, TIM_TypeDef *timer, encoder_mode_t mode = SINGLE, uint8_t filter = 0);
 	bool init();
 	void loop();
 	int16_t getTicks();
