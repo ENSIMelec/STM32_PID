@@ -91,7 +91,6 @@ PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance
 /********************************************/
 /********************************************/
 /********************************************/
-#endif
 
 /*************************************/
 /*****FONCTION LECTURE SANS BLOCAGE***/
@@ -265,7 +264,6 @@ void setup()
   encDroit.resetTicks();
   encGauche.resetTicks();
   /***********************************/
-#endif
 
   /******Initialisation de l'interruption pour l'échantillonnage************/
   TIM_TypeDef *Instance = TIM6;
