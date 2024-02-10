@@ -94,8 +94,8 @@ PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance
 /********************************************/
 #endif
 =======
-/********Coef Vitesse ******/
-float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
+    /********Coef Vitesse ******/
+    float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
 const float coefToPWM = 255 / VitesseOutMax;
 const float coefVitesse = distance_encoder * coefToPWM / dt;
 /**************************/
@@ -277,23 +277,13 @@ void setup()
   /*********************************/
 
   /******Configuration des moteurs************/
-<<<<<<< HEAD
   digitalWrite(A4, HIGH);
   digitalWrite(A3, HIGH);
-=======
-  // digitalWrite(DIR1, HIGH);
-  // digitalWrite(DIR2, LOW);
->>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   /*******************************************/
   delay(5000);
   /******Activation des PID************/
-<<<<<<< HEAD
   encDroit.resetTicks();
   encGauche.resetTicks();
-=======
-  PID_vitesse_G.SetMode(MANUAL); // turn the PID off
-  PID_vitesse_D.SetMode(MANUAL); // turn the PID off
->>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   /***********************************/
 #endif
 
@@ -349,27 +339,16 @@ void loop()
     PID_vitesse_D.SetMode(AUTOMATIC); // turn the PID on
     cmd_vitesse_G = 100;
     cmd_vitesse_D = 100;
-<<<<<<< HEAD
-=======
-    analogWrite(PWM1, 25);
-    analogWrite(PWM2, 25);
->>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   }
   else if (time >= 5000 && time < 9300)
   {
-<<<<<<< HEAD
     digitalWrite(A3, LOW);
     Dinverse = true;
     cmd_vitesse_D = 40;
     cmd_vitesse_G = 40;
-=======
-    analogWrite(PWM1, 100);
-    analogWrite(PWM2, 100);
->>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   }
   else if (time >= 9300 && time < 14300)
   {
-<<<<<<< HEAD
     digitalWrite(A3, HIGH);
     Dinverse = false;
     // Mettre la commande moteur à 10% de la Vmax après 10 secondes
@@ -388,15 +367,6 @@ void loop()
   else if (time >= 18500)
   {
     timeSetup = millis();
-=======
-    // Mettre la commande moteur à 0% de la Vmax avant 10 secondes
-    // PID_vitesse_G.SetMode(0);
-    // PID_vitesse_D.SetMode(0);
-    analogWrite(PWM1, 0);
-    analogWrite(PWM2, 0);
-    cmd_vitesse_G = 0;
-    cmd_vitesse_D = 0;
->>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   }
 }
 /*************************************/
