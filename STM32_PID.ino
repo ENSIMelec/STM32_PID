@@ -42,8 +42,8 @@ const float coefVitesseD = distance_encoder_droit * coefToPWM / dt;
 /**************************/
 
 /********Coef Angle****/
-const float empattementRoueCodeuse = 239;
-const float coefAngle = 1 / empattementRoueCodeuse;
+const float empattementRoueCodeuse = 240;
+const float coefAngle = 1 / empattementRoueCodeuse / 512;
 /**********************/
 
 /******COEFICIENTS PID************/
@@ -91,7 +91,6 @@ PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance
 /********************************************/
 /********************************************/
 /********************************************/
-#endif
 
 /*************************************/
 /*****FONCTION LECTURE SANS BLOCAGE***/
@@ -161,13 +160,13 @@ void Update_IT_callback(void)
   /*********************************************/
 
   /*****Calul de PID Angle et Vitesse****/
-  // PID_angle.Compute();
-  //  PID_distance.Compute();
+  PID_angle.Compute();
+  PID_distance.Compute();
   /*************************************/
 
   /***Ajustement Commandes Vitesse****/
-  // cmd_vitesse_G = Output_PID_angle + Output_PID_distance;
-  // cmd_vitesse_D = -Output_PID_angle + Output_PID_distance;
+  cmd_vitesse_G = Output_PID_angle; //+ Output_PID_distance;
+  cmd_vitesse_D = Output_PID_angle; //+ Output_PID_distance;
   /***********************************/
 
   /****Calcul des PID Vitesse*******/
@@ -255,17 +254,17 @@ void setup()
   pinMode(PA8, OUTPUT); // PWM1/1 pin D7 donc le Timer1
   // encGauche.setInvert(); // Inverser le sens de rotation du codeur
   /*********************************/
-
+  PID_angle.SetOutputLimits(0, 300);
   /******Configuration des moteurs************/
   digitalWrite(A4, HIGH);
-  digitalWrite(A3, HIGH);
+  digitalWrite(A3, LOW);
+  Dinverse = true;
   /*******************************************/
   delay(5000);
   /******Activation des PID************/
   encDroit.resetTicks();
   encGauche.resetTicks();
   /***********************************/
-#endif
 
   /******Initialisation de l'interruption pour l'échantillonnage************/
   TIM_TypeDef *Instance = TIM6;
@@ -303,51 +302,12 @@ void loop()
     Serial.println(cmd_vitesse_G, 5);
     Serial.print("H"); // Consigne de vitesse moteur Droit
     Serial.println(cmd_vitesse_D, 5);
-    // Serial.print("I"); // Consigne de vitesse moteur Droit
-    // Serial.println(angle);
+    Serial.print("I"); // angle mesurer
+    Serial.println(angle);
 
     Update_IT = false;
   }
-  unsigned long time = millis() - timeSetup; // Temps écoulé en millisecondes
-
-  if (time >= 0 && time < 5000)
-  {
-    digitalWrite(A4, HIGH);
-    Ginverse = false;
-    // Mettre la commande moteur à 10% de la Vmax après 10 secondes
-    PID_vitesse_G.SetMode(AUTOMATIC); // turn the PID on
-    PID_vitesse_D.SetMode(AUTOMATIC); // turn the PID on
-    cmd_vitesse_G = 100;
-    cmd_vitesse_D = 100;
-  }
-  else if (time >= 5000 && time < 9300)
-  {
-    digitalWrite(A3, LOW);
-    Dinverse = true;
-    cmd_vitesse_D = 40;
-    cmd_vitesse_G = 40;
-  }
-  else if (time >= 9300 && time < 14300)
-  {
-    digitalWrite(A3, HIGH);
-    Dinverse = false;
-    // Mettre la commande moteur à 10% de la Vmax après 10 secondes
-    PID_vitesse_G.SetMode(AUTOMATIC); // turn the PID on
-    PID_vitesse_D.SetMode(AUTOMATIC); // turn the PID on
-    cmd_vitesse_G = 100;
-    cmd_vitesse_D = 100;
-  }
-  else if (time >= 14300 && time < 18300)
-  {
-    digitalWrite(A4, LOW);
-    Ginverse = true;
-    cmd_vitesse_D = 40;
-    cmd_vitesse_G = 40;
-  }
-  else if (time >= 18500)
-  {
-    timeSetup = millis();
-  }
+  cmd_angle = 6.2;
 }
 /*************************************/
 /*************************************/
