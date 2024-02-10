@@ -88,18 +88,10 @@ PID PID_angle(&angle, &Output_PID_angle, &cmd_angle, dt, Kp_angle, Ki_angle, Kd_
 PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance, Ki_distance, Kd_distance, DIRECT);
 /*************************************/
 
-<<<<<<< HEAD
 /********************************************/
 /********************************************/
 /********************************************/
 #endif
-=======
-    /********Coef Vitesse ******/
-    float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
-const float coefToPWM = 255 / VitesseOutMax;
-const float coefVitesse = distance_encoder * coefToPWM / dt;
-/**************************/
->>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
 
 /*************************************/
 /*****FONCTION LECTURE SANS BLOCAGE***/
@@ -184,13 +176,8 @@ void Update_IT_callback(void)
   /*********************************/
 
   /****Commande des moteurs*******/
-<<<<<<< HEAD
   analogWrite(PB6, Output_PID_vitesse_G);
   analogWrite(PA8, Output_PID_vitesse_D);
-=======
-  // analogWrite(PWM1, Output_PID_vitesse_G);
-  // analogWrite(PWM2, Output_PID_vitesse_D);
->>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   /*****************************/
 
   /****Sauvegarde des positions*****/
@@ -262,17 +249,10 @@ void setup()
 #endif
 
   /******Initialisation des PINs****/
-<<<<<<< HEAD
   pinMode(A4, OUTPUT);  // PA_3 = pin D0
   pinMode(A3, OUTPUT);  // PA_2 = pin D1
   pinMode(PB6, OUTPUT); // PWM4/1 pin D10 donc le Timer4
   pinMode(PA8, OUTPUT); // PWM1/1 pin D7 donc le Timer1
-=======
-  // pinMode(DIR1, OUTPUT);
-  // pinMode(DIR2, OUTPUT);
-  pinMode(PWM1, OUTPUT);
-  pinMode(PWM2, OUTPUT);
->>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   // encGauche.setInvert(); // Inverser le sens de rotation du codeur
   /*********************************/
 
