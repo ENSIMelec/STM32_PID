@@ -76,6 +76,11 @@ int16_t Encoder::getTicks()
 	return static_cast<int16_t>(codeur_value - 32767);
 }
 
+void Encoder::resetTicks()
+{
+	LL_TIM_SetCounter(_timer, 32767);
+}
+
 /******* FONCTION DE BASE
 
 void Encoder::loop()
@@ -101,10 +106,7 @@ void Encoder::loop()
 	}
 }
 
-void Encoder::resetTicks()
-{
-	_ticks = 0;
-}
+
 
 
 

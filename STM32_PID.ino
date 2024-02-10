@@ -7,10 +7,13 @@
 #define DEBUG // mode debug
 // #define useSimulation // mode simulation moteur
 /******************/
+unsigned long timeSetup;
 
 /******ECHANTILLONAGE********/
 float dt = 10e-3; // 10ms
 bool Update_IT = false;
+bool Dinverse = false;
+bool Ginverse = false;
 /****************************/
 
 /******CONSIGNES PID**********/
@@ -20,9 +23,26 @@ float cmd_angle = 0;     // commande angle
 float cmd_distance = 0;  // commande distance
 /*****************************/
 
+/***********Etalonnage Encodeur 1m******/
+const float distance_encoder_gauche = PI * 35 / 512; // 1000/4991;
+const float distance_encoder_droit = PI * 35 / 512;  // 1000/4715;
+/**************************************/
+
+/********Coef Vitesse ******/
+float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
+const float coefToPWM = 255 / VitesseOutMax;
+const float coefVitesseG = distance_encoder_gauche * coefToPWM / dt;
+const float coefVitesseD = distance_encoder_droit * coefToPWM / dt;
+/**************************/
+
+/********Coef Angle****/
+const float empattementRoueCodeuse = 239;
+const float coefAngle = 1 / empattementRoueCodeuse;
+/**********************/
+
 /******COEFICIENTS PID************/
-float Kp_G = 1.65, Ki_G = 0.0376, Kd_G = 0;              // coefficients PID vitesse moteur gauche
-float Kp_D = 2, Ki_D = 0.0376, Kd_D = 0;                 // coefficients PID vitesse moteur droit
+float Kp_G = 1, Ki_G = 0, Kd_G = 0;                      // coefficients PID vitesse moteur gauche
+float Kp_D = 1.1, Ki_D = 0, Kd_D = 0;                    // coefficients PID vitesse moteur droit
 float Kp_angle = 0, Ki_angle = 0, Kd_angle = 0;          // coefficients PID angle
 float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID distance
 /*********************************/
@@ -53,11 +73,10 @@ PID Sim_PID_vitesse_G(&process_sim_motor_PID, &Output_Sim_PID_vitesse_G, &cmd_vi
 /******Declaration des codeurs************/
 // TODO : faire 1 metre avec le robot a la main pour voir combien de tick on fait les codeurs
 // et les étalonner
-const float distance_encoder = 35 * PI / 512; // Constante pour convertir les ticks en mm. On sait que le codeur fait 512 tick pour un tour de roue et que une roue fait 35mm de diamètre
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
-Encoder encGauche(PA0, PA1, TIM2, SINGLE, 0); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
-Encoder encDroit(PB5, PB4, TIM3, SINGLE, 0);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
+Encoder encGauche(PA0, PA1, TIM2, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+Encoder encDroit(PB5, PB4, TIM3, SINGLE, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
 /*****Sauvegarde des positions*****/
@@ -85,12 +104,6 @@ PID PID_vitesse_D(&vitesse_D, &Output_PID_vitesse_D, &cmd_vitesse_D, dt, Kp_D, K
 PID PID_angle(&angle, &Output_PID_angle, &cmd_angle, dt, Kp_angle, Ki_angle, Kd_angle, DIRECT);
 PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance, Ki_distance, Kd_distance, DIRECT);
 /*************************************/
-
-/********Coef Vitesse ******/
-float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
-const float coefToPWM = 255 / VitesseOutMax;
-const float coefVitesse = distance_encoder * coefToPWM / dt;
-/**************************/
 
 /********************************************/
 /********************************************/
@@ -169,18 +182,24 @@ void Update_IT_callback(void)
   /********************************************/
 
   /****Calcul des vitesses des moteurs*******/
-  vitesse_G = (float)(ticks_G - last_encGauche) * coefVitesse;
-  vitesse_D = (float)(ticks_D - last_encDroit) * coefVitesse;
+  if (Dinverse)
+    vitesse_D = -(float)(ticks_D - last_encDroit) * coefVitesseD;
+  else
+    vitesse_D = (float)(ticks_D - last_encDroit) * coefVitesseD;
+  if (Ginverse)
+    vitesse_G = -(float)(ticks_G - last_encGauche) * coefVitesseG;
+  else
+    vitesse_G = (float)(ticks_G - last_encGauche) * coefVitesseG;
   /******************************************/
 
   /****Calcul de l'angle et de la distance*******/
-  // angle = (vitesse_D - vitesse_G) * dt;
+  angle += (ticks_G - ticks_D) * coefAngle;
   // distance = (vitesse_D + vitesse_G) / 2 * dt;
   /*********************************************/
 
   /*****Calul de PID Angle et Vitesse****/
   // PID_angle.Compute();
-  // PID_distance.Compute();
+  //  PID_distance.Compute();
   /*************************************/
 
   /***Ajustement Commandes Vitesse****/
@@ -189,13 +208,13 @@ void Update_IT_callback(void)
   /***********************************/
 
   /****Calcul des PID Vitesse*******/
-  // PID_vitesse_G.Compute();
-  // PID_vitesse_D.Compute();
+  PID_vitesse_G.Compute();
+  PID_vitesse_D.Compute();
   /*********************************/
 
   /****Commande des moteurs*******/
-  // analogWrite(PB6, Output_PID_vitesse_G);
-  // analogWrite(PA8, Output_PID_vitesse_D);
+  analogWrite(PB6, Output_PID_vitesse_G);
+  analogWrite(PA8, Output_PID_vitesse_D);
   /*****************************/
 
   /****Sauvegarde des positions*****/
@@ -244,11 +263,11 @@ void setup()
 
   /*******Correction de la direction*******/
   Serial.println("Etalonnage ecodeur");
-  while (encGauche.getTicks() > -512 && encGauche.getTicks() < 512 || encDroit.getTicks() > -512 && encDroit.getTicks() < 512 )
+  while (encGauche.getTicks() > -255 && encGauche.getTicks() < 255 || encDroit.getTicks() > -255 && encDroit.getTicks() < 255)
     ;
-  if (encGauche.getTicks() <= -512)
+  if (encGauche.getTicks() < 0)
     encGauche.setInvert(true);
-  if (encDroit.getTicks() <= -512)
+  if (encDroit.getTicks() < 0)
     encDroit.setInvert(true);
   pinMode(LED_BUILTIN, OUTPUT);    // Configure la broche de la LED comme sortie
   digitalWrite(LED_BUILTIN, HIGH); // Allume la LED
@@ -277,20 +296,21 @@ void setup()
 #endif
 
   /******Initialisation des PINs****/
-  // pinMode(A4, OUTPUT);   // PA_3 = pin D0
-  // pinMode(A5, OUTPUT);   // PA_2 = pin D1
+  pinMode(A4, OUTPUT);  // PA_3 = pin D0
+  pinMode(A3, OUTPUT);  // PA_2 = pin D1
   pinMode(PB6, OUTPUT); // PWM4/1 pin D10 donc le Timer4
   pinMode(PA8, OUTPUT); // PWM1/1 pin D7 donc le Timer1
   // encGauche.setInvert(); // Inverser le sens de rotation du codeur
   /*********************************/
 
   /******Configuration des moteurs************/
-  // digitalWrite(A4, HIGH); // PA_3 = pin D0 TODO : fix le pourquoi du comment ca ne marche pas
-  // digitalWrite(A5, LOW); // PA_2 = pin D1
+  digitalWrite(A4, HIGH);
+  digitalWrite(A3, HIGH);
   /*******************************************/
+  delay(5000);
   /******Activation des PID************/
-  PID_vitesse_G.SetMode(MANUAL); // turn the PID on
-  PID_vitesse_D.SetMode(MANUAL); // turn the PID on
+  encDroit.resetTicks();
+  encGauche.resetTicks();
   /***********************************/
 #endif
 
@@ -301,6 +321,7 @@ void setup()
   MyTim->attachInterrupt(Update_IT_callback);
   MyTim->resume();
   /**************************************************************************/
+  timeSetup = millis();
 }
 /*************************************/
 /*************************************/
@@ -329,33 +350,50 @@ void loop()
     Serial.println(cmd_vitesse_G, 5);
     Serial.print("H"); // Consigne de vitesse moteur Droit
     Serial.println(cmd_vitesse_D, 5);
+    // Serial.print("I"); // Consigne de vitesse moteur Droit
+    // Serial.println(angle);
 
     Update_IT = false;
   }
-  unsigned long time = millis(); // Temps écoulé en millisecondes
+  unsigned long time = millis() - timeSetup; // Temps écoulé en millisecondes
 
-  if (time >= 10000 && time < 11000)
+  if (time >= 0 && time < 5000)
   {
+    digitalWrite(A4, HIGH);
+    Ginverse = false;
     // Mettre la commande moteur à 10% de la Vmax après 10 secondes
+    PID_vitesse_G.SetMode(AUTOMATIC); // turn the PID on
+    PID_vitesse_D.SetMode(AUTOMATIC); // turn the PID on
     cmd_vitesse_G = 100;
     cmd_vitesse_D = 100;
-    analogWrite(PB6, 25);
-    analogWrite(PA8, 25);
   }
-  else if (time >= 11000 && time <= 13000)
+  else if (time >= 5000 && time < 9000)
   {
-    analogWrite(PB6, 100);
-    analogWrite(PA8, 100);
+    digitalWrite(A3, LOW);
+    Dinverse = true;
+    cmd_vitesse_D = 40;
+    cmd_vitesse_G = 40;
   }
-  else if (time > 13000)
+  else if (time >= 9000 && time < 14000)
   {
-    // Mettre la commande moteur à 0% de la Vmax avant 10 secondes
-    // PID_vitesse_G.SetMode(0);
-    // PID_vitesse_D.SetMode(0);
-    analogWrite(PB6, 0);
-    analogWrite(PA8, 0);
-    cmd_vitesse_G = 0;
-    cmd_vitesse_D = 0;
+    digitalWrite(A3, HIGH);
+    Dinverse = false;
+    // Mettre la commande moteur à 10% de la Vmax après 10 secondes
+    PID_vitesse_G.SetMode(AUTOMATIC); // turn the PID on
+    PID_vitesse_D.SetMode(AUTOMATIC); // turn the PID on
+    cmd_vitesse_G = 100;
+    cmd_vitesse_D = 100;
+  }
+  else if (time >= 14000 && time < 18000)
+  {
+    digitalWrite(A4, LOW);
+    Ginverse = true;
+    cmd_vitesse_D = 40;
+    cmd_vitesse_G = 40;
+  }
+  else if (time >= 18000)
+  {
+    timeSetup = millis();
   }
 }
 /*************************************/
