@@ -367,14 +367,14 @@ void loop()
     cmd_vitesse_G = 100;
     cmd_vitesse_D = 100;
   }
-  else if (time >= 5000 && time < 9000)
+  else if (time >= 5000 && time < 9300)
   {
     digitalWrite(A3, LOW);
     Dinverse = true;
     cmd_vitesse_D = 40;
     cmd_vitesse_G = 40;
   }
-  else if (time >= 9000 && time < 14000)
+  else if (time >= 9300 && time < 14300)
   {
     digitalWrite(A3, HIGH);
     Dinverse = false;
@@ -384,14 +384,14 @@ void loop()
     cmd_vitesse_G = 100;
     cmd_vitesse_D = 100;
   }
-  else if (time >= 14000 && time < 18000)
+  else if (time >= 14300 && time < 18300)
   {
     digitalWrite(A4, LOW);
     Ginverse = true;
     cmd_vitesse_D = 40;
     cmd_vitesse_G = 40;
   }
-  else if (time >= 18000)
+  else if (time >= 18500)
   {
     timeSetup = millis();
   }
