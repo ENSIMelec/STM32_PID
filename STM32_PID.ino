@@ -3,9 +3,15 @@
 #include "FastInterruptEncoder.h" // bibliothèque pour les codeurs incrémentaux
 #include "SimFirstOrder.h"        // bibliothèque pour la simulation du moteur
 
+/******Pin********/
+#define PWM1 = PB6 // PWM4/1 pin D10 donc le Timer4
+#define DIR1 = PC1 // pin A4
+#define PWM2 = PA8 // PWM1/1 pin D7 donc le Timer1
+#define DIR2 = PC0 // pin A5
+/******************/
+
 /******Mode********/
 #define DEBUG // mode debug
-// #define useSimulation // mode simulation moteur
 /******************/
 unsigned long timeSetup;
 
@@ -47,29 +53,6 @@ float Kp_angle = 0, Ki_angle = 0, Kd_angle = 0;          // coefficients PID ang
 float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID distance
 /*********************************/
 
-#ifdef useSimulation
-/********************************************/
-/******Utiliser pour la simulation du moteur*/
-/********************************************/
-float process_sim_motor = 0;        // variable qui va stocker la valeur de sortie de la simulation du moteur si on lui donne juste la consigne
-float Output_Sim_PID_vitesse_G = 0; // variable qui stocke la sortie du PID simulé pour le moteur Gauche
-float process_sim_motor_PID = 0;    // variable qui va stocker la valeur de sortie de la simulation du moteur part rapport au PID simulé
-
-float K_Motor_G = 1;
-float tau_Motor_G = 1;
-SimFirstOrder simFirstOrder_G(dt, tau_Motor_G, K_Motor_G);  // first order system for motor Gauche
-SimFirstOrder simFirstOrder_G2(dt, tau_Motor_G, K_Motor_G); // first order system simulation of motor Gauche
-
-PID Sim_PID_vitesse_G(&process_sim_motor_PID, &Output_Sim_PID_vitesse_G, &cmd_vitesse_G, dt, Kp_G, Ki_G, Kd_G, DIRECT);
-/********************************************/
-/********************************************/
-/********************************************/
-
-#else
-/********************************************/
-/******Utiliser en condition réel************/
-/********************************************/
-
 /******Declaration des codeurs************/
 // TODO : faire 1 metre avec le robot a la main pour voir combien de tick on fait les codeurs
 // et les étalonner
@@ -105,10 +88,18 @@ PID PID_angle(&angle, &Output_PID_angle, &cmd_angle, dt, Kp_angle, Ki_angle, Kd_
 PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance, Ki_distance, Kd_distance, DIRECT);
 /*************************************/
 
+<<<<<<< HEAD
 /********************************************/
 /********************************************/
 /********************************************/
 #endif
+=======
+/********Coef Vitesse ******/
+float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
+const float coefToPWM = 255 / VitesseOutMax;
+const float coefVitesse = distance_encoder * coefToPWM / dt;
+/**************************/
+>>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
 
 /*************************************/
 /*****FONCTION LECTURE SANS BLOCAGE***/
@@ -156,26 +147,6 @@ void serialEvent()
 /*************************************/
 void Update_IT_callback(void)
 {
-
-#ifdef useSimulation
-  /********************************************/
-  /******Utiliser pour la simulation du moteur*/
-  /********************************************/
-  // Utilisation de la simulation SimFirstOrder qui donc simule le comportement du moteur Gauche selon la consigne donnée en gros on voit le comportement du moteur sans PID
-  process_sim_motor = simFirstOrder_G.process(cmd_vitesse_G);
-  Serial.print("Simu : ");
-  Serial.println(process_sim_motor, 5);
-  // Ici c'est la simulation du comportement de mon PID sur le moteur Gauche
-  Sim_PID_vitesse_G.Compute(); // on calcule la sortie du PID
-  Serial.print("Output_PID_vitesse_G : ");
-  Serial.println(Output_Sim_PID_vitesse_G, 5);
-  process_sim_motor_PID = simFirstOrder_G2.process(Output_Sim_PID_vitesse_G); // on applique cette sortie sur la simulation du moteur
-  Serial.print("Sim_PID_V_G : ");
-  Serial.println(process_sim_motor_PID, 5);
-  /********************************************/
-  /********************************************/
-  /********************************************/
-#else
   /****Récupération des valeurs des codeurs****/
   int16_t ticks_G = (encGauche.getTicks());
   int16_t ticks_D = (encDroit.getTicks());
@@ -213,8 +184,13 @@ void Update_IT_callback(void)
   /*********************************/
 
   /****Commande des moteurs*******/
+<<<<<<< HEAD
   analogWrite(PB6, Output_PID_vitesse_G);
   analogWrite(PA8, Output_PID_vitesse_D);
+=======
+  // analogWrite(PWM1, Output_PID_vitesse_G);
+  // analogWrite(PWM2, Output_PID_vitesse_D);
+>>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   /*****************************/
 
   /****Sauvegarde des positions*****/
@@ -222,10 +198,7 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
   Update_IT = true;
-
-#endif
 }
-
 /*************************************/
 /*************************************/
 /*************************************/
@@ -239,13 +212,6 @@ void setup()
   Serial.begin(115200); // Par défaut utilisation de USART1
   /*********************************************/
   Serial.println("Serial OK");
-#ifdef useSimulation
-  /****************************/
-  /********MODE SIMULATION*****/
-  Sim_PID_vitesse_G.SetMode(AUTOMATIC); // Activation du PID
-  /****************************/
-  /****************************/
-#else
 
 #ifdef DEBUG
   /****************************/
@@ -296,21 +262,38 @@ void setup()
 #endif
 
   /******Initialisation des PINs****/
+<<<<<<< HEAD
   pinMode(A4, OUTPUT);  // PA_3 = pin D0
   pinMode(A3, OUTPUT);  // PA_2 = pin D1
   pinMode(PB6, OUTPUT); // PWM4/1 pin D10 donc le Timer4
   pinMode(PA8, OUTPUT); // PWM1/1 pin D7 donc le Timer1
+=======
+  // pinMode(DIR1, OUTPUT);
+  // pinMode(DIR2, OUTPUT);
+  pinMode(PWM1, OUTPUT);
+  pinMode(PWM2, OUTPUT);
+>>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   // encGauche.setInvert(); // Inverser le sens de rotation du codeur
   /*********************************/
 
   /******Configuration des moteurs************/
+<<<<<<< HEAD
   digitalWrite(A4, HIGH);
   digitalWrite(A3, HIGH);
+=======
+  // digitalWrite(DIR1, HIGH);
+  // digitalWrite(DIR2, LOW);
+>>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   /*******************************************/
   delay(5000);
   /******Activation des PID************/
+<<<<<<< HEAD
   encDroit.resetTicks();
   encGauche.resetTicks();
+=======
+  PID_vitesse_G.SetMode(MANUAL); // turn the PID off
+  PID_vitesse_D.SetMode(MANUAL); // turn the PID off
+>>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   /***********************************/
 #endif
 
@@ -366,16 +349,27 @@ void loop()
     PID_vitesse_D.SetMode(AUTOMATIC); // turn the PID on
     cmd_vitesse_G = 100;
     cmd_vitesse_D = 100;
+<<<<<<< HEAD
+=======
+    analogWrite(PWM1, 25);
+    analogWrite(PWM2, 25);
+>>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   }
   else if (time >= 5000 && time < 9300)
   {
+<<<<<<< HEAD
     digitalWrite(A3, LOW);
     Dinverse = true;
     cmd_vitesse_D = 40;
     cmd_vitesse_G = 40;
+=======
+    analogWrite(PWM1, 100);
+    analogWrite(PWM2, 100);
+>>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   }
   else if (time >= 9300 && time < 14300)
   {
+<<<<<<< HEAD
     digitalWrite(A3, HIGH);
     Dinverse = false;
     // Mettre la commande moteur à 10% de la Vmax après 10 secondes
@@ -394,6 +388,15 @@ void loop()
   else if (time >= 18500)
   {
     timeSetup = millis();
+=======
+    // Mettre la commande moteur à 0% de la Vmax avant 10 secondes
+    // PID_vitesse_G.SetMode(0);
+    // PID_vitesse_D.SetMode(0);
+    analogWrite(PWM1, 0);
+    analogWrite(PWM2, 0);
+    cmd_vitesse_G = 0;
+    cmd_vitesse_D = 0;
+>>>>>>> c66885cd49ebd2ee9d5cc5a4cef97b14a5ddbc66
   }
 }
 /*************************************/
