@@ -43,13 +43,13 @@ const float coefVitesseD = distance_encoder_droit * coefToPWM / dt;
 
 /********Coef Angle****/
 const float empattementRoueCodeuse = 240;
-const float coefAngle = 1 / empattementRoueCodeuse / 512;
+const float coefAngle = dt/empattementRoueCodeuse;
 /**********************/
 
 /******COEFICIENTS PID************/
 float Kp_G = 1, Ki_G = 0, Kd_G = 0;                      // coefficients PID vitesse moteur gauche
 float Kp_D = 1.1, Ki_D = 0, Kd_D = 0;                    // coefficients PID vitesse moteur droit
-float Kp_angle = 0, Ki_angle = 0, Kd_angle = 0;          // coefficients PID angle
+float Kp_angle = 1, Ki_angle = 0, Kd_angle = 0;          // coefficients PID angle
 float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID distance
 /*********************************/
 
@@ -155,7 +155,7 @@ void Update_IT_callback(void)
   /******************************************/
 
   /****Calcul de l'angle et de la distance*******/
-  angle += (ticks_G - ticks_D) * coefAngle;
+  angle += (vitesse_G + vitesse_D) * coefAngle;
   // distance = (vitesse_D + vitesse_G) / 2 * dt;
   /*********************************************/
 
@@ -198,6 +198,7 @@ void setup()
   Serial.begin(115200); // Par défaut utilisation de USART1
   /*********************************************/
   Serial.println("Serial OK");
+  PID_angle.SetOutputLimits(0, 100);
 
 #ifdef DEBUG
   /****************************/
@@ -254,11 +255,12 @@ void setup()
   pinMode(PA8, OUTPUT); // PWM1/1 pin D7 donc le Timer1
   // encGauche.setInvert(); // Inverser le sens de rotation du codeur
   /*********************************/
-  PID_angle.SetOutputLimits(0, 300);
+
+  
   /******Configuration des moteurs************/
   digitalWrite(A4, HIGH);
   digitalWrite(A3, LOW);
-  Dinverse = true;
+  //Dinverse = true;
   /*******************************************/
   delay(5000);
   /******Activation des PID************/
@@ -304,10 +306,15 @@ void loop()
     Serial.println(cmd_vitesse_D, 5);
     Serial.print("I"); // angle mesurer
     Serial.println(angle);
+    Serial.print("Output Angle");
+    Serial.println(Output_PID_angle);
 
     Update_IT = false;
   }
-  cmd_angle = 6.2;
+  PID_angle.SetMode(AUTOMATIC);
+  //PID_vitesse_D.SetMode(AUTOMATIC);
+  //PID_vitesse_G.SetMode(AUTOMATIC);
+  //cmd_angle = 6.3;
 }
 /*************************************/
 /*************************************/
