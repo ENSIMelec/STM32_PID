@@ -43,7 +43,7 @@ const float coefVitesseD = distance_encoder_droit * coefToPWM / dt;
 
 /********Coef Angle****/
 const float empattementRoueCodeuse = 240;
-const float coefAngle = dt/empattementRoueCodeuse;
+const float coefAngle = dt / empattementRoueCodeuse;
 /**********************/
 
 /******COEFICIENTS PID************/
@@ -58,8 +58,8 @@ float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID dis
 // et les étalonner
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
-Encoder encGauche(PA0, PA1, TIM2, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
-Encoder encDroit(PB5, PB4, TIM3, SINGLE, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
+Encoder encGauche(PA0, PA1, TIM2, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+Encoder encDroit(PB5, PB4, TIM3, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
 /*****Sauvegarde des positions*****/
@@ -214,18 +214,6 @@ void setup()
       ;
   }
 
-  /*******Correction de la direction*******/
-  Serial.println("Etalonnage ecodeur");
-  while (encGauche.getTicks() > -255 && encGauche.getTicks() < 255 || encDroit.getTicks() > -255 && encDroit.getTicks() < 255)
-    ;
-  if (encGauche.getTicks() < 0)
-    encGauche.setInvert(true);
-  if (encDroit.getTicks() < 0)
-    encDroit.setInvert(true);
-  pinMode(LED_BUILTIN, OUTPUT);    // Configure la broche de la LED comme sortie
-  digitalWrite(LED_BUILTIN, HIGH); // Allume la LED
-  /***************************************/
-
   /****************************/
   /****************************/
 #else
@@ -256,11 +244,10 @@ void setup()
   // encGauche.setInvert(); // Inverser le sens de rotation du codeur
   /*********************************/
 
-  
   /******Configuration des moteurs************/
   digitalWrite(A4, HIGH);
   digitalWrite(A3, LOW);
-  //Dinverse = true;
+  // Dinverse = true;
   /*******************************************/
   delay(5000);
   /******Activation des PID************/
@@ -312,9 +299,9 @@ void loop()
     Update_IT = false;
   }
   PID_angle.SetMode(AUTOMATIC);
-  //PID_vitesse_D.SetMode(AUTOMATIC);
-  //PID_vitesse_G.SetMode(AUTOMATIC);
-  //cmd_angle = 6.3;
+  // PID_vitesse_D.SetMode(AUTOMATIC);
+  // PID_vitesse_G.SetMode(AUTOMATIC);
+  // cmd_angle = 6.3;
 }
 /*************************************/
 /*************************************/
