@@ -4,10 +4,10 @@
 #include "SimFirstOrder.h"        // bibliothèque pour la simulation du moteur
 
 /******Pin********/
-#define PWM1 = PB6 // PWM4/1 pin D10 donc le Timer4
-#define DIR1 = PC1 // pin A4
-#define PWM2 = PA8 // PWM1/1 pin D7 donc le Timer1
-#define DIR2 = PC0 // pin A5
+#define PWM1 PB6 // PWM4/1 pin D10 donc le Timer4
+#define DIR1 PC1 // pin A4
+#define PWM2 PA8 // PWM1/1 pin D7 donc le Timer1
+#define DIR2 PC0 // pin A5
 /******************/
 
 /******Mode********/
@@ -23,15 +23,15 @@ bool Ginverse = false;
 /****************************/
 
 /******CONSIGNES PID**********/
-float cmd_vitesse_G = 0; // commande vitesse moteur gauche en mm/ms
-float cmd_vitesse_D = 0; // commande vitesse moteur droite en mm/ms
-float cmd_angle = 0;     // commande angle
-float cmd_distance = 0;  // commande distance
+float cmd_vitesse_G = 75; // commande vitesse moteur gauche en mm/ms
+float cmd_vitesse_D = 75; // commande vitesse moteur droite en mm/ms
+float cmd_angle = 0;      // commande angle
+float cmd_distance = 0;   // commande distance
 /*****************************/
 
 /***********Etalonnage Encodeur 1m******/
-const float distance_encoder_gauche = PI * 35 / 512; // 1000/4991;
-const float distance_encoder_droit = PI * 35 / 512;  // 1000/4715;
+const float distance_encoder_gauche = PI * 35 / 256; // 1000/4991;
+const float distance_encoder_droit = PI * 35 / 256;  // 1000/4715;
 /**************************************/
 
 /********Coef Vitesse ******/
@@ -122,6 +122,7 @@ void serialEvent()
   switch (input[0])
   {
   case 'C':
+    Serial.println("Event");
     sscanf(input.c_str(), "C%f:%f", &cmd_vitesse_G, &cmd_vitesse_D);
     break;
   default:
@@ -175,8 +176,8 @@ void Update_IT_callback(void)
   /*********************************/
 
   /****Commande des moteurs*******/
-  analogWrite(PB6, Output_PID_vitesse_G);
-  analogWrite(PA8, Output_PID_vitesse_D);
+  analogWrite(PWM1, Output_PID_vitesse_G);
+  analogWrite(PWM2, Output_PID_vitesse_D);
   /*****************************/
 
   /****Sauvegarde des positions*****/
@@ -224,32 +225,24 @@ void setup()
     while (1)
       ; // encoder initialization failed
   }
-  // Serial.println("Etalonnage ecodeur");
-  // while (encDroit.getTicks() > -200 && encDroit.getTicks() < 200)
-  //   ;
-  // if (encDroit.getTicks() < -200)
-  //   encDroit.setInvert(true);
-  // pinMode(LED_BUILTIN, OUTPUT);    // Configure la broche de la LED comme sortie
-  // digitalWrite(LED_BUILTIN, HIGH); // Allume la LED
 
   /****************************/
   /****************************/
 #endif
 
   /******Initialisation des PINs****/
-  pinMode(A4, OUTPUT);  // PA_3 = pin D0
-  pinMode(A3, OUTPUT);  // PA_2 = pin D1
-  pinMode(PB6, OUTPUT); // PWM4/1 pin D10 donc le Timer4
-  pinMode(PA8, OUTPUT); // PWM1/1 pin D7 donc le Timer1
-  // encGauche.setInvert(); // Inverser le sens de rotation du codeur
+  pinMode(DIR1, OUTPUT); // PA_3 = pin D0
+  pinMode(DIR2, OUTPUT); // PA_2 = pin D1
+  pinMode(PWM1, OUTPUT); // PWM4/1 pin D10 donc le Timer4
+  pinMode(PWM2, OUTPUT); // PWM1/1 pin D7 donc le Timer1
   /*********************************/
 
   /******Configuration des moteurs************/
-  digitalWrite(A4, HIGH);
-  digitalWrite(A3, LOW);
-  // Dinverse = true;
+  digitalWrite(DIR1, HIGH);
+  digitalWrite(DIR2, LOW);
   /*******************************************/
   delay(5000);
+
   /******Activation des PID************/
   encDroit.resetTicks();
   encGauche.resetTicks();
@@ -299,8 +292,8 @@ void loop()
     Update_IT = false;
   }
   PID_angle.SetMode(AUTOMATIC);
-  // PID_vitesse_D.SetMode(AUTOMATIC);
-  // PID_vitesse_G.SetMode(AUTOMATIC);
+  PID_vitesse_D.SetMode(AUTOMATIC);
+  PID_vitesse_G.SetMode(AUTOMATIC);
   // cmd_angle = 6.3;
 }
 /*************************************/
