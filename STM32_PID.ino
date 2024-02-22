@@ -4,10 +4,10 @@
 #include "SimFirstOrder.h"        // bibliothèque pour la simulation du moteur
 
 /******Pin********/
-#define PWM1 = PB6 // PWM4/1 pin D10 donc le Timer4
-#define DIR1 = PC1 // pin A4
-#define PWM2 = PA8 // PWM1/1 pin D7 donc le Timer1
-#define DIR2 = PC0 // pin A5
+#define PWM1 PC1 // PWM4/1 pin D10 donc le Timer4
+#define DIR1 PB6 // pin A4
+#define PWM2 PC0 // PWM1/1 pin D7 donc le Timer1
+#define DIR2 PA8 // pin A5
 /******************/
 
 /******Mode********/
@@ -30,8 +30,8 @@ float cmd_distance = 0;  // commande distance
 /*****************************/
 
 /***********Etalonnage Encodeur 1m******/
-const float distance_encoder_gauche = PI * 35 / 512; // 1000/4991;
-const float distance_encoder_droit = PI * 35 / 512;  // 1000/4715;
+const float distance_encoder_gauche = PI * 35 / 256; // 1000/4991;
+const float distance_encoder_droit = PI * 35 / 256;  // 1000/4715;
 /**************************************/
 
 /********Coef Vitesse ******/
@@ -58,8 +58,8 @@ float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID dis
 // et les étalonner
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
-Encoder encGauche(PA0, PA1, TIM2, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
-Encoder encDroit(PB5, PB4, TIM3, SINGLE, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
+Encoder encGauche(PB5, PB4, TIM3, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+Encoder encDroit(PA0, PA1, TIM2, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
 /*****Sauvegarde des positions*****/
@@ -213,18 +213,6 @@ void setup()
       ;
   }
 
-  /*******Correction de la direction*******/
-  Serial.println("Etalonnage ecodeur");
-  while (encGauche.getTicks() > -255 && encGauche.getTicks() < 255 || encDroit.getTicks() > -255 && encDroit.getTicks() < 255)
-    ;
-  if (encGauche.getTicks() < 0)
-    encGauche.setInvert(true);
-  if (encDroit.getTicks() < 0)
-    encDroit.setInvert(true);
-  pinMode(LED_BUILTIN, OUTPUT);    // Configure la broche de la LED comme sortie
-  digitalWrite(LED_BUILTIN, HIGH); // Allume la LED
-  /***************************************/
-
   /****************************/
   /****************************/
 #else
@@ -308,7 +296,7 @@ void loop()
   }
   unsigned long time = millis() - timeSetup; // Temps écoulé en millisecondes
 
-  if (time >= 0 && time < 5000)
+  if (time >= 0 && time < 10000)
   {
     digitalWrite(A4, HIGH);
     Ginverse = false;
@@ -318,34 +306,34 @@ void loop()
     cmd_vitesse_G = 100;
     cmd_vitesse_D = 100;
   }
-  else if (time >= 5000 && time < 9300)
-  {
-    digitalWrite(A3, LOW);
-    Dinverse = true;
-    cmd_vitesse_D = 40;
-    cmd_vitesse_G = 40;
-  }
-  else if (time >= 9300 && time < 14300)
-  {
-    digitalWrite(A3, HIGH);
-    Dinverse = false;
-    // Mettre la commande moteur à 10% de la Vmax après 10 secondes
-    PID_vitesse_G.SetMode(AUTOMATIC); // turn the PID on
-    PID_vitesse_D.SetMode(AUTOMATIC); // turn the PID on
-    cmd_vitesse_G = 100;
-    cmd_vitesse_D = 100;
-  }
-  else if (time >= 14300 && time < 18300)
-  {
-    digitalWrite(A4, LOW);
-    Ginverse = true;
-    cmd_vitesse_D = 40;
-    cmd_vitesse_G = 40;
-  }
-  else if (time >= 18500)
-  {
-    timeSetup = millis();
-  }
+  // else if (time >= 5000 && time < 9300)
+  // {
+  //   digitalWrite(A3, LOW);
+  //   Dinverse = true;
+  //   cmd_vitesse_D = 40;
+  //   cmd_vitesse_G = 40;
+  // }
+  // else if (time >= 9300 && time < 14300)
+  // {
+  //   digitalWrite(A3, HIGH);
+  //   Dinverse = false;
+  //   // Mettre la commande moteur à 10% de la Vmax après 10 secondes
+  //   PID_vitesse_G.SetMode(AUTOMATIC); // turn the PID on
+  //   PID_vitesse_D.SetMode(AUTOMATIC); // turn the PID on
+  //   cmd_vitesse_G = 100;
+  //   cmd_vitesse_D = 100;
+  // }
+  // else if (time >= 14300 && time < 18300)
+  // {
+  //   digitalWrite(A4, LOW);
+  //   Ginverse = true;
+  //   cmd_vitesse_D = 40;
+  //   cmd_vitesse_G = 40;
+  // }
+  // else if (time >= 18500)
+  // {
+  //   timeSetup = millis();
+  // }
 }
 /*************************************/
 /*************************************/

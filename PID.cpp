@@ -18,8 +18,8 @@ PID::PID(float *Input, float *Output, float *Setpoint,
    mySetpoint = Setpoint;
    inAuto = false;
 
-   PID::SetOutputLimits(0, 255); // default output limit corresponds to
-                                 // the arduino pwm limits
+   PID::SetOutputLimits(-255, 255); // default output limit corresponds to
+                                    // the arduino pwm limits
 
    SampleTime = dt;
 
