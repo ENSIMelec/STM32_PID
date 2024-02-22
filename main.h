@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 /******Pin********/
 #define PWM1 PB6 // PWM4/1 pin D10 donc le Timer4
 #define DIR1 PC1 // pin A4
