@@ -1,14 +1,9 @@
 
+#include "main.h"
 #include "PID.h"                  // bibliothèque PID
 #include "FastInterruptEncoder.h" // bibliothèque pour les codeurs incrémentaux
 #include "SimFirstOrder.h"        // bibliothèque pour la simulation du moteur
-
-/******Pin********/
-#define PWM1 = PB6 // PWM4/1 pin D10 donc le Timer4
-#define DIR1 = PC1 // pin A4
-#define PWM2 = PA8 // PWM1/1 pin D7 donc le Timer1
-#define DIR2 = PC0 // pin A5
-/******************/
+#include "Communication.h"
 
 /******Mode********/
 #define DEBUG // mode debug
@@ -30,20 +25,20 @@ float cmd_distance = 0;  // commande distance
 /*****************************/
 
 /***********Etalonnage Encodeur 1m******/
-const float distance_encoder_gauche = PI * 35 / 512; // 1000/4991;
-const float distance_encoder_droit = PI * 35 / 512;  // 1000/4715;
+float distance_encoder_gauche = PI * 35 / 512; // 1000/4991;
+float distance_encoder_droit = PI * 35 / 512;  // 1000/4715;
 /**************************************/
 
 /********Coef Vitesse ******/
 float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
-const float coefToPWM = 255 / VitesseOutMax;
-const float coefVitesseG = distance_encoder_gauche * coefToPWM / dt;
-const float coefVitesseD = distance_encoder_droit * coefToPWM / dt;
+float coefToPWM = 255 / VitesseOutMax;
+float coefVitesseG = distance_encoder_gauche * coefToPWM / dt;
+float coefVitesseD = distance_encoder_droit * coefToPWM / dt;
 /**************************/
 
 /********Coef Angle****/
-const float empattementRoueCodeuse = 240;
-const float coefAngle = dt/empattementRoueCodeuse;
+float empattementRoueCodeuse = 240;
+float coefAngle = dt / empattementRoueCodeuse;
 /**********************/
 
 /******COEFICIENTS PID************/
@@ -58,8 +53,8 @@ float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID dis
 // et les étalonner
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
-Encoder encGauche(PA0, PA1, TIM2, SINGLE, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
-Encoder encDroit(PB5, PB4, TIM3, SINGLE, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
+Encoder encGauche(PA0, PA1, TIM2, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+Encoder encDroit(PB5, PB4, TIM3, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
 /*****Sauvegarde des positions*****/
@@ -91,47 +86,6 @@ PID PID_distance(&distance, &Output_PID_distance, &cmd_distance, dt, Kp_distance
 /********************************************/
 /********************************************/
 /********************************************/
-
-/*************************************/
-/*****FONCTION LECTURE SANS BLOCAGE***/
-/*************************************/
-String nonBlockingReadStringUntil(char terminator)
-{
-  String result = "";
-  while (Serial.available() > 0)
-  {
-    char c = Serial.read();
-    if (c == terminator)
-    {
-      break;
-    }
-    result += c;
-  }
-  return result;
-}
-/*************************************/
-/*************************************/
-/*************************************/
-
-/*************************************/
-/*****FONCTION RÉCÉPTION DONNÉES******/
-/*************************************/
-void serialEvent()
-{
-  String input = nonBlockingReadStringUntil('\n');
-  switch (input[0])
-  {
-  case 'C':
-    sscanf(input.c_str(), "C%f:%f", &cmd_vitesse_G, &cmd_vitesse_D);
-    break;
-  default:
-    Serial.println("NC");
-    break;
-  }
-}
-/*************************************/
-/*************************************/
-/*************************************/
 
 /*************************************/
 /*****FONCTION ÉCHANTILLONAGE*********/
@@ -214,14 +168,14 @@ void setup()
       ;
   }
 
-  /*******Correction de la direction*******/
-  Serial.println("Etalonnage ecodeur");
-  while (encGauche.getTicks() > -255 && encGauche.getTicks() < 255 || encDroit.getTicks() > -255 && encDroit.getTicks() < 255)
-    ;
-  if (encGauche.getTicks() < 0)
-    encGauche.setInvert(true);
-  if (encDroit.getTicks() < 0)
-    encDroit.setInvert(true);
+  // /*******Correction de la direction*******/
+  // Serial.println("Etalonnage ecodeur");
+  // while (encGauche.getTicks() > -255 && encGauche.getTicks() < 255 || encDroit.getTicks() > -255 && encDroit.getTicks() < 255)
+  //   ;
+  // if (encGauche.getTicks() < 0)
+  //   encGauche.setInvert(true);
+  // if (encDroit.getTicks() < 0)
+  //   encDroit.setInvert(true);
   pinMode(LED_BUILTIN, OUTPUT);    // Configure la broche de la LED comme sortie
   digitalWrite(LED_BUILTIN, HIGH); // Allume la LED
   /***************************************/
@@ -256,11 +210,10 @@ void setup()
   // encGauche.setInvert(); // Inverser le sens de rotation du codeur
   /*********************************/
 
-  
   /******Configuration des moteurs************/
   digitalWrite(A4, HIGH);
   digitalWrite(A3, LOW);
-  //Dinverse = true;
+  // Dinverse = true;
   /*******************************************/
   delay(5000);
   /******Activation des PID************/
@@ -288,33 +241,12 @@ void loop()
 {
   if (Update_IT)
   {
-    Serial.print("A"); // Valeur du codeur Gauche
-    Serial.println(last_encGauche);
-    Serial.print("B"); // Valeur du codeur Droit
-    Serial.println(last_encDroit);
-    Serial.print("C"); // Vitesse réel moteur Gauche
-    Serial.println(vitesse_G, 5);
-    Serial.print("D"); // Vitesse réel moteur Droit
-    Serial.println(vitesse_D, 5);
-    Serial.print("E"); // Sortie du PID vitesse moteur Gauche
-    Serial.println(Output_PID_vitesse_G, 5);
-    Serial.print("F"); // Sortie du PID vitesse moteur Droit
-    Serial.println(Output_PID_vitesse_D, 5);
-    Serial.print("G"); // Consigne de vitesse moteur Gauche
-    Serial.println(cmd_vitesse_G, 5);
-    Serial.print("H"); // Consigne de vitesse moteur Droit
-    Serial.println(cmd_vitesse_D, 5);
-    Serial.print("I"); // angle mesurer
-    Serial.println(angle);
-    Serial.print("Output Angle");
-    Serial.println(Output_PID_angle);
-
-    Update_IT = false;
+    sendData();
   }
   PID_angle.SetMode(AUTOMATIC);
-  //PID_vitesse_D.SetMode(AUTOMATIC);
-  //PID_vitesse_G.SetMode(AUTOMATIC);
-  //cmd_angle = 6.3;
+  // PID_vitesse_D.SetMode(AUTOMATIC);
+  // PID_vitesse_G.SetMode(AUTOMATIC);
+  // cmd_angle = 6.3;
 }
 /*************************************/
 /*************************************/
