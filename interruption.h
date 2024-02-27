@@ -1,6 +1,7 @@
-#include "../main.h"
-#include "Encoder/FastInterruptEncoder.h"
-#include "PID/PID.h"
+#include "main.h"
+#include "FastInterruptEncoder.h"
+#include "PID.h"
+#include <digitalWriteFast.h>
 
 extern Encoder encGauche;
 extern Encoder encDroit;

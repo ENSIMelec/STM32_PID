@@ -55,8 +55,8 @@ float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID dis
 // et les étalonner
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
-Encoder encGauche(PA0, PA1, TIM2, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
-Encoder encDroit(PB5, PB4, TIM3, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
+Encoder encGauche(PB5, PB4, TIM3, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+Encoder encDroit(PA0, PA1, TIM2, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
 /*****Sauvegarde des positions*****/
@@ -99,6 +99,8 @@ void setup()
   /*********************************************/
   Serial.println("Serial OK");
   PID_angle.SetOutputLimits(0, 100);
+  PID_vitesse_D.SetOutputLimits(-255, 255);
+  PID_vitesse_G.SetOutputLimits(-255, 255);
 
 #ifdef DEBUG
   /****************************/
@@ -114,16 +116,8 @@ void setup()
       ;
   }
 
-  // /*******Correction de la direction*******/
-  // Serial.println("Etalonnage ecodeur");
-  // while (encGauche.getTicks() > -255 && encGauche.getTicks() < 255 || encDroit.getTicks() > -255 && encDroit.getTicks() < 255)
-  //   ;
-  // if (encGauche.getTicks() < 0)
-  //   encGauche.setInvert(true);
-  // if (encDroit.getTicks() < 0)
-  //   encDroit.setInvert(true);
   pinMode(LED_BUILTIN, OUTPUT);    // Configure la broche de la LED comme sortie
-  digitalWrite(LED_BUILTIN, HIGH); // Allume la LED
+  digitalWrite(LED_BUILTIN, HIGH); // Allume LED Confirmation d'initialisation
   /***************************************/
 
   /****************************/
@@ -136,24 +130,15 @@ void setup()
     while (1)
       ; // encoder initialization failed
   }
-  // Serial.println("Etalonnage ecodeur");
-  // while (encDroit.getTicks() > -200 && encDroit.getTicks() < 200)
-  //   ;
-  // if (encDroit.getTicks() < -200)
-  //   encDroit.setInvert(true);
-  // pinMode(LED_BUILTIN, OUTPUT);    // Configure la broche de la LED comme sortie
-  // digitalWrite(LED_BUILTIN, HIGH); // Allume la LED
-
   /****************************/
   /****************************/
 #endif
 
   /******Initialisation des PINs****/
-  pinMode(A4, OUTPUT);  // PA_3 = pin D0
-  pinMode(A3, OUTPUT);  // PA_2 = pin D1
-  pinMode(PB6, OUTPUT); // PWM4/1 pin D10 donc le Timer4
-  pinMode(PA8, OUTPUT); // PWM1/1 pin D7 donc le Timer1
-  // encGauche.setInvert(); // Inverser le sens de rotation du codeur
+  pinMode(DIR1, OUTPUT); // PA_3 = pin D0
+  pinMode(DIR2, OUTPUT); // PA_2 = pin D1
+  pinMode(PWM1, OUTPUT); // PWM4/1 pin D10 donc le Timer4
+  pinMode(PWM2, OUTPUT); // PWM1/1 pin D7 donc le Timer1
   /*********************************/
 
   /******Configuration des moteurs************/
@@ -192,9 +177,8 @@ void loop()
   // PID_angle.SetMode(AUTOMATIC);
   PID_vitesse_D.SetMode(AUTOMATIC);
   PID_vitesse_G.SetMode(AUTOMATIC);
-  cmd_vitesse_G = 75;
-  cmd_vitesse_D = 75;
-  // cmd_angle = 6.3;
+  cmd_vitesse_D = 50;
+  cmd_vitesse_G = -50;
 }
 /*************************************/
 /*************************************/

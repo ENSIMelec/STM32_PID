@@ -40,9 +40,9 @@ extern float coefAngle;
 /**********************/
 
 /******COEFICIENTS PID************/
-extern float Kp_G, Ki_G, Kd_G;               // coefficients PID vitesse moteur gauche
-extern float Kp_D, Ki_D, Kd_D;               // coefficients PID vitesse moteur droit
-extern float Kp_angle, Ki_angle, Kd_angle;   // coefficients PID angle
+extern float Kp_G, Ki_G, Kd_G;                      // coefficients PID vitesse moteur gauche
+extern float Kp_D, Ki_D, Kd_D;                      // coefficients PID vitesse moteur droit
+extern float Kp_angle, Ki_angle, Kd_angle;          // coefficients PID angle
 extern float Kp_distance, Ki_distance, Kd_distance; // coefficients PID distance
 
 /*********************************/
@@ -65,3 +65,14 @@ extern float Output_PID_vitesse_D; // Valeur sortante du PID vitesse moteur droi
 extern float Output_PID_angle;     // Valeur sortante du PID angle
 extern float Output_PID_distance;  // Valeur sortante du PID distance
 /*******************************/
+
+extern unsigned long timeSetup;
+
+/******Postion************/
+struct Position
+{
+    float x;
+    float y;
+};
+extern Position position;
+/*************************/

@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "FastInterruptEncoder.h"
+#include "main.h"
 
 Encoder::Encoder(int pinA, int pinB, TIM_TypeDef *timer, encoder_mode_t mode, uint8_t filter)
 {
@@ -79,6 +80,8 @@ int16_t Encoder::getTicks()
 void Encoder::resetTicks()
 {
 	LL_TIM_SetCounter(_timer, 32767);
+	last_encGauche = 0;
+	last_encDroit = 0;
 }
 
 /******* FONCTION DE BASE

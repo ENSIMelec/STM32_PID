@@ -65,8 +65,13 @@ void sendData()
     Serial.println(cmd_vitesse_D, 5);
     Serial.print("I"); // angle mesurer
     Serial.println(angle);
-    Serial.print("Output Angle");
+    Serial.print("J"); // angle PID
     Serial.println(Output_PID_angle);
+    Serial.print("X"); // position x
+    Serial.println(position.x);
+    Serial.print("Y"); // position y
+    Serial.println(position.y);
+
     Update_IT = false;
 }
 /*************************************/
