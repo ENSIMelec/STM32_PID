@@ -164,6 +164,12 @@ void PID::SetOutputLimits(float Min, float Max)
    }
 }
 
+void PID::IncreaseOutputLimits(float value)
+{
+   outMin -= value;
+   outMax += value;
+}
+
 /* SetMode(...)****************************************************************
  * Allows the controller Mode to be set to manual (0) or Automatic (non-zero)
  * when the transition from manual to auto occurs, the controller is
@@ -218,5 +224,7 @@ void PID::SetControllerDirection(int Direction)
 float PID::GetKp() { return dispKp; }
 float PID::GetKi() { return dispKi; }
 float PID::GetKd() { return dispKd; }
+float PID::GetOutputLimitMax() { return outMax; }
+float PID::GetOutputLimitMin() { return outMin; }
 int PID::GetMode() { return inAuto ? AUTOMATIC : MANUAL; }
 int PID::GetDirection() { return controllerDirection; }

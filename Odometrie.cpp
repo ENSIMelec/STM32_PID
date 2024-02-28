@@ -13,3 +13,10 @@ bool reset_Position(void)
     y = 0;
     return true;
 }
+
+float acceleration = 2.05; // rotation par seconde carré pour une augmentation de 10 toutes les 10 ms
+int distance_End_Ramp(float distance, float VitesseOutMax)
+{
+    float distance_Start_Ramp = (VitesseOutMax * VitesseOutMax) / (2 * acceleration);
+    return distance - distance_Start_Ramp;
+}

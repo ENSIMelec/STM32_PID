@@ -21,10 +21,13 @@ void Update_IT_callback(void)
     distance = (vitesse_D + vitesse_G) / 2 * dt;
     /*********************************************/
 
-    /****Calcul de la position*******/
-    //
-    update_Position(distance, angle);
-    /*******************************/
+    else if (abs(distance - cmd_distance) < epsilon)
+        PID_distance.setMode(MANUAL);
+    else if (abs(distance) >= distanceToDecel && PID_distance.GetOutputLimitMax() > 10)
+        PID_distance.IncreaseOutputLimits(-10);
+    else if (PID_distance.GetOutputLimitMax() < VitesseOutMax)
+        PID_distance.IncreaseOutputLimits(10);
+    else PID_distance.setMode(AUTOMATIC);
 
     /*****Calul de PID Angle et Vitesse****/
     PID_angle.Compute();
@@ -48,6 +51,10 @@ void Update_IT_callback(void)
     analogWrite(PWM1, abs(Output_PID_vitesse_G));
     analogWrite(PWM2, abs(Output_PID_vitesse_D));
     /*****************************/
+
+    /****Calcul de la position*******/
+    update_Position(distance, angle);
+    /*******************************/
 
     /****Sauvegarde des positions*****/
     last_encGauche = ticks_G;

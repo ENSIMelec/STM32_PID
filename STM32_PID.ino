@@ -59,7 +59,6 @@ Encoder encGauche(PB5, PB4, TIM3, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin
 Encoder encDroit(PA0, PA1, TIM2, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
-
 /*****Sauvegarde des positions*****/
 int16_t last_encGauche = 0;
 int16_t last_encDroit = 0;
@@ -101,9 +100,10 @@ void setup()
   Serial.begin(115200); // Par défaut utilisation de USART1
   /*********************************************/
   Serial.println("Serial OK");
-  PID_angle.SetOutputLimits(0, 100);
+  PID_angle.SetOutputLimits(-100, 100);
   PID_vitesse_D.SetOutputLimits(-255, 255);
   PID_vitesse_G.SetOutputLimits(-255, 255);
+  PID_distance.SetOutputLimits(-200, 200);
 
 #ifdef DEBUG
   /****************************/
