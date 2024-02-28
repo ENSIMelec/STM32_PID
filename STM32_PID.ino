@@ -59,9 +59,12 @@ Encoder encGauche(PB5, PB4, TIM3, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin
 Encoder encDroit(PA0, PA1, TIM2, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
+
 /*****Sauvegarde des positions*****/
 int16_t last_encGauche = 0;
 int16_t last_encDroit = 0;
+float x = 0;
+float y = 0;
 /**********************************/
 
 /******Constante mesuré************/
@@ -178,7 +181,7 @@ void loop()
   PID_vitesse_D.SetMode(AUTOMATIC);
   PID_vitesse_G.SetMode(AUTOMATIC);
   cmd_vitesse_D = 50;
-  cmd_vitesse_G = -50;
+  cmd_vitesse_G = 50;
 }
 /*************************************/
 /*************************************/

@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "main.h"
+#include "Odometrie.h"
 
 /*************************************/
 /*****FONCTION LECTURE SANS BLOCAGE***/
@@ -68,9 +69,9 @@ void sendData()
     Serial.print("J"); // angle PID
     Serial.println(Output_PID_angle);
     Serial.print("X"); // position x
-    Serial.println(position.x);
+    Serial.println(x);
     Serial.print("Y"); // position y
-    Serial.println(position.y);
+    Serial.println(y);
 
     Update_IT = false;
 }

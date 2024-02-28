@@ -22,6 +22,7 @@ void Update_IT_callback(void)
     /*********************************************/
 
     /****Calcul de la position*******/
+    //
     update_Position(distance, angle);
     /*******************************/
 
@@ -44,8 +45,8 @@ void Update_IT_callback(void)
     digitalWriteFast(DIR2, Output_PID_vitesse_G < 0 ? LOW : HIGH);
 
     /****Commande des moteurs*******/
-    analogWrite(PWM1, Output_PID_vitesse_G);
-    analogWrite(PWM2, Output_PID_vitesse_D);
+    analogWrite(PWM1, abs(Output_PID_vitesse_G));
+    analogWrite(PWM2, abs(Output_PID_vitesse_D));
     /*****************************/
 
     /****Sauvegarde des positions*****/

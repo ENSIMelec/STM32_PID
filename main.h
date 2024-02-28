@@ -50,6 +50,8 @@ extern float Kp_distance, Ki_distance, Kd_distance; // coefficients PID distance
 /*****Sauvegarde des positions*****/
 extern int16_t last_encGauche;
 extern int16_t last_encDroit;
+extern float x;
+extern float y;
 /**********************************/
 
 /******Constante mesuré************/
@@ -68,11 +70,5 @@ extern float Output_PID_distance;  // Valeur sortante du PID distance
 
 extern unsigned long timeSetup;
 
-/******Postion************/
-struct Position
-{
-    float x;
-    float y;
-};
-extern Position position;
+
 /*************************/
