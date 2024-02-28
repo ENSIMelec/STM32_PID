@@ -44,8 +44,8 @@ void Update_IT_callback(void)
     PID_vitesse_D.Compute();
     /*********************************/
 
-    digitalWriteFast(DIR1, Output_PID_vitesse_D < 0 ? LOW : HIGH);
-    digitalWriteFast(DIR2, Output_PID_vitesse_G < 0 ? LOW : HIGH);
+    digitalWriteFast(DIR1, (Output_PID_vitesse_D >= 0));
+    digitalWriteFast(DIR2, (Output_PID_vitesse_G >= 0));
 
     /****Commande des moteurs*******/
     analogWrite(PWM1, abs(Output_PID_vitesse_G));
