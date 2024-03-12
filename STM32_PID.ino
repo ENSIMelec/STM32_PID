@@ -6,6 +6,7 @@
 #include "Communication.h"
 #include "interruption.h"
 #include "BoucleOuverte.h"
+#include "Odometrie.h"
 
 /******Mode********/
 #define DEBUG // mode debug
@@ -15,8 +16,6 @@ unsigned long timeSetup;
 /******ECHANTILLONAGE********/
 float dt = 10e-3; // 10ms
 bool Update_IT = false;
-bool Dinverse = false;
-bool Ginverse = false;
 /****************************/
 
 /******CONSIGNES PID**********/
@@ -24,6 +23,8 @@ float cmd_vitesse_G = 0; // commande vitesse moteur gauche en mm/ms
 float cmd_vitesse_D = 0; // commande vitesse moteur droite en mm/ms
 float cmd_angle = 0;     // commande angle
 float cmd_distance = 0;  // commande distance
+float distanceToDecel;
+float VMax = 100;
 /*****************************/
 
 /***********Etalonnage Encodeur 1m******/
@@ -47,7 +48,7 @@ float coefAngle = dt / empattementRoueCodeuse;
 float Kp_G = 1, Ki_G = 0, Kd_G = 0;                      // coefficients PID vitesse moteur gauche
 float Kp_D = 1.1, Ki_D = 0, Kd_D = 0;                    // coefficients PID vitesse moteur droit
 float Kp_angle = 1, Ki_angle = 0, Kd_angle = 0;          // coefficients PID angle
-float Kp_distance = 0, Ki_distance = 0, Kd_distance = 0; // coefficients PID distance
+float Kp_distance = 1, Ki_distance = 0, Kd_distance = 0; // coefficients PID distance
 /*********************************/
 
 /******Declaration des codeurs************/
@@ -103,7 +104,7 @@ void setup()
   PID_angle.SetOutputLimits(-100, 100);
   PID_vitesse_D.SetOutputLimits(-255, 255);
   PID_vitesse_G.SetOutputLimits(-255, 255);
-  PID_distance.SetOutputLimits(-200, 200);
+  PID_distance.SetOutputLimits(-75, 75);
 
 #ifdef DEBUG
   /****************************/
@@ -145,8 +146,6 @@ void setup()
   /*********************************/
 
   /******Configuration des moteurs************/
-  digitalWrite(A4, HIGH);
-  digitalWrite(A3, LOW);
   // Dinverse = true;
   /*******************************************/
   delay(5000);
@@ -162,6 +161,7 @@ void setup()
   MyTim->attachInterrupt(Update_IT_callback);
   MyTim->resume();
   /**************************************************************************/
+  distanceToDecel = distance_End_Ramp(100, VMax);
   timeSetup = millis();
 }
 /*************************************/
@@ -180,8 +180,8 @@ void loop()
   // PID_angle.SetMode(AUTOMATIC);
   PID_vitesse_D.SetMode(AUTOMATIC);
   PID_vitesse_G.SetMode(AUTOMATIC);
-  cmd_vitesse_D = 50;
-  cmd_vitesse_G = 50;
+  PID_distance.SetMode(AUTOMATIC);
+  cmd_distance = 100;
 }
 /*************************************/
 /*************************************/

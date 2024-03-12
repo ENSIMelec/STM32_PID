@@ -68,6 +68,12 @@ void sendData()
     Serial.println(angle);
     Serial.print("J"); // angle PID
     Serial.println(Output_PID_angle);
+    Serial.print("K"); // distance mesurer
+    Serial.println(distance);
+    Serial.print("L"); // distance PID
+    Serial.println(Output_PID_distance);
+    Serial.print("M"); // cmd distance
+    Serial.println(cmd_distance);
     Serial.print("X"); // position x
     Serial.println(x);
     Serial.print("Y"); // position y

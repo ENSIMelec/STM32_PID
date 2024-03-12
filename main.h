@@ -4,14 +4,12 @@
 #define PWM1 PB6 // PWM4/1 pin D10 donc le Timer4
 #define DIR1 PC1 // pin A4
 #define PWM2 PA8 // PWM1/1 pin D7 donc le Timer1
-#define DIR2 PC0 // pin A5
+#define DIR2 PB0 // pin A3
 /******************/
 
 /******ECHANTILLONAGE********/
 extern float dt;
 extern bool Update_IT;
-extern bool Dinverse;
-extern bool Ginverse;
 /****************************/
 
 /******CONSIGNES PID**********/
@@ -69,6 +67,7 @@ extern float Output_PID_distance;  // Valeur sortante du PID distance
 /*******************************/
 
 extern unsigned long timeSetup;
-
+extern float distanceToDecel;
+extern float VMax;
 
 /*************************/
