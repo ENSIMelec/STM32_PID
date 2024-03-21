@@ -14,3 +14,7 @@ void Config_PID_Vitesse(void)
         analogWrite(PWM2, 100);
     }
 }
+
+void Etalonnage_tic_roue_ligne()
+{
+}

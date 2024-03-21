@@ -56,8 +56,8 @@ float Kp_distance = 1, Ki_distance = 0, Kd_distance = 0; // coefficients PID dis
 // et les étalonner
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
-Encoder encGauche(PB5, PB4, TIM3, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
-Encoder encDroit(PA0, PA1, TIM2, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
+Encoder encGauche(CodGA, CodGB, TIM3, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+Encoder encDroit(CodDA, CodDB, TIM2, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
 /*****Sauvegarde des positions*****/

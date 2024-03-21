@@ -2,9 +2,13 @@
 
 /******Pin********/
 #define PWM1 PB6 // PWM4/1 pin D10 donc le Timer4
-#define DIR1 PC1 // pin A4
+#define DIR1 D2
 #define PWM2 PA8 // PWM1/1 pin D7 donc le Timer1
-#define DIR2 PB0 // pin A3
+#define DIR2 D3
+#define CodDA PA0
+#define CodDB PA1
+#define CodGA PB5
+#define CodGB PB4
 /******************/
 
 /******ECHANTILLONAGE********/
