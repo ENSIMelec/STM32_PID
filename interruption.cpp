@@ -72,7 +72,7 @@ void Update_IT_callback(void)
   last_encGauche = ticks_G;
   last_encDroit = ticks_D;
   /********************************/
-  Update_IT = true;
+  Update_IT = false;
 }
 /*************************************/
 /*************************************/
