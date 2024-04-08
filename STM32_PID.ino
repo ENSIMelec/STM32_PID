@@ -24,19 +24,21 @@ float cmd_vitesse_D = 0; // commande vitesse moteur droite en mm/ms
 float cmd_angle = 0;     // commande angle
 float cmd_distance = 0;  // commande distance
 float distanceToDecel;
-float VMax = 100;
+float VMax = 1000;
 /*****************************/
 
-/***********Etalonnage Encodeur 1m******/
-float distance_encoder_gauche = PI * 35 / 512; // 1000/4991;
-float distance_encoder_droit = PI * 35 / 512;  // 1000/4715;
+/***********Etalonnage Encodeur 1m et 10 PI******/
+float distance_encoder_gauche = 1000.0 / 5023.0;
+// float angle_encoder_droit = 20*PI/(18778.0 + 18824.0);
+float distance_encoder_droit = 1000.0 / 4715.0;
+// float angle_encoder_droit = 20*PI/(18556.0 + 18639.0);
 /**************************************/
 
 /********Coef Vitesse ******/
 float VitesseOutMax = 1039.5; // Vitesse max théorique du moteur en mm/s
 float coefToPWM = 255 / VitesseOutMax;
-float coefVitesseG = distance_encoder_gauche * coefToPWM / dt;
-float coefVitesseD = distance_encoder_droit * coefToPWM / dt;
+float coefVitesseG = distance_encoder_gauche / dt;
+float coefVitesseD = distance_encoder_droit / dt;
 /**************************/
 
 /********Coef Angle****/
@@ -45,10 +47,10 @@ float coefAngle = dt / empattementRoueCodeuse;
 /**********************/
 
 /******COEFICIENTS PID************/
-float Kp_G = 1, Ki_G = 0, Kd_G = 0;                      // coefficients PID vitesse moteur gauche
-float Kp_D = 1.1, Ki_D = 0, Kd_D = 0;                    // coefficients PID vitesse moteur droit
-float Kp_angle = 1, Ki_angle = 0, Kd_angle = 0;          // coefficients PID angle
-float Kp_distance = 1, Ki_distance = 0, Kd_distance = 0; // coefficients PID distance
+float Kp_G = 100.0 / 525.0, Ki_G = 0, Kd_G = 0.0001;         // coefficients PID vitesse moteur gauche
+float Kp_D = 100.0 / 480.0, Ki_D = 0, Kd_D = 0.0001;         // coefficients PID vitesse moteur droit
+float Kp_angle = 200, Ki_angle = 2, Kd_angle = 1.5;          // coefficients PID angle
+float Kp_distance = 5, Ki_distance = 1.4, Kd_distance = 0.1; // coefficients PID distance
 /*********************************/
 
 /******Declaration des codeurs************/
@@ -101,10 +103,6 @@ void setup()
   Serial.begin(115200); // Par défaut utilisation de USART1
   /*********************************************/
   Serial.println("Serial OK");
-  PID_angle.SetOutputLimits(-100, 100);
-  PID_vitesse_D.SetOutputLimits(-255, 255);
-  PID_vitesse_G.SetOutputLimits(-255, 255);
-  PID_distance.SetOutputLimits(-75, 75);
 
 #ifdef DEBUG
   /****************************/
@@ -145,9 +143,6 @@ void setup()
   pinMode(PWM2, OUTPUT); // PWM1/1 pin D7 donc le Timer1
   /*********************************/
 
-  /******Configuration des moteurs************/
-  // Dinverse = true;
-  /*******************************************/
   delay(5000);
   /******Activation des PID************/
   encDroit.resetTicks();
@@ -161,7 +156,17 @@ void setup()
   MyTim->attachInterrupt(Update_IT_callback);
   MyTim->resume();
   /**************************************************************************/
-  distanceToDecel = distance_End_Ramp(100, VMax);
+  distanceToDecel = distance_End_Ramp(1000, VMax);
+
+  PID_angle.SetOutputLimits(-500, 500, 40);
+  PID_distance.SetOutputLimits(-700, 700, 40);
+
+  PID_angle.SetMode(AUTOMATIC);
+  PID_distance.SetMode(AUTOMATIC);
+  PID_vitesse_D.SetMode(AUTOMATIC);
+  PID_vitesse_G.SetMode(AUTOMATIC);
+  cmd_angle = 0;
+  cmd_distance = 1000;
   timeSetup = millis();
 }
 /*************************************/
@@ -177,11 +182,8 @@ void loop()
   {
     sendData();
   }
-  // PID_angle.SetMode(AUTOMATIC);
-  PID_vitesse_D.SetMode(AUTOMATIC);
-  PID_vitesse_G.SetMode(AUTOMATIC);
-  PID_distance.SetMode(AUTOMATIC);
-  cmd_distance = 100;
+
+  // Config_PID_Vitesse();
 }
 /*************************************/
 /*************************************/

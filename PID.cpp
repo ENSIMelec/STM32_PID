@@ -11,14 +11,15 @@
  *    reliable defaults, so we need to have the user set them.
  ***************************************************************************/
 PID::PID(float *Input, float *Output, float *Setpoint,
-         float dt, float Kp, float Ki, float Kd, int POn, int ControllerDirection) {
+         float dt, float Kp, float Ki, float Kd, int POn, int ControllerDirection)
+{
   myOutput = Output;
   myInput = Input;
   mySetpoint = Setpoint;
   inAuto = false;
 
-  PID::SetOutputLimits(0, 255);  // default output limit corresponds to
-                                 // the arduino pwm limits
+  PID::SetOutputLimits(-255, 255, 50); // default output limit corresponds to
+                                       // the arduino pwm limits
 
   SampleTime = dt;
 
@@ -33,7 +34,8 @@ PID::PID(float *Input, float *Output, float *Setpoint,
 
 PID::PID(float *Input, float *Output, float *Setpoint,
          float dt, float Kp, float Ki, float Kd, int ControllerDirection)
-  : PID::PID(Input, Output, Setpoint, dt, Kp, Ki, Kd, P_ON_E, ControllerDirection) {
+    : PID::PID(Input, Output, Setpoint, dt, Kp, Ki, Kd, P_ON_E, ControllerDirection)
+{
 }
 
 /* Compute() **********************************************************************
@@ -42,7 +44,8 @@ PID::PID(float *Input, float *Output, float *Setpoint,
  *   pid Output needs to be computed.  returns true when the output is computed,
  *   false when nothing has been done.
  **********************************************************************************/
-bool PID::Compute() {
+bool PID::Compute()
+{
   if (!inAuto)
     return false;
   /*Compute all the working error variables*/
@@ -59,6 +62,12 @@ bool PID::Compute() {
     outputSum = outMax;
   else if (outputSum < outMin)
     outputSum = outMin;
+
+  else if (outputSum < deadZone && outputSum > 0)
+      outputSum = deadZone;
+  else if (outputSum > -deadZone && outputSum < 0)
+      outputSum = -deadZone;
+  
 
   /*Add Proportional on Error, if P_ON_E is specified*/
   float output;
@@ -86,7 +95,8 @@ bool PID::Compute() {
  * it's called automatically from the constructor, but tunings can also
  * be adjusted on the fly during normal operation
  ******************************************************************************/
-void PID::SetTunings(float Kp, float Ki, float Kd, int POn) {
+void PID::SetTunings(float Kp, float Ki, float Kd, int POn)
+{
   if (Kp < 0 || Ki < 0 || Kd < 0)
     return;
 
@@ -101,7 +111,8 @@ void PID::SetTunings(float Kp, float Ki, float Kd, int POn) {
   ki = Ki * SampleTime;
   kd = Kd / SampleTime;
 
-  if (controllerDirection == REVERSE) {
+  if (controllerDirection == REVERSE)
+  {
     kp = (0 - kp);
     ki = (0 - ki);
     kd = (0 - kd);
@@ -111,15 +122,18 @@ void PID::SetTunings(float Kp, float Ki, float Kd, int POn) {
 /* SetTunings(...)*************************************************************
  * Set Tunings using the last-rembered POn setting
  ******************************************************************************/
-void PID::SetTunings(float Kp, float Ki, float Kd) {
+void PID::SetTunings(float Kp, float Ki, float Kd)
+{
   SetTunings(Kp, Ki, Kd, pOn);
 }
 
 /* SetSampleTime(...) *********************************************************
  * sets the period, in seconds, at which the calculation is performed
  ******************************************************************************/
-void PID::SetSampleTime(float NewSampleTime) {
-  if (NewSampleTime > 0) {
+void PID::SetSampleTime(float NewSampleTime)
+{
+  if (NewSampleTime > 0)
+  {
     float ratio = NewSampleTime / SampleTime;
     ki *= ratio;
     kd /= ratio;
@@ -135,13 +149,16 @@ void PID::SetSampleTime(float NewSampleTime) {
  *  want to clamp it from 0-125.  who knows.  at any rate, that can all be done
  *  here.
  **************************************************************************/
-void PID::SetOutputLimits(float Min, float Max) {
+void PID::SetOutputLimits(float Min, float Max, float _deadZone)
+{
   if (Min >= Max)
     return;
   outMin = Min;
   outMax = Max;
+  deadZone = _deadZone;
 
-  if (inAuto) {
+  if (inAuto)
+  {
     if (*myOutput > outMax)
       *myOutput = outMax;
     else if (*myOutput < outMin)
@@ -154,7 +171,8 @@ void PID::SetOutputLimits(float Min, float Max) {
   }
 }
 
-void PID::IncreaseOutputLimits(float value) {
+void PID::IncreaseOutputLimits(float value)
+{
   outMin -= value;
   outMax += value;
 }
@@ -164,9 +182,11 @@ void PID::IncreaseOutputLimits(float value) {
  * when the transition from manual to auto occurs, the controller is
  * automatically initialized
  ******************************************************************************/
-void PID::SetMode(int Mode) {
+void PID::SetMode(int Mode)
+{
   bool newAuto = (Mode == AUTOMATIC);
-  if (newAuto && !inAuto) { /*we just went from manual to auto*/
+  if (newAuto && !inAuto)
+  { /*we just went from manual to auto*/
     PID::Initialize();
   }
   inAuto = newAuto;
@@ -176,7 +196,8 @@ void PID::SetMode(int Mode) {
  *	does all the things that need to happen to ensure a bumpless transfer
  *  from manual to automatic mode.
  ******************************************************************************/
-void PID::Initialize() {
+void PID::Initialize()
+{
   outputSum = *myOutput;
   lastInput = *myInput;
   if (outputSum > outMax)
@@ -191,8 +212,10 @@ void PID::Initialize() {
  * know which one, because otherwise we may increase the output when we should
  * be decreasing.  This is called from the constructor.
  ******************************************************************************/
-void PID::SetControllerDirection(int Direction) {
-  if (inAuto && Direction != controllerDirection) {
+void PID::SetControllerDirection(int Direction)
+{
+  if (inAuto && Direction != controllerDirection)
+  {
     kp = (0 - kp);
     ki = (0 - ki);
     kd = (0 - kd);
@@ -205,24 +228,31 @@ void PID::SetControllerDirection(int Direction) {
  * functions query the internal state of the PID.  they're here for display
  * purposes.  this are the functions the PID Front-end uses for example
  ******************************************************************************/
-float PID::GetKp() {
+float PID::GetKp()
+{
   return dispKp;
 }
-float PID::GetKi() {
+float PID::GetKi()
+{
   return dispKi;
 }
-float PID::GetKd() {
+float PID::GetKd()
+{
   return dispKd;
 }
-float PID::GetOutputLimitMax() {
+float PID::GetOutputLimitMax()
+{
   return outMax;
 }
-float PID::GetOutputLimitMin() {
+float PID::GetOutputLimitMin()
+{
   return outMin;
 }
-int PID::GetMode() {
+int PID::GetMode()
+{
   return inAuto ? AUTOMATIC : MANUAL;
 }
-int PID::GetDirection() {
+int PID::GetDirection()
+{
   return controllerDirection;
 }

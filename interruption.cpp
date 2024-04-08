@@ -2,14 +2,15 @@
 #include "Odometrie.h"
 #include <Arduino.h>
 
-float epsilon = 1;
+float epsilonDistance = 0.5;
+float epsilonAngle = PI / 180;
 extern float VMax;
-float VMin = 13;
 
 /*************************************/
 /*****FONCTION ÉCHANTILLONAGE*********/
 /*************************************/
-void Update_IT_callback(void) {
+void Update_IT_callback(void)
+{
   /****Récupération des valeurs des codeurs****/
   int16_t ticks_G = (encGauche.getTicks());
   int16_t ticks_D = (encDroit.getTicks());
@@ -21,30 +22,33 @@ void Update_IT_callback(void) {
   /******************************************/
 
   /****Calcul de l'angle et de la distance*******/
-  angle += (vitesse_G + vitesse_D) * coefAngle;
+  angle += (vitesse_G - vitesse_D) * coefAngle;
   distance += (vitesse_D + vitesse_G) / 2 * dt;
   /*********************************************/
 
-  if (abs(distance - cmd_distance) < epsilon) {
-    cmd_distance = 0;
-    distance = 0;
-    PID_vitesse_G.SetMode(MANUAL);
-    PID_vitesse_D.SetMode(MANUAL);
-    PID_distance.SetMode(MANUAL);
-  } else if (abs(distance) >= distanceToDecel && PID_distance.GetOutputLimitMax() > 10)
-    PID_distance.IncreaseOutputLimits(-10);
-  else if (PID_distance.GetOutputLimitMax() < VMax)
-    PID_distance.IncreaseOutputLimits(10);
-  else PID_distance.SetMode(AUTOMATIC);
+  // if (abs(distance) >= distanceToDecel && PID_distance.GetOutputLimitMax() > 10)
+  //   PID_distance.IncreaseOutputLimits(-10);
+  // else if (PID_distance.GetOutputLimitMax() < VMax)
+  //   PID_distance.IncreaseOutputLimits(10);
 
   /*****Calul de PID Angle et Vitesse****/
+  // if (abs(cmd_angle - angle) < epsilon)
+  //   Output_PID_angle = 0;
+  // else
   PID_angle.Compute();
+
+  // if (abs(cmd_distance - distance) < epsilon) {
+  //   Output_PID_distance = 0;
+  //   cmd_distance = 0;
+  //   distance = 0;
+  // }
+  // else
   PID_distance.Compute();
   /*************************************/
 
   /***Ajustement Commandes Vitesse****/
-  cmd_vitesse_G = Output_PID_distance;  // Output_PID_angle +
-  cmd_vitesse_D = Output_PID_distance;  // Output_PID_angle +
+  cmd_vitesse_G = +Output_PID_angle + Output_PID_distance;
+  cmd_vitesse_D = -Output_PID_angle + Output_PID_distance;
   /***********************************/
 
   /****Calcul des PID Vitesse*******/
@@ -56,8 +60,8 @@ void Update_IT_callback(void) {
   digitalWriteFast(DIR2, (Output_PID_vitesse_G >= 0));
 
   /****Commande des moteurs*******/
-  analogWrite(PWM1, max(abs(Output_PID_vitesse_G), VMin));
-  analogWrite(PWM2, max(abs(Output_PID_vitesse_D), VMin));
+  analogWrite(PWM1, abs(Output_PID_vitesse_G));
+  analogWrite(PWM2, abs(Output_PID_vitesse_D));
   /*****************************/
 
   /****Calcul de la position*******/

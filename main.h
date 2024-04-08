@@ -21,10 +21,9 @@ extern float cmd_vitesse_G; // commande vitesse moteur gauche en mm/ms
 extern float cmd_vitesse_D; // commande vitesse moteur droite en mm/ms
 extern float cmd_angle;     // commande angle
 extern float cmd_distance;  // commande distance
-
 /*****************************/
 
-/***********Etalonnage Encodeur 1m******/
+/***********Etalonnage Encodeur 1m ou 10 tours******/
 extern float distance_encoder_gauche;
 extern float distance_encoder_droit;
 /**************************************/

@@ -28,10 +28,10 @@ public:
                   //   calculation frequency can be set using SetMode
                   //   SetSampleTime respectively
 
-  void SetOutputLimits(float, float); // * clamps the output to a specific range. 0-255 by default, but
-                                      //   it's likely the user will want to change this depending on
-                                      //   the application
-  void IncreaseOutputLimits(float);   // * Increase the output limits by a specific value
+  void SetOutputLimits(float, float, float); // * clamps the output to a specific range. 0-255 by default, but
+                                             //   it's likely the user will want to change this depending on
+                                             //   the application
+  void IncreaseOutputLimits(float);          // * Increase the output limits by a specific value
 
   // available but not commonly used functions ********************************************************
   void SetTunings(float, float, // * While most users will set the tunings once in the
@@ -78,7 +78,7 @@ private:
   float outputSum, lastInput;
 
   float SampleTime;
-  float outMin, outMax;
+  float outMin, outMax, deadZone;
   bool inAuto, pOnE;
 };
 #endif
