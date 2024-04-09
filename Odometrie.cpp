@@ -1,9 +1,14 @@
 #include "Odometrie.h"
 
+
+float last_angle = 0;
+float last_distance = 0;
 bool update_Position(float distance, float angle)
 {
-    x += cos(angle) * distance;
-    y += sin(angle) * distance;
+    x += cos((angle-last_angle)) * (distance-last_distance);
+    y += sin((angle-last_angle)) * (distance-last_distance);
+    last_angle = angle;
+    last_distance = distance;
     return true;
 }
 

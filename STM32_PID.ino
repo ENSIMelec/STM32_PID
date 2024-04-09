@@ -164,7 +164,7 @@ void setup()
   /**************************************************************************/
 
   PID_angle.SetOutputLimits(-200, 200, 50);
-  PID_distance.SetOutputLimits(-1000, 1000, 50);
+  PID_distance.SetOutputLimits(-400, 400, 50);
   PID_vitesse_D.SetOutputLimits(-1, 1, 40);
   PID_vitesse_G.SetOutputLimits(-1, 1, 40);
 

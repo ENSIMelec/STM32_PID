@@ -10,20 +10,17 @@ extern float VMax;
 /*************************************/
 /*****FONCTION ÉCHANTILLONAGE*********/
 /*************************************/
-void Update_IT_callback(void)
-{
+void Update_IT_callback(void) {
   /****Récupération des valeurs des codeurs****/
   int16_t ticks_G = (encGauche.getTicks());
   int16_t ticks_D = (encDroit.getTicks());
   /********************************************/
 
-  if (abs(newCommand.angle - angle) > epsilonAngle && angle_ok == false)
-  {
+  if (abs(newCommand.angle - angle) > epsilonAngle && !angle_ok) {
     cmd_angle = newCommand.angle;
     Serial.println("new Angle");
   }
-  if (angle_ok && abs(newCommand.distance - distance) > epsilonDistance)
-  {
+  if (angle_ok && abs(newCommand.distance - distance) > epsilonDistance && !distance_ok) {
     cmd_distance = newCommand.distance;
     Serial.println("new distance");
   }
@@ -38,39 +35,35 @@ void Update_IT_callback(void)
   distance += (vitesse_D + vitesse_G) / 2 * dt;
   /*********************************************/
 
-  if (abs(distance) >= distanceToDecel && PID_vitesse_G.GetOutputLimitMax() > 50)
-  {
+  if (abs(distance) >= distanceToDecel && PID_vitesse_G.GetOutputLimitMax() > 50) {
     PID_vitesse_G.IncreaseOutputLimits(-1);
     PID_vitesse_D.IncreaseOutputLimits(-1);
-  }
-  else if (PID_vitesse_G.GetOutputLimitMax() < 250)
-  {
+  } else if (PID_vitesse_G.GetOutputLimitMax() < 250) {
     PID_vitesse_G.IncreaseOutputLimits(1);
     PID_vitesse_D.IncreaseOutputLimits(1);
   }
 
   /*****Calul de PID Angle et Vitesse****/
-  if (abs(cmd_angle - angle) < epsilonAngle)
-  {
-    Output_PID_angle = 0;
-    angle_ok = true;
-  }
-  else
-    PID_angle.Compute();
+ 
 
-  if (abs(cmd_distance - distance) < epsilonDistance)
-  {
+  if (abs(cmd_distance - distance) < epsilonDistance) {
     Output_PID_distance = 0;
     cmd_distance = 0;
     distance = 0;
-    distance_ok = true;
-  }
-  else
+    if (angle_ok)
+      distance_ok = true;
+  } else
     PID_distance.Compute();
+
+   if (abs(cmd_angle - angle) < epsilonAngle) {
+    Output_PID_angle = 0;
+    angle_ok = true;
+  } else
+    PID_angle.Compute();
   /*************************************/
 
   /***Ajustement Commandes Vitesse****/
-  cmd_vitesse_G = +Output_PID_distance + Output_PID_angle; //+Output_PID_angle
+  cmd_vitesse_G = +Output_PID_distance + Output_PID_angle;  //+Output_PID_angle
   cmd_vitesse_D = +Output_PID_distance - Output_PID_angle;
   /***********************************/
 
