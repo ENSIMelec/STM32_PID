@@ -1,4 +1,16 @@
+
+#ifndef MAIN_H
+#define MAIN_H
+
 #include <Arduino.h>
+
+/*****Structure********/
+struct MovementResult
+{
+    float angle;
+    float distance;
+};
+/*********************/
 
 /******Pin********/
 #define PWM1 PB6 // PWM4/1 pin D10 donc le Timer4
@@ -66,6 +78,9 @@ extern float Output_PID_vitesse_G; // Valeur sortante du PID vitesse moteur gauc
 extern float Output_PID_vitesse_D; // Valeur sortante du PID vitesse moteur droit, une PMW donc
 extern float Output_PID_angle;     // Valeur sortante du PID angle
 extern float Output_PID_distance;  // Valeur sortante du PID distance
+extern bool distance_ok;
+extern bool angle_ok;
+extern MovementResult newCommand;
 /*******************************/
 
 extern unsigned long timeSetup;
@@ -73,3 +88,5 @@ extern float distanceToDecel;
 extern float angleToDecel;
 extern float VMax;
 /*************************/
+
+#endif

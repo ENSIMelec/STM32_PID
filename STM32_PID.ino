@@ -7,6 +7,8 @@
 #include "interruption.h"
 #include "BoucleOuverte.h"
 #include "Odometrie.h"
+#include "Move.h"
+
 
 /******Mode********/
 #define DEBUG // mode debug
@@ -51,6 +53,10 @@ float Kp_G = 100.0 / 525.0, Ki_G = 0, Kd_G = 0.0001;          // coefficients PI
 float Kp_D = 100.0 / 480.0, Ki_D = 0, Kd_D = 0.0001;          // coefficients PID vitesse moteur droit
 float Kp_angle = 4000, Ki_angle = 79, Kd_angle = 5;           // coefficients PID angle
 float Kp_distance = 50, Ki_distance = 0.9, Kd_distance = 0.5; // coefficients PID distance
+
+bool distance_ok = false;
+bool angle_ok = false;
+MovementResult newCommand;
 /*********************************/
 
 /******Declaration des codeurs************/
@@ -166,10 +172,10 @@ void setup()
   PID_distance.SetMode(AUTOMATIC);
   PID_vitesse_D.SetMode(AUTOMATIC);
   PID_vitesse_G.SetMode(AUTOMATIC);
-  cmd_angle = 0;
-  cmd_distance = 2000;
-  distanceToDecel = distance_End_Ramp(cmd_distance, VMax);
-  angleToDecel = angle_End_Ramp(cmd_angle, VMax);
+
+  newCommand = calculateMovement(0, -500);
+  distanceToDecel = distance_End_Ramp(newCommand.distance, VMax);
+  angleToDecel = angle_End_Ramp(newCommand.distance, VMax);
   timeSetup = millis();
 }
 /*************************************/

@@ -39,15 +39,8 @@ void asservCommandUSB(int argc, char **argv)
 		char side = *argv[1];
 		float speedGoal = atof(argv[2]);
 		int time = atoi(argv[3]);
-		sprintf(outputStream, "setting fw robot speed %.2f rad/s for %d ms\r\n",
-				 speedGoal, time);
-		
-		Serial.print(outputStream);
-		sprintf(outputStream,
-				 "setting wheel %s to speed %.2f rad/s for %d ms \r\n",
-				 (side == 'r') ? "right" : "left", speedGoal, time);
+	
 
-		Serial.print(outputStream);
 		// float speedRight = speedGoal;
 		// float speedLeft = 0;
 		// if (side == 'l')
