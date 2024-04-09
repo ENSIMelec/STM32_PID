@@ -42,20 +42,21 @@ void Update_IT_callback(void)
   if (abs(cmd_angle - angle) < epsilonAngle)
     Output_PID_angle = 0;
   else
-  PID_angle.Compute();
+    PID_angle.Compute();
 
-  if (abs(cmd_distance - distance) < epsilonDistance ) {
+  if (abs(cmd_distance - distance) < epsilonDistance)
+  {
     Output_PID_distance = 0;
     cmd_distance = 0;
     distance = 0;
   }
   else
-  PID_distance.Compute();
+    PID_distance.Compute();
   /*************************************/
 
   /***Ajustement Commandes Vitesse****/
-  cmd_vitesse_G =   + Output_PID_distance+Output_PID_angle; //+Output_PID_angle
-  cmd_vitesse_D = + Output_PID_distance-Output_PID_angle;
+  cmd_vitesse_G = +Output_PID_distance + Output_PID_angle; //+Output_PID_angle
+  cmd_vitesse_D = +Output_PID_distance - Output_PID_angle;
   /***********************************/
 
   /****Calcul des PID Vitesse*******/
