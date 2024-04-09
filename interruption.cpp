@@ -4,6 +4,7 @@
 
 float epsilonDistance = 0.5;
 float epsilonAngle = PI / 180;
+unsigned int count = 0;
 extern float VMax;
 
 /*************************************/
@@ -26,29 +27,35 @@ void Update_IT_callback(void)
   distance += (vitesse_D + vitesse_G) / 2 * dt;
   /*********************************************/
 
-  // if (abs(distance) >= distanceToDecel && PID_distance.GetOutputLimitMax() > 10)
-  //   PID_distance.IncreaseOutputLimits(-10);
-  // else if (PID_distance.GetOutputLimitMax() < VMax)
-  //   PID_distance.IncreaseOutputLimits(10);
+  if (abs(distance) >= distanceToDecel && PID_vitesse_G.GetOutputLimitMax() > 50)
+  {
+    PID_vitesse_G.IncreaseOutputLimits(-1);
+    PID_vitesse_D.IncreaseOutputLimits(-1);
+  }
+  else if (PID_vitesse_G.GetOutputLimitMax() < 250)
+  {
+    PID_vitesse_G.IncreaseOutputLimits(1);
+    PID_vitesse_D.IncreaseOutputLimits(1);
+  }
 
   /*****Calul de PID Angle et Vitesse****/
-  // if (abs(cmd_angle - angle) < epsilon)
-  //   Output_PID_angle = 0;
-  // else
+  if (abs(cmd_angle - angle) < epsilonAngle)
+    Output_PID_angle = 0;
+  else
   PID_angle.Compute();
 
-  // if (abs(cmd_distance - distance) < epsilon) {
-  //   Output_PID_distance = 0;
-  //   cmd_distance = 0;
-  //   distance = 0;
-  // }
-  // else
+  if (abs(cmd_distance - distance) < epsilonDistance ) {
+    Output_PID_distance = 0;
+    cmd_distance = 0;
+    distance = 0;
+  }
+  else
   PID_distance.Compute();
   /*************************************/
 
   /***Ajustement Commandes Vitesse****/
-  cmd_vitesse_G = +Output_PID_angle + Output_PID_distance;
-  cmd_vitesse_D = -Output_PID_angle + Output_PID_distance;
+  cmd_vitesse_G =   + Output_PID_distance+Output_PID_angle; //+Output_PID_angle
+  cmd_vitesse_D = + Output_PID_distance-Output_PID_angle;
   /***********************************/
 
   /****Calcul des PID Vitesse*******/
@@ -72,7 +79,9 @@ void Update_IT_callback(void)
   last_encGauche = ticks_G;
   last_encDroit = ticks_D;
   /********************************/
+
   Update_IT = true;
+  count++;
 }
 /*************************************/
 /*************************************/
