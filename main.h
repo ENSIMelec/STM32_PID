@@ -45,7 +45,6 @@ extern float Kp_G, Ki_G, Kd_G;                      // coefficients PID vitesse 
 extern float Kp_D, Ki_D, Kd_D;                      // coefficients PID vitesse moteur droit
 extern float Kp_angle, Ki_angle, Kd_angle;          // coefficients PID angle
 extern float Kp_distance, Ki_distance, Kd_distance; // coefficients PID distance
-
 /*********************************/
 
 /*****Sauvegarde des positions*****/
@@ -71,6 +70,6 @@ extern float Output_PID_distance;  // Valeur sortante du PID distance
 
 extern unsigned long timeSetup;
 extern float distanceToDecel;
+extern float angleToDecel;
 extern float VMax;
-
 /*************************/

@@ -44,6 +44,7 @@ PID::PID(float *Input, float *Output, float *Setpoint,
  *   pid Output needs to be computed.  returns true when the output is computed,
  *   false when nothing has been done.
  **********************************************************************************/
+float epsilon = 5;
 bool PID::Compute()
 {
   if (!inAuto)
@@ -63,10 +64,12 @@ bool PID::Compute()
   else if (outputSum < outMin)
     outputSum = outMin;
 
-  else if (outputSum < deadZone && outputSum > 0)
+  else if (outputSum < deadZone && outputSum > epsilon)
       outputSum = deadZone;
-  else if (outputSum > -deadZone && outputSum < 0)
+  else if (outputSum > -deadZone && outputSum < -epsilon)
       outputSum = -deadZone;
+  else if (abs(outputSum) < epsilon)
+      outputSum = 0;
   
 
   /*Add Proportional on Error, if P_ON_E is specified*/

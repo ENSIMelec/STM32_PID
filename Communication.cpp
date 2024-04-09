@@ -156,7 +156,7 @@ void sendData()
     Serial.print("H"); // Consigne de vitesse moteur Droit
     Serial.println(cmd_vitesse_D, 5);
     Serial.print("I"); // angle mesurer
-    Serial.println(angle);
+    Serial.println(angle,5);
     Serial.print("J"); // angle PID
     Serial.println(Output_PID_angle);
     Serial.print("K");
