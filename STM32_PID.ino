@@ -9,7 +9,6 @@
 #include "Odometrie.h"
 #include "Move.h"
 
-
 /******Mode********/
 #define DEBUG // mode debug
 /******************/
@@ -49,9 +48,9 @@ float coefAngle = dt / empattementRoueCodeuse;
 /**********************/
 
 /******COEFICIENTS PID************/
-float Kp_G = 100.0 / 525.0, Ki_G = 0, Kd_G = 0.0001;          // coefficients PID vitesse moteur gauche
-float Kp_D = 100.0 / 480.0, Ki_D = 0, Kd_D = 0.0001;          // coefficients PID vitesse moteur droit
-float Kp_angle = 4000, Ki_angle = 79, Kd_angle = 5;           // coefficients PID angle
+float Kp_G = 100.0 / 475.0, Ki_G = 0.012, Kd_G = 0.00;        // coefficients PID vitesse moteur gauche
+float Kp_D = 100.0 / 500.0, Ki_D = 0.01, Kd_D = 0.00;         // coefficients PID vitesse moteur droit
+float Kp_angle = 4000, Ki_angle = 95, Kd_angle = 5;           // coefficients PID angle
 float Kp_distance = 50, Ki_distance = 0.9, Kd_distance = 0.5; // coefficients PID distance
 
 bool distance_ok = false;
@@ -64,8 +63,8 @@ MovementResult newCommand;
 // et les étalonner
 
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
-Encoder encGauche(CodGA, CodGB, TIM3, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
-Encoder encDroit(CodDA, CodDB, TIM2, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
+Encoder encGauche(CodGB, CodGA, TIM3, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+Encoder encDroit(CodDB, CodDA, TIM2, HALFQUAD, 250);  // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
 /*****Sauvegarde des positions*****/
@@ -110,6 +109,8 @@ void setup()
   /*********************************************/
   Serial.println("Serial OK");
 
+  attachInterrupt(digitalPinToInterrupt(ARU), ARU_interrupt, RISING);
+
 #ifdef DEBUG
   /****************************/
   /********MODE DEBUG***********/
@@ -123,9 +124,6 @@ void setup()
     while (1)
       ;
   }
-
-  pinMode(LED_BUILTIN, OUTPUT);    // Configure la broche de la LED comme sortie
-  digitalWrite(LED_BUILTIN, HIGH); // Allume LED Confirmation d'initialisation
   /***************************************/
 
   /****************************/
@@ -150,6 +148,8 @@ void setup()
   /*********************************/
 
   delay(5000);
+  pinMode(LED_BUILTIN, OUTPUT);    // Configure la broche de la LED comme sortie
+  digitalWrite(LED_BUILTIN, HIGH); // Allume LED Confirmation d'initialisation
   /******Activation des PID************/
   encDroit.resetTicks();
   encGauche.resetTicks();
@@ -163,19 +163,19 @@ void setup()
   MyTim->resume();
   /**************************************************************************/
 
-  PID_angle.SetOutputLimits(-200, 200, 50);
-  PID_distance.SetOutputLimits(-400, 400, 50);
-  PID_vitesse_D.SetOutputLimits(-1, 1, 40);
-  PID_vitesse_G.SetOutputLimits(-1, 1, 40);
+  PID_angle.SetOutputLimits(-200, 200, 5);
+  PID_distance.SetOutputLimits(-1000, 1000, 5);
+  PID_vitesse_D.SetOutputLimits(-2, 2, 0);
+  PID_vitesse_G.SetOutputLimits(-2, 2, 0);
 
   PID_angle.SetMode(AUTOMATIC);
   PID_distance.SetMode(AUTOMATIC);
   PID_vitesse_D.SetMode(AUTOMATIC);
   PID_vitesse_G.SetMode(AUTOMATIC);
 
-  newCommand = calculateMovement(0, -500);
-  distanceToDecel = distance_End_Ramp(newCommand.distance, VMax);
-  angleToDecel = angle_End_Ramp(newCommand.distance, VMax);
+  newCommand = calculateMovement(0, 1000);
+  //distanceToDecel = distance_End_Ramp(newCommand.distance, VMax);
+  // angleToDecel = angle_End_Ramp(newCommand.angle, VMax);
   timeSetup = millis();
 }
 /*************************************/
@@ -191,8 +191,8 @@ void loop()
   {
     sendData();
   }
-
   // Config_PID_Vitesse();
+  //   analogWrite(PWM1, 100);
 }
 /*************************************/
 /*************************************/
@@ -206,3 +206,15 @@ void loop()
  * donc 50 % vmax = 519.75 mm/s
  *     10 % vmax = 10.395 mm/s
  *     5 % de 255 = 13 et 50 % de 255 = 128*/
+
+void ARU_interrupt()
+{
+  PID_angle.SetMode(MANUAL);
+  PID_distance.SetMode(MANUAL);
+  PID_vitesse_D.SetMode(MANUAL);
+  PID_vitesse_G.SetMode(MANUAL);
+  Output_PID_vitesse_G = 0; // Valeur sortante du PID vitesse moteur gauche, une PMW donc
+  Output_PID_vitesse_D = 0; // Valeur sortante du PID vitesse moteur droit, une PMW donc
+  Output_PID_angle = 0;     // Valeur sortante du PID angle
+  Output_PID_distance = 0;
+}

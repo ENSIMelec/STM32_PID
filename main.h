@@ -13,14 +13,15 @@ struct MovementResult
 /*********************/
 
 /******Pin********/
-#define PWM1 PB6 // PWM4/1 pin D10 donc le Timer4
-#define DIR1 D2
-#define PWM2 PA8 // PWM1/1 pin D7 donc le Timer1
-#define DIR2 D3
-#define CodDA PA0
-#define CodDB PA1
-#define CodGA PB5
+#define PWM1 PA8 // PWM4/1 pin D10 donc le Timer4
+#define DIR1 PA10
+#define PWM2 PB6 // PWM1/1 pin D7 donc le Timer1
+#define DIR2 PB3
+#define CodDB PA0
+#define CodDA PA1
 #define CodGB PB4
+#define CodGA PB5
+#define ARU PA14
 /******************/
 
 /******ECHANTILLONAGE********/

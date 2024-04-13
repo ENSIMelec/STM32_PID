@@ -1,13 +1,11 @@
 #include "Odometrie.h"
 
-
-float last_angle = 0;
 float last_distance = 0;
+float angleTot = 0;
 bool update_Position(float distance, float angle)
 {
-    x += cos((angle-last_angle)) * (distance-last_distance);
-    y += sin((angle-last_angle)) * (distance-last_distance);
-    last_angle = angle;
+    x += cos(angle + angleTot) * (distance - last_distance);
+    y += sin(angle + angleTot) * (distance - last_distance);
     last_distance = distance;
     return true;
 }
@@ -16,7 +14,18 @@ bool reset_Position(void)
 {
     x = 0;
     y = 0;
+    last_distance = 0;
     return true;
+}
+
+bool reset_last_distance(void)
+{
+    last_distance = 0;
+    return true;
+}
+
+bool reset_angle(float angle_){
+  angleTot = angle_;
 }
 
 float acceleration = 1000; // en mm/S-2 pour une augmentation de 1 toutes les 10 ms

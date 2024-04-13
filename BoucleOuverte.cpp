@@ -7,8 +7,8 @@ void Config_PID_Vitesse(void)
   digitalWrite(3, 1);
   if (timeNow - timeSetup < 1000)
   {
-    analogWrite(PWM1, 10);
-    analogWrite(PWM2, 10);
+    analogWrite(PWM1, 20);
+    analogWrite(PWM2, 20);
   }
   if (timeNow - timeSetup < 4000 && timeNow - timeSetup >= 1000)
   {
