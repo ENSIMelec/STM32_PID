@@ -34,23 +34,17 @@ void asservCommandUSB(int argc, char **argv)
 		printUsage();
 		return;
 	}
-	else if (!strcmp(argv[0], "wheelspeedstep"))
+	else if (!strcmp(argv[0], "goto"))
 	{
-		char side = *argv[1];
-		float speedGoal = atof(argv[2]);
-		int time = atoi(argv[3]);
-
-		// float speedRight = speedGoal;
-		// float speedLeft = 0;
-		// if (side == 'l')
-		// {
-		// 	speedLeft = speedGoal;
-		// 	speedRight = 0;
-		// }
-
-		// mainAsserv->setWheelsSpeed(speedRight, speedLeft);
-		// chThdSleepMilliseconds(time);
-		// mainAsserv->setWheelsSpeed(0, 0);
+		float x = atof(argv[1]);
+		float y = atof(argv[2]);
+		newCommand = calculateMovement(x, y);
+		goTo(newCommand);
+	}
+	else if (!strcmp(argv[0], "rotate"))
+	{
+		float angle = atof(argv[1]);
+		rotate(angle);
 	}
 }
 /*************************************/
