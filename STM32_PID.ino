@@ -173,7 +173,7 @@ void setup()
   PID_vitesse_D.SetMode(AUTOMATIC);
   PID_vitesse_G.SetMode(AUTOMATIC);
 
-  newCommand = calculateMovement(0, 1000);
+  //newCommand = calculateMovement(0, 1000);
   //distanceToDecel = distance_End_Ramp(newCommand.distance, VMax);
   // angleToDecel = angle_End_Ramp(newCommand.angle, VMax);
   timeSetup = millis();

@@ -68,6 +68,8 @@ void Update_IT_callback(void)
     reset_angle(angle);
     angle = 0;
     cmd_angle = 0;
+    PID_vitesse_D.SetOutputLimits(-2, 2, 0);
+    PID_vitesse_G.SetOutputLimits(-2, 2, 0);
   }
   else
     PID_angle.Compute();
