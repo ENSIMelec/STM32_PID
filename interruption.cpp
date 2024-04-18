@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include "main.h"
 
-float epsilonDistance = 0.5;
+float epsilonDistance = 2;
 float epsilonAngle = PI / 180 / 2;
 unsigned int interrupt_tick = 0;
 /*************************************/
@@ -18,12 +18,12 @@ void Update_IT_callback(void)
 
   if (distance_ok && angle_ok)
   {
-    cmd_distance = 0;
-    distance = 0;
-    reset_last_distance();
-    interrupt_tick = 0;
-    angle_ok = false;
-    distance_ok = false;
+    // cmd_distance = 0;
+    // distance = 0;
+    // reset_last_distance();
+    // interrupt_tick = 0;
+    // angle_ok = false;
+    // distance_ok = false;
   }
   else if (!angle_ok)
   {
@@ -49,25 +49,22 @@ void Update_IT_callback(void)
 
   /*****Calul de PID Angle et Vitesse****/
 
-  if (abs(distance_final - distance) < epsilonDistance)
+  if ((abs(distance_final - distance) < epsilonDistance || interrupt_tick >= get_distance_tf()) && angle_ok && !distance_ok)
   {
-    Output_PID_distance = 0;
-    if (angle_ok)
-    {
-      distance_ok = true;
-      reset_time_distance();
-      interrupt_tick = 0;
-    }
+
+    distance_ok = true;
+    reset_time_distance();
+    interrupt_tick = 0;
   }
   else
     PID_distance.Compute();
 
-  if (abs(angle_final - angle) < epsilonAngle)
+  if ((abs(angle_final - angle) < epsilonAngle || interrupt_tick >= get_angle_tf()) && !angle_ok)
   {
-    Output_PID_angle = 0;
     angle_ok = true;
     reset_time_angle();
     interrupt_tick = 0;
+    Serial.println("ok");
   }
   else
     PID_angle.Compute();
@@ -101,9 +98,13 @@ void Update_IT_callback(void)
   /********************************/
 
   // Update_IT = true;
-  Serial.print(cmd_angle * 180 / PI, 5);
+  Serial.print(cmd_distance, 5);
   Serial.print(" ");
-  Serial.println(angle * 180 / PI, 5);
+  Serial.print(distance, 5);
+  Serial.print(" ");
+  Serial.print(cmd_angle, 5);
+  Serial.print(" ");
+  Serial.println(angle, 5);
 }
 /*************************************/
 /*************************************/

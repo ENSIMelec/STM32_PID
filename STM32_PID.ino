@@ -47,10 +47,10 @@ float coefAngle = dt / empattementRoueCodeuse;
 /**********************/
 
 /******COEFICIENTS PID************/
-float Kp_G = 100.0 / 475.0, Ki_G = 0.012, Kd_G = 0.00;        // coefficients PID vitesse moteur gauche
-float Kp_D = 100.0 / 500.0, Ki_D = 0.01, Kd_D = 0.00;         // coefficients PID vitesse moteur droit
-float Kp_angle = 3500, Ki_angle = 1620, Kd_angle = 0;           // coefficients PID angle
-float Kp_distance = 30, Ki_distance = 0, Kd_distance = 0; // coefficients PID distance
+float Kp_G = 100.0 / 475.0, Ki_G = 0.012, Kd_G = 0.00;    // coefficients PID vitesse moteur gauche
+float Kp_D = 100.0 / 500.0, Ki_D = 0.01, Kd_D = 0.00;     // coefficients PID vitesse moteur droit
+float Kp_angle = 3500, Ki_angle = 1620, Kd_angle = 0;     // coefficients PID angle
+float Kp_distance = 20, Ki_distance = 1.5, Kd_distance = 0; // coefficients PID distance
 
 bool distance_ok = false;
 bool angle_ok = false;
@@ -64,7 +64,7 @@ MovementResult newCommand;
 // - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
 int16_t last_encGauche = 0;
 int16_t last_encDroit = 0;
-Encoder encGauche(CodGB, CodGA, TIM3,&last_encGauche, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
+Encoder encGauche(CodGB, CodGA, TIM3, &last_encGauche, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
 Encoder encDroit(CodDB, CodDA, TIM2, &last_encDroit, HALFQUAD, 250);   // PWM3/1 pin D5 et PWM3/2 pin D4 Donc Timer 3 utilisé
 /***************************************/
 
@@ -153,7 +153,7 @@ void setup()
   encDroit.resetTicks();
   encGauche.resetTicks();
   /***********************************/
- 
+
   /******Initialisation de l'interruption pour l'échantillonnage************/
   TIM_TypeDef *Instance = TIM6;
   HardwareTimer *MyTim = new HardwareTimer(Instance);
@@ -161,24 +161,21 @@ void setup()
   MyTim->attachInterrupt(Update_IT_callback);
   MyTim->resume();
   /**************************************************************************/
-  
-  PID_angle.SetOutputLimits(-1000, 1000, 5);
-  PID_distance.SetOutputLimits(-1000, 1000, 5);
-  PID_vitesse_D.SetOutputLimits(-1000, 1000, 5);
-  PID_vitesse_G.SetOutputLimits(-1000, 1000, 5);
- 
+
+  PID_angle.SetOutputLimits(-1000, 1000, 0);
+  PID_distance.SetOutputLimits(-1000, 1000, 0);
+  PID_vitesse_D.SetOutputLimits(-1000, 1000, 1);
+  PID_vitesse_G.SetOutputLimits(-1000, 1000, 1);
+
   PID_angle.SetMode(AUTOMATIC);
   PID_distance.SetMode(AUTOMATIC);
   PID_vitesse_D.SetMode(AUTOMATIC);
   PID_vitesse_G.SetMode(AUTOMATIC);
-  
-  newCommand = calculateMovement(0, 1);
-  
-  goTo(newCommand, 500);
- 
 
-  // distanceToDecel = distance_End_Ramp(newCommand.distance, VMax);
-  //  angleToDecel = angle_End_Ramp(newCommand.angle, VMax);
+  newCommand = calculateMovement(500, 0); // calculate angle and distance with x,y point
+
+  goTo(newCommand, 500); // angle, distance and speed
+
   timeSetup = millis();
 }
 /*************************************/

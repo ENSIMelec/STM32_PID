@@ -149,3 +149,13 @@ bool reset_time_distance()
     distance_t2 = 0;
     return true;
 }
+
+float get_angle_tf()
+{
+    return (angle_t1 + angle_t2) / dt + 10;
+}
+
+float get_distance_tf()
+{
+    return (distance_t1 + distance_t2) / dt + 10;
+}
