@@ -21,6 +21,12 @@ void Update_IT_callback(void)
     cmd_distance = 0;
     distance = 0;
     reset_last_distance();
+
+    PID_vitesse_G.SetMode(AUTOMATIC);
+    PID_vitesse_D.SetMode(AUTOMATIC);
+    PID_distance.SetMode(AUTOMATIC);
+    PID_angle.SetMode(AUTOMATIC);
+
     interrupt_tick = 0;
     angle_ok = false;
     distance_ok = false;
@@ -50,6 +56,18 @@ void Update_IT_callback(void)
 
   /*****Calul de PID Angle et Vitesse****/
 
+  if (abs(cmd_angle - angle) > 5 * PI / 180 && abs(cmd_distance - distance) > 20)
+  {
+    PID_vitesse_G.SetMode(MANUAL);
+    PID_vitesse_D.SetMode(MANUAL);
+    PID_distance.SetMode(MANUAL);
+    PID_angle.SetMode(MANUAL);
+    Output_PID_vitesse_G = 0;
+    Output_PID_vitesse_D = 0;
+    Output_PID_distance = 0;
+    Output_PID_angle = 0;
+  }
+
   if ((abs(distance_final - distance) < epsilonDistance || interrupt_tick >= get_distance_tf()) && angle_ok && !distance_ok)
   {
 
@@ -71,8 +89,10 @@ void Update_IT_callback(void)
   /*************************************/
 
   /***Ajustement Commandes Vitesse****/
+
   cmd_vitesse_G = +Output_PID_distance + Output_PID_angle;
   cmd_vitesse_D = +Output_PID_distance - Output_PID_angle;
+
   /***********************************/
 
   /****Calcul des PID Vitesse*******/
@@ -84,8 +104,10 @@ void Update_IT_callback(void)
   digitalWriteFast(DIR2, (Output_PID_vitesse_G >= 0));
 
   /****Commande des moteurs*******/
+
   analogWrite(PWM1, abs(Output_PID_vitesse_G));
   analogWrite(PWM2, abs(Output_PID_vitesse_D));
+
   /*****************************/
 
   /****Calcul de la position*******/
@@ -97,14 +119,14 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
 
-  Update_IT = true;
-  // Serial.print(cmd_distance, 5);
-  // Serial.print(" ");
-  // Serial.print(distance, 5);
-  // Serial.print(" ");
-  // Serial.print(cmd_angle, 5);
-  // Serial.print(" ");
-  // Serial.println(angle, 5);
+  //Update_IT = true;
+  Serial.print(cmd_distance, 5);
+  Serial.print(" ");
+  Serial.print(distance, 5);
+  Serial.print(" ");
+  Serial.print(cmd_angle, 5);
+  Serial.print(" ");
+  Serial.println(angle, 5);
 }
 /*************************************/
 /*************************************/

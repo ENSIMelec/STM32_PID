@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include <cmath>
+#include "PID.h"
 
 MovementResult calculateMovement(float targetX, float targetY);
 bool goTo(MovementResult mov, float speed);

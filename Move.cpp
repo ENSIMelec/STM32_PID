@@ -37,34 +37,34 @@ void change_PID_mode(short mode)
     switch (mode)
     {
     case 0:
-        PID_vitesse_G.setMode(MANUAL);
-        PID_vitesse_D.setMode(MANUAL);
-        PID_angle.setMode(MANUAL);
-        PID_distance.setMode(MANUAL);
+        PID_vitesse_G.SetMode(MANUAL);
+        PID_vitesse_D.SetMode(MANUAL);
+        PID_angle.SetMode(MANUAL);
+        PID_distance.SetMode(MANUAL);
         break;
     case 1:
-        PID_vitesse_G.setMode(AUTOMATIC);
-        PID_vitesse_D.setMode(AUTOMATIC);
-        PID_angle.setMode(AUTOMATIC);
-        PID_distance.setMode(MANUAL);
+        PID_vitesse_G.SetMode(AUTOMATIC);
+        PID_vitesse_D.SetMode(AUTOMATIC);
+        PID_angle.SetMode(AUTOMATIC);
+        PID_distance.SetMode(MANUAL);
         break;
     case 2:
-        PID_vitesse_G.setMode(AUTOMATIC);
-        PID_vitesse_D.setMode(AUTOMATIC);
-        PID_angle.setMode(MANUAL);
-        PID_distance.setMode(AUTOMATIC);
+        PID_vitesse_G.SetMode(AUTOMATIC);
+        PID_vitesse_D.SetMode(AUTOMATIC);
+        PID_angle.SetMode(MANUAL);
+        PID_distance.SetMode(AUTOMATIC);
         break;
     case 3:
-        PID_vitesse_G.setMode(AUTOMATIC);
-        PID_vitesse_D.setMode(AUTOMATIC);
-        PID_angle.setMode(MANUAL);
-        PID_distance.setMode(MANUAL);
+        PID_vitesse_G.SetMode(AUTOMATIC);
+        PID_vitesse_D.SetMode(AUTOMATIC);
+        PID_angle.SetMode(MANUAL);
+        PID_distance.SetMode(MANUAL);
         break;
     case 4:
-        PID_vitesse_G.setMode(AUTOMATIC);
-        PID_vitesse_D.setMode(AUTOMATIC);
-        PID_angle.setMode(AUTOMATIC);
-        PID_distance.setMode(AUTOMATIC);
+        PID_vitesse_G.SetMode(AUTOMATIC);
+        PID_vitesse_D.SetMode(AUTOMATIC);
+        PID_angle.SetMode(AUTOMATIC);
+        PID_distance.SetMode(AUTOMATIC);
         break;
     }
 }
