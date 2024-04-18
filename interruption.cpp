@@ -1,12 +1,11 @@
 #include "interruption.h"
 #include "Odometrie.h"
 #include <Arduino.h>
+#include "main.h"
 
 float epsilonDistance = 0.5;
-float epsilonAngle = PI / 180 / 4;
-extern float VMax;
-
-
+float epsilonAngle = PI / 180 / 2;
+unsigned int interrupt_tick = 0;
 /*************************************/
 /*****FONCTION ÉCHANTILLONAGE*********/
 /*************************************/
@@ -17,13 +16,25 @@ void Update_IT_callback(void)
   int16_t ticks_D = (encDroit.getTicks());
   /********************************************/
 
-  if (abs(newCommand.angle - angle) > epsilonAngle && !angle_ok)
+  if (distance_ok && angle_ok)
   {
-    cmd_angle = newCommand.angle;
+    cmd_distance = 0;
+    distance = 0;
+    reset_last_distance();
+    interrupt_tick = 0;
+    angle_ok = false;
+    distance_ok = false;
   }
-  if (angle_ok && abs(newCommand.distance - distance) > epsilonDistance && !distance_ok)
+  else if (!angle_ok)
   {
-    cmd_distance = newCommand.distance;
+    interrupt_tick += 1;
+    cmd_angle = angle_command_ramp(interrupt_tick);
+  }
+
+  else if (!distance_ok && angle_ok)
+  {
+    interrupt_tick += 1;
+    cmd_distance = distance_command_ramp(interrupt_tick);
   }
 
   /****Calcul des vitesses des moteurs*******/
@@ -36,47 +47,34 @@ void Update_IT_callback(void)
   distance += (vitesse_D + vitesse_G) / 2 * dt;
   /*********************************************/
 
-  if (abs(distance) >= distanceToDecel && PID_vitesse_G.GetOutputLimitMax() > 30)
-  {
-    PID_vitesse_G.IncreaseOutputLimits(-1);
-    PID_vitesse_D.IncreaseOutputLimits(-1);
-  }
-  else if (PID_vitesse_G.GetOutputLimitMax() < 250)
-  {
-    PID_vitesse_G.IncreaseOutputLimits(1);
-    PID_vitesse_D.IncreaseOutputLimits(1);
-  }
-
   /*****Calul de PID Angle et Vitesse****/
 
-  if (abs(cmd_distance - distance) < epsilonDistance)
+  if (abs(distance_final - distance) < epsilonDistance)
   {
     Output_PID_distance = 0;
-    cmd_distance = 0;
-    distance = 0;
-    reset_last_distance();
     if (angle_ok)
+    {
       distance_ok = true;
+      reset_time_distance();
+      interrupt_tick = 0;
+    }
   }
   else
     PID_distance.Compute();
 
-  if (abs(cmd_angle - angle) < epsilonAngle)
+  if (abs(angle_final - angle) < epsilonAngle)
   {
     Output_PID_angle = 0;
     angle_ok = true;
-    reset_angle(angle);
-    angle = 0;
-    cmd_angle = 0;
-    PID_vitesse_D.SetOutputLimits(-2, 2, 0);
-    PID_vitesse_G.SetOutputLimits(-2, 2, 0);
+    reset_time_angle();
+    interrupt_tick = 0;
   }
   else
     PID_angle.Compute();
   /*************************************/
 
   /***Ajustement Commandes Vitesse****/
-  cmd_vitesse_G = +Output_PID_distance + Output_PID_angle; //+Output_PID_angle
+  cmd_vitesse_G = +Output_PID_distance + Output_PID_angle;
   cmd_vitesse_D = +Output_PID_distance - Output_PID_angle;
   /***********************************/
 
@@ -102,7 +100,10 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
 
-  Update_IT = true;
+  // Update_IT = true;
+  Serial.print(cmd_angle * 180 / PI, 5);
+  Serial.print(" ");
+  Serial.println(angle * 180 / PI, 5);
 }
 /*************************************/
 /*************************************/

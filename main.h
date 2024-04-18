@@ -26,7 +26,7 @@ struct MovementResult
 
 /******ECHANTILLONAGE********/
 extern float dt;
-extern bool Update_IT;
+extern volatile bool Update_IT;
 /****************************/
 
 /******CONSIGNES PID**********/
@@ -81,12 +81,12 @@ extern float Output_PID_angle;     // Valeur sortante du PID angle
 extern float Output_PID_distance;  // Valeur sortante du PID distance
 extern bool distance_ok;
 extern bool angle_ok;
+extern float angle_final;
+extern float distance_final;
 extern MovementResult newCommand;
 /*******************************/
 
 extern unsigned long timeSetup;
-extern float distanceToDecel;
-extern float angleToDecel;
 extern float VMax;
 /*************************/
 

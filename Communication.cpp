@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "main.h"
 #include "Odometrie.h"
+#include "Move.h"
 
 char inputBuffer[1024] = "\0"; // Buffer pour stocker les données entrantes
 int sizeBuffer = 0;			   // Taille du buffer
@@ -39,12 +40,12 @@ void asservCommandUSB(int argc, char **argv)
 		float x = atof(argv[1]);
 		float y = atof(argv[2]);
 		newCommand = calculateMovement(x, y);
-		goTo(newCommand);
+		goTo(newCommand, 500);
 	}
 	else if (!strcmp(argv[0], "rotate"))
 	{
 		float angle = atof(argv[1]);
-		rotate(angle);
+		rotate(angle, 500);
 	}
 }
 /*************************************/

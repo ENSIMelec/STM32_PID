@@ -15,19 +15,14 @@ MovementResult calculateMovement(float targetX, float targetY)
     return result;
 }
 
-bool goTo(MovementResult mov){
-  angle_ok = false;
-  distance_ok = false;
-  distanceToDecel = distance_End_Ramp(mov.distance, VMax);
-  //angleToDecel = angle_End_Ramp(newCommand.angle, VMax);
-  cmd_angle = mov.angle;
+bool goTo(MovementResult mov, float speed){
+  calculate_distance_time(mov.distance, speed);
+  calculate_angle_time(mov.angle, speed);
   return true;
 }  
 
-bool rotate(float angle_need){
-  angle_ok = false;
-  distance_ok = false;
-  cmd_angle = angle_need;
+bool rotate(float angle_need, float speed){
+  calculate_angle_time(angle_need, speed);
   return true;
 }
 

@@ -1,7 +1,27 @@
 #include "Odometrie.h"
 
+/*Variables de sauvegarde pour l'odométrie*/
 float last_distance = 0;
 float angleTot = 0;
+const float Attenuantion_vit_ang = 0.5;
+/***************************************/
+
+/*Variables de temps pour les rampe*/
+float distance_t1;
+float distance_t2;
+float angle_t1;
+float angle_t2;
+/***********************************/
+
+/*Variable pour calcul des rampes de vitesse*/
+float Acc = 1000;   // acceleration
+float distance_lim; // distance limite
+
+float VMaxAngulaire; // Vitesse angulaire max
+float AccAngulaire;  // Acceleration angulaire
+float angle_lim;     // angle limite
+/***********************************/
+
 bool update_Position(float distance, float angle)
 {
     x += cos(angle + angleTot) * (distance - last_distance);
@@ -24,19 +44,108 @@ bool reset_last_distance(void)
     return true;
 }
 
-bool reset_angle(float angle_){
-  angleTot = angle_;
+bool reset_angle(float angle_)
+{
+    angleTot = angle_;
+    return true;
 }
 
-float acceleration = 1000; // en mm/S-2 pour une augmentation de 1 toutes les 10 ms
-int distance_End_Ramp(float distance, float VitesseOutMax)
+bool calculate_distance_time(float distance_, float Vmax_)
 {
-    float distance_Start_Ramp = (VitesseOutMax * VitesseOutMax) / (2 * acceleration);
-    return distance - distance_Start_Ramp;
+    distance_final = distance_;
+    VMax = min(Vmax_, (float)1000);
+    distance_lim = VMax * VMax / Acc;
+    if (distance_ < distance_lim)
+    {
+        distance_t1 = sqrt(distance_ / Acc);
+        distance_t2 = distance_t1;
+        VMax = Acc * distance_t1;
+    }
+    else
+    {
+        distance_t1 = VMax / Acc;
+        distance_t2 = (distance_ - Acc * distance_t1 * distance_t1) / VMax + distance_t1;
+    }
+    return true;
 }
 
-int angle_End_Ramp(float angle, float VitesseAngulaireMax)
+bool calculate_angle_time(float angle_, float Vmax_)
 {
-    float angle_Start_Ramp = (VitesseAngulaireMax * VitesseAngulaireMax) / (2 * acceleration);
-    return angle - angle_Start_Ramp;
+
+    angle_final = angle_;
+    VMax = Vmax_;
+    VMaxAngulaire = VMax / empattementRoueCodeuse / 2 * Attenuantion_vit_ang;
+    AccAngulaire = Acc / empattementRoueCodeuse / 2;
+    angle_lim = VMaxAngulaire * VMaxAngulaire / AccAngulaire;
+
+    if (angle < angle_lim)
+    {
+        angle_t1 = sqrt(angle_ / AccAngulaire);
+        angle_t2 = angle_t1;
+        VMaxAngulaire = AccAngulaire * angle_t1;
+    }
+    else
+    {
+        angle_t1 = VMaxAngulaire / AccAngulaire;
+        angle_t2 = (angle_ - AccAngulaire * angle_t1 * angle_t1) / VMaxAngulaire + angle_t1;
+    }
+    return true;
+}
+
+float distance_command_ramp(float interrupt_tick)
+{
+    float t = interrupt_tick * dt;
+
+    if (t < distance_t1)
+    {
+        return Acc * t * t / 2;
+    }
+    else if (t > distance_t2 + distance_t1)
+    {
+        return distance_final;
+    }
+    else if (t > distance_t2)
+    {
+        return Acc * distance_t1 * distance_t1 / 2 - Acc * (t - distance_t2) * (t - distance_t2) / 2 + VMax * (t - distance_t1);
+    }
+    else
+    {
+        return Acc * distance_t1 * distance_t1 / 2 + VMax * (t - distance_t1);
+    }
+}
+
+float angle_command_ramp(float interrupt_tick)
+{
+    float t = interrupt_tick * dt;
+
+    if (t < angle_t1)
+    {
+        return AccAngulaire * t * t / 2;
+    }
+    else if (t > angle_t2 + angle_t1)
+    {
+        return angle_final;
+    }
+    else if (t > angle_t2)
+    {
+        return AccAngulaire * angle_t1 * angle_t1 / 2 - AccAngulaire * (t - angle_t2) * (t - angle_t2) / 2 + VMaxAngulaire * (t - angle_t1);
+    }
+    else
+    {
+        return AccAngulaire * angle_t1 * angle_t1 / 2 + VMaxAngulaire * (t - angle_t1);
+    }
+}
+
+bool reset_time_angle()
+{
+    angle_t1 = 0;
+    angle_t2 = 0;
+    return true;
+}
+
+bool reset_time_distance()
+{
+    distance_t1 = 0;
+    distance_t2 = 0;
+    return true;
 }

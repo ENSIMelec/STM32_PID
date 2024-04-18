@@ -2,13 +2,14 @@
 #include "FastInterruptEncoder.h"
 #include "main.h"
 
-Encoder::Encoder(int pinA, int pinB, TIM_TypeDef *timer, encoder_mode_t mode, uint8_t filter)
+Encoder::Encoder(int pinA, int pinB, TIM_TypeDef *timer, int16_t *last_ticks, encoder_mode_t mode, uint8_t filter)
 {
 	_pinA = pinA;
 	_pinB = pinB;
 	_mode = mode;
 	_filter = filter;
 	_timer = timer;
+	_last_ticks = last_ticks;
 }
 
 bool Encoder::init()
@@ -18,11 +19,9 @@ bool Encoder::init()
 
 	pin_function(digitalPinToPinName(_pinA), pinmap_function(digitalPinToPinName(_pinA), PinMap_TIM));
 	pin_function(digitalPinToPinName(_pinB), pinmap_function(digitalPinToPinName(_pinB), PinMap_TIM));
-
-	TIM_HandleTypeDef Encoder_Handle;
 	TIM_Encoder_InitTypeDef sEncoderConfig = {0};
 
-	Encoder_Handle.Init.Period = 65535;
+	Encoder_Handle.Init.Period = 65534;
 	if (_mode == SINGLE)
 	{
 		Encoder_Handle.Init.Prescaler = 1;
@@ -80,8 +79,23 @@ int16_t Encoder::getTicks()
 void Encoder::resetTicks()
 {
 	LL_TIM_SetCounter(_timer, 32767);
-	last_encGauche = 0;
-	last_encDroit = 0;
+	*_last_ticks = 0;
+}
+
+void Encoder::overflowCallback()
+{
+	if (__HAL_TIM_GET_FLAG(&Encoder_Handle, TIM_FLAG_UPDATE) != RESET)
+	{
+		if (__HAL_TIM_GET_IT_SOURCE(&Encoder_Handle, TIM_IT_UPDATE) != RESET)
+		{
+			__HAL_TIM_CLEAR_IT(&Encoder_Handle, TIM_IT_UPDATE);
+			LL_TIM_SetCounter(_timer, 32767);
+			if (_invert)
+				*_last_ticks = *_last_ticks + 32767;
+			else
+				*_last_ticks = *_last_ticks - 32767;
+		}
+	}
 }
 
 /******* FONCTION DE BASE
