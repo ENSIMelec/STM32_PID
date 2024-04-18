@@ -13,7 +13,7 @@
 #define DEBUG // mode debug
 /******************/
 unsigned long timeSetup;
-
+short mode = 4;
 /******ECHANTILLONAGE********/
 float dt = 10e-3; // 10ms
 volatile bool Update_IT = false;
@@ -164,17 +164,17 @@ void setup()
 
   PID_angle.SetOutputLimits(-1000, 1000, 0);
   PID_distance.SetOutputLimits(-1000, 1000, 0);
-  PID_vitesse_D.SetOutputLimits(-1000, 1000, 1);
-  PID_vitesse_G.SetOutputLimits(-1000, 1000, 1);
+  PID_vitesse_D.SetOutputLimits(-1000, 1000, 10);
+  PID_vitesse_G.SetOutputLimits(-1000, 1000, 10);
 
   PID_angle.SetMode(AUTOMATIC);
   PID_distance.SetMode(AUTOMATIC);
   PID_vitesse_D.SetMode(AUTOMATIC);
   PID_vitesse_G.SetMode(AUTOMATIC);
 
-  newCommand = calculateMovement(500, 0); // calculate angle and distance with x,y point
+  // newCommand = calculateMovement(500, 0); // calculate angle and distance with x,y point
 
-  goTo(newCommand, 500); // angle, distance and speed
+  // goTo(newCommand, 500); // angle, distance and speed
 
   timeSetup = millis();
 }
@@ -207,7 +207,9 @@ void loop()
  *     10 % vmax = 10.395 mm/s
  *     5 % de 255 = 13 et 50 % de 255 = 128*/
 
+
+
 void ARU_interrupt()
 {
-  setup();
+
 }

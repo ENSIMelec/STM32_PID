@@ -16,14 +16,15 @@ void Update_IT_callback(void)
   int16_t ticks_D = (encDroit.getTicks());
   /********************************************/
 
-  if (distance_ok && angle_ok)
+  if (distance_ok && angle_ok && newCommand.ok)
   {
-    // cmd_distance = 0;
-    // distance = 0;
-    // reset_last_distance();
-    // interrupt_tick = 0;
-    // angle_ok = false;
-    // distance_ok = false;
+    cmd_distance = 0;
+    distance = 0;
+    reset_last_distance();
+    interrupt_tick = 0;
+    angle_ok = false;
+    distance_ok = false;
+    newCommand.ok = false;
   }
   else if (!angle_ok)
   {
@@ -64,7 +65,6 @@ void Update_IT_callback(void)
     angle_ok = true;
     reset_time_angle();
     interrupt_tick = 0;
-    Serial.println("ok");
   }
   else
     PID_angle.Compute();
@@ -97,14 +97,14 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
 
-  // Update_IT = true;
-  Serial.print(cmd_distance, 5);
-  Serial.print(" ");
-  Serial.print(distance, 5);
-  Serial.print(" ");
-  Serial.print(cmd_angle, 5);
-  Serial.print(" ");
-  Serial.println(angle, 5);
+  Update_IT = true;
+  // Serial.print(cmd_distance, 5);
+  // Serial.print(" ");
+  // Serial.print(distance, 5);
+  // Serial.print(" ");
+  // Serial.print(cmd_angle, 5);
+  // Serial.print(" ");
+  // Serial.println(angle, 5);
 }
 /*************************************/
 /*************************************/
