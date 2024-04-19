@@ -35,6 +35,10 @@ void asservCommandUSB(int argc, char **argv)
 		printUsage();
 		return;
 	}
+	else if (!strcmp(argv[0], "enable"))
+	{
+		//enable de l'asservissement
+	}
 	else if (!strcmp(argv[0], "goto"))
 	{
 		float x = atof(argv[1]);
@@ -46,6 +50,18 @@ void asservCommandUSB(int argc, char **argv)
 	{
 		float angle = atof(argv[1]);
 		rotate(angle, 500);
+	}
+	else if (!strcmp(argv[0], "reset"))
+	{
+		//reset de l'asservissement
+	}
+	else if (!strcmp(argv[0], "anglereset"))
+	{
+		//reset de l'angle
+	}
+	else if (!strcmp(argv[0], "distreset"))
+	{
+		//reset de la distance
 	}
 }
 /*************************************/
