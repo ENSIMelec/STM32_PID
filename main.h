@@ -9,6 +9,7 @@ struct MovementResult
 {
     float angle;
     float distance;
+    bool ok = true;
 };
 /*********************/
 
@@ -26,7 +27,7 @@ struct MovementResult
 
 /******ECHANTILLONAGE********/
 extern float dt;
-extern bool Update_IT;
+extern volatile bool Update_IT;
 /****************************/
 
 /******CONSIGNES PID**********/
@@ -79,14 +80,18 @@ extern float Output_PID_vitesse_G; // Valeur sortante du PID vitesse moteur gauc
 extern float Output_PID_vitesse_D; // Valeur sortante du PID vitesse moteur droit, une PMW donc
 extern float Output_PID_angle;     // Valeur sortante du PID angle
 extern float Output_PID_distance;  // Valeur sortante du PID distance
-extern bool distance_ok;
-extern bool angle_ok;
-extern MovementResult newCommand;
 /*******************************/
 
+/***Rampe PID************/
+extern bool distance_ok;
+extern bool angle_ok;
+extern float angle_final;
+extern float distance_final;
+extern MovementResult newCommand;
+extern short mode; // 0 stop PID, 1 PID angle ON, 2 PID distance ON, 3 PID Vitesse ON, PID angle et distance ON
+/*********************/
+
 extern unsigned long timeSetup;
-extern float distanceToDecel;
-extern float angleToDecel;
 extern float VMax;
 /*************************/
 
