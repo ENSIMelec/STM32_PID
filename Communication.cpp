@@ -40,7 +40,7 @@ void asservCommandUSB(int argc, char **argv)
 		float x = atof(argv[1]);
 		float y = atof(argv[2]);
 		newCommand = calculateMovement(x, y);
-		goTo(newCommand);
+		goTo(newCommand, 500);
 	}
 	else if (!strcmp(argv[0], "rotate"))
 	{
