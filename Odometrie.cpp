@@ -53,7 +53,15 @@ bool reset_angle(float angle_)
 bool calculate_distance_time(float distance_, float Vmax_)
 {
     distance_final = distance_;
-    VMax = min(Vmax_, (float)1000);
+    VMax = max(min(abs(Vmax_), 50), 500);
+    Acc = abs(Acc);
+
+    if (distance < 0)
+    {
+        VMax = -VMax;
+        Acc = -Acc;
+    }
+
     distance_lim = VMax * VMax / Acc;
     if (distance_ < distance_lim)
     {
@@ -73,9 +81,15 @@ bool calculate_angle_time(float angle_, float Vmax_)
 {
 
     angle_final = angle_;
-    VMax = Vmax_;
+    VMax = max(min(abs(Vmax_), 50), 500);
     VMaxAngulaire = VMax / empattementRoueCodeuse / 2 * Attenuantion_vit_ang;
     AccAngulaire = Acc / empattementRoueCodeuse / 2;
+    if (angle_final < 0)
+    {
+        VMaxAngulaire = -VMaxAngulaire;
+        AccAngulaire = -AccAngulaire;
+    }
+
     angle_lim = VMaxAngulaire * VMaxAngulaire / AccAngulaire;
 
     if (angle < angle_lim)

@@ -12,7 +12,10 @@ extern
     float deltaX = targetX - x;
     float deltaY = targetY - y;
     result.angle = atan2(deltaY, deltaX);
-
+    if (result.angle < 0)
+    {
+        result.angle += 2 * PI;
+    }
     // Calcul de la distance
     result.distance = sqrt(deltaX * deltaX + deltaY * deltaY);
 

@@ -22,6 +22,8 @@ void Update_IT_callback(void)
     distance = 0;
     reset_last_distance();
 
+    cmd_angle = angle;
+
     PID_vitesse_G.SetMode(AUTOMATIC);
     PID_vitesse_D.SetMode(AUTOMATIC);
     PID_distance.SetMode(AUTOMATIC);
