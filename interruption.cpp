@@ -16,23 +16,23 @@ void Update_IT_callback(void)
   int16_t ticks_D = (encDroit.getTicks());
   /********************************************/
 
-  if (distance_ok && angle_ok && newCommand.ok)
+  if (distance_ok && angle_ok && newCommand.goto_ok || newCommand.rotate_ok && angle_ok)
   {
-    cmd_distance = 0;
-    distance = 0;
-    reset_last_distance();
-
-    cmd_angle = angle;
-
     PID_vitesse_G.SetMode(AUTOMATIC);
     PID_vitesse_D.SetMode(AUTOMATIC);
     PID_distance.SetMode(AUTOMATIC);
     PID_angle.SetMode(AUTOMATIC);
 
+    cmd_distance = 0;
+    distance = 0;
+    reset_last_distance();
+
     interrupt_tick = 0;
     angle_ok = false;
-    distance_ok = false;
-    newCommand.ok = false;
+    if (newCommand.goto_ok)
+      distance_ok = false;
+    newCommand.goto_ok = false;
+    newCommand.rotate_ok = false;
   }
   else if (!angle_ok)
   {
@@ -58,18 +58,6 @@ void Update_IT_callback(void)
 
   /*****Calul de PID Angle et Vitesse****/
 
-  if (abs(cmd_angle - angle) > 5 * PI / 180 && abs(cmd_distance - distance) > 20)
-  {
-    PID_vitesse_G.SetMode(MANUAL);
-    PID_vitesse_D.SetMode(MANUAL);
-    PID_distance.SetMode(MANUAL);
-    PID_angle.SetMode(MANUAL);
-    Output_PID_vitesse_G = 0;
-    Output_PID_vitesse_D = 0;
-    Output_PID_distance = 0;
-    Output_PID_angle = 0;
-  }
-
   if ((abs(distance_final - distance) < epsilonDistance || interrupt_tick >= get_distance_tf()) && angle_ok && !distance_ok)
   {
 
@@ -90,6 +78,49 @@ void Update_IT_callback(void)
     PID_angle.Compute();
   /*************************************/
 
+  // si l'erreur dans la distance ou l'angle est trop grande, on ne fait rien
+  if (abs(cmd_angle - angle) > 5 * PI / 180 && abs(cmd_distance - distance) > 20)
+  {
+    Output_PID_vitesse_G = 0;
+    Output_PID_vitesse_D = 0;
+    Output_PID_distance = 0;
+    Output_PID_angle = 0;
+
+    // vérifiacation pour un recalage
+    if (-30 < x && x < 30)
+    {
+      x = 0;
+      if (abs(abs(angle) - PI) < abs(angle))
+        angle = PI;
+      else
+        angle = 0;
+    }
+    if (2970 < x && x < 3030)
+    {
+      x = 3000;
+      if (abs(abs(angle) - PI) < abs(angle))
+        angle = PI;
+      else
+        angle = 0;
+    }
+    if (-30 < y && y < 30)
+    {
+      y = 0;
+      if (abs(angle - PI / 2) < abs(angle + PI / 2))
+        angle = PI / 2;
+      else
+        angle = -PI / 2;
+    }
+    if (1970 < y && y < 2030)
+    {
+      y = 2000;
+      if (abs(angle - PI / 2) < abs(angle + PI / 2))
+        angle = PI / 2;
+      else
+        angle = -PI / 2;
+    }
+  }
+
   /***Ajustement Commandes Vitesse****/
 
   cmd_vitesse_G = +Output_PID_distance + Output_PID_angle;
@@ -107,8 +138,15 @@ void Update_IT_callback(void)
 
   /****Commande des moteurs*******/
 
-  analogWrite(PWM1, abs(Output_PID_vitesse_G));
-  analogWrite(PWM2, abs(Output_PID_vitesse_D));
+  if (abs(Output_PID_vitesse_G) > 10)
+    analogWrite(PWM1, abs(Output_PID_vitesse_G));
+  else
+    analogWrite(PWM1, 0);
+
+  if (abs(Output_PID_vitesse_D) > 10)
+    analogWrite(PWM2, abs(Output_PID_vitesse_D));
+  else
+    analogWrite(PWM2, 0);
 
   /*****************************/
 
@@ -121,7 +159,7 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
 
-  //Update_IT = true;
+  // Update_IT = true;
   Serial.print(cmd_distance, 5);
   Serial.print(" ");
   Serial.print(distance, 5);
