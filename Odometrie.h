@@ -23,3 +23,7 @@ bool reset_time_distance();
 float get_angle_tf();
 
 float get_distance_tf();
+
+void obstacle_detection(unsigned int interrupt_tick);
+
+void after_obstacle_detection(void);

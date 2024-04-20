@@ -3,9 +3,9 @@
 import matplotlib.pyplot as plt
 from math import sqrt
 
-Amax = -1000
-Vmax = -500
-d0 = 100
+Amax = 1000
+Vmax = 500
+d0 = -1000
 d = 0
 
 t1 = Vmax/Amax

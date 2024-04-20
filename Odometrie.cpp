@@ -84,7 +84,7 @@ bool calculate_angle_time(float angle_, float Vmax_)
     angle_initial = angle;
     angle_final = angle_;
     Vmax_ = abs(Vmax_);
-    VMaxAngulaire = Vmax_ / empattementRoueCodeuse / 2 * Attenuantion_vit_ang;
+    VMaxAngulaire = V / empattementRoueCodeuse / 2 * Attenuantion_vit_ang;
     AccAngulaire = Acc / empattementRoueCodeuse / 2;
     if (angle_final < 0)
     {
@@ -174,4 +174,14 @@ float get_angle_tf()
 float get_distance_tf()
 {
     return (distance_t1 + distance_t2) / dt + 10;
+}
+
+void obstacle_detection(unsigned int interrupt_tick)
+{
+    distance_t2 = interrupt_tick * dt;
+    // calculer la distance final
+}
+
+void after_obstacle_detection(void)
+{
 }
