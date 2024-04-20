@@ -5,18 +5,18 @@ from math import sqrt
 
 Amax = -1000
 Vmax = -500
-
-d = -1000
+d0 = 100
+d = 0
 
 t1 = Vmax/Amax
-t2 = (d-Amax*t1*t1)/Vmax + t1
+t2 = ((d-d0)-Amax*t1*t1)/Vmax + t1
 
 
 dLim = Vmax*Vmax/Amax
 
 
-if(d < dLim):
-    t1 = sqrt(d/Amax)
+if(abs(d-d0) < abs(dLim)):
+    t1 = sqrt((d-d0)/Amax)
     t2 = t1 
     Vmax = Amax*t1
 tf = t1 + t2
@@ -29,16 +29,16 @@ for tic in range (0,400):
     outT.append(t)
     if t < t1:
         v = Amax*t
-        p = Amax*t*t/2
+        p = Amax*t*t/2 + d0
     elif t > tf:
         v = 0
         p = d
     elif t > t2:
         v = Vmax - Amax*(t-t2)
-        p = Amax*t1*t1/2 + Vmax*(t-t1) -Amax*(t-t2)*(t-t2)/2 
+        p = Amax*t1*t1/2 + Vmax*(t-t1) -Amax*(t-t2)*(t-t2)/2 + d0
     else:
         v = Vmax
-        p = Amax*t1*t1/2 + Vmax*(t-t1)
+        p = Amax*t1*t1/2 + Vmax*(t-t1) +d0
     outV.append(v)
     outP.append(p)
 

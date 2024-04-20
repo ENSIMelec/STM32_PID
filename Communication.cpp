@@ -41,11 +41,14 @@ void asservCommandUSB(int argc, char **argv)
 		float y = atof(argv[2]);
 		newCommand = calculateMovement(x, y);
 		goTo(newCommand, 500);
+    newCommand.goto_ok = true;
 	}
 	else if (!strcmp(argv[0], "rotate"))
 	{
 		float angle = atof(argv[1]);
-		rotate(angle, 500);
+		newCommand = calculate_rotation(angle);
+		rotate(newCommand, 500);
+    newCommand.rotate_ok = true;
 	}
 }
 /*************************************/

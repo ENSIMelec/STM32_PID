@@ -17,6 +17,8 @@ float angle_t2;
 float Acc = 1000;   // acceleration
 float distance_lim; // distance limite
 
+float angle_initial = 0;
+
 float VMaxAngulaire; // Vitesse angulaire max
 float AccAngulaire;  // Acceleration angulaire
 float angle_lim;     // angle limite
@@ -53,7 +55,7 @@ bool reset_angle(float angle_)
 bool calculate_distance_time(float distance_, float Vmax_)
 {
     distance_final = distance_;
-    VMax = max(min(abs(Vmax_), 50), 500);
+    VMax = abs(Vmax_);
     Acc = abs(Acc);
 
     if (distance < 0)
@@ -63,7 +65,7 @@ bool calculate_distance_time(float distance_, float Vmax_)
     }
 
     distance_lim = VMax * VMax / Acc;
-    if (distance_ < distance_lim)
+    if (abs(distance_) < abs(distance_lim))
     {
         distance_t1 = sqrt(distance_ / Acc);
         distance_t2 = distance_t1;
@@ -79,10 +81,10 @@ bool calculate_distance_time(float distance_, float Vmax_)
 
 bool calculate_angle_time(float angle_, float Vmax_)
 {
-
+    angle_initial = angle;
     angle_final = angle_;
-    VMax = max(min(abs(Vmax_), 50), 500);
-    VMaxAngulaire = VMax / empattementRoueCodeuse / 2 * Attenuantion_vit_ang;
+    Vmax_ = abs(Vmax_);
+    VMaxAngulaire = Vmax_ / empattementRoueCodeuse / 2 * Attenuantion_vit_ang;
     AccAngulaire = Acc / empattementRoueCodeuse / 2;
     if (angle_final < 0)
     {
@@ -92,7 +94,7 @@ bool calculate_angle_time(float angle_, float Vmax_)
 
     angle_lim = VMaxAngulaire * VMaxAngulaire / AccAngulaire;
 
-    if (angle < angle_lim)
+    if (abs(angle) < abs(angle_lim))
     {
         angle_t1 = sqrt(angle_ / AccAngulaire);
         angle_t2 = angle_t1;
@@ -134,19 +136,19 @@ float angle_command_ramp(float interrupt_tick)
 
     if (t < angle_t1)
     {
-        return AccAngulaire * t * t / 2;
+        return AccAngulaire * t * t / 2 + angle_initial;
     }
     else if (t > angle_t2 + angle_t1)
     {
-        return angle_final;
+        return angle_final + angle_initial;
     }
     else if (t > angle_t2)
     {
-        return AccAngulaire * angle_t1 * angle_t1 / 2 - AccAngulaire * (t - angle_t2) * (t - angle_t2) / 2 + VMaxAngulaire * (t - angle_t1);
+        return AccAngulaire * angle_t1 * angle_t1 / 2 - AccAngulaire * (t - angle_t2) * (t - angle_t2) / 2 + VMaxAngulaire * (t - angle_t1) + angle_initial;
     }
     else
     {
-        return AccAngulaire * angle_t1 * angle_t1 / 2 + VMaxAngulaire * (t - angle_t1);
+        return AccAngulaire * angle_t1 * angle_t1 / 2 + VMaxAngulaire * (t - angle_t1) + angle_initial;
     }
 }
 

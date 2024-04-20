@@ -11,27 +11,35 @@ extern
     // Calcul de l'angle
     float deltaX = targetX - x;
     float deltaY = targetY - y;
-    result.angle = atan2(deltaY, deltaX);
-    if (result.angle < 0)
-    {
-        result.angle += 2 * PI;
-    }
-    // Calcul de la distance
-    result.distance = sqrt(deltaX * deltaX + deltaY * deltaY);
+    result.angle_initial = angle;
+    result.distance_initial = distance;
 
+    result.angle_final = atan2(deltaY, deltaX);
+    // Calcul de la distance
+    result.distance_final = sqrt(deltaX * deltaX + deltaY * deltaY);
     return result;
 }
 
 bool goTo(MovementResult mov, float speed)
 {
-    calculate_distance_time(mov.distance, speed);
-    calculate_angle_time(mov.angle, speed);
+    calculate_distance_time(mov.distance_final, speed);
+    calculate_angle_time(mov.angle_final - mov.angle_initial, speed);
+    mov.goto_ok = true;
     return true;
 }
 
-bool rotate(float angle_need, float speed)
+MovementResult calculate_rotation(float angle_need)
 {
-    calculate_angle_time(angle_need, speed);
+    MovementResult result;
+    result.angle_initial = angle;
+    result.angle_final = angle_need;
+    return result;
+}
+
+bool rotate(MovementResult mov, float speed)
+{
+    calculate_angle_time(mov.angle_final - mov.angle_initial, speed);
+    mov.rotate_ok = true;
     return true;
 }
 

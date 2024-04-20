@@ -7,9 +7,13 @@
 /*****Structure********/
 struct MovementResult
 {
-    float angle;
-    float distance;
-    bool ok = true;
+    float angle_final = 0;
+    float distance_final = 0;
+    float angle_initial = 0;
+    float distance_initial = 0;
+    bool goto_ok = false;
+    bool rotate_ok = false;
+    bool moveOf_ok = false;
 };
 /*********************/
 
