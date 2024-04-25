@@ -42,14 +42,15 @@ float coefVitesseD = distance_encoder_droit / dt;
 /**************************/
 
 /********Coef Angle****/
+float correction_angle = 0.95;
 float empattementRoueCodeuse = 241;
-float coefAngle = dt / empattementRoueCodeuse;
+float coefAngle = dt / empattementRoueCodeuse * correction_angle;
 /**********************/
 
 /******COEFICIENTS PID************/
-float Kp_G = 100.0 / 475.0, Ki_G = 0.012, Kd_G = 0.00;    // coefficients PID vitesse moteur gauche
-float Kp_D = 100.0 / 500.0, Ki_D = 0.01, Kd_D = 0.00;     // coefficients PID vitesse moteur droit
-float Kp_angle = 3500, Ki_angle = 1620, Kd_angle = 0;     // coefficients PID angle
+float Kp_G = 100.0 / 475.0, Ki_G = 0.0, Kd_G = 0.00;        // coefficients PID vitesse moteur gauche
+float Kp_D = 100.0 / 500.0, Ki_D = 0.0, Kd_D = 0.00;        // coefficients PID vitesse moteur droit
+float Kp_angle = 3500, Ki_angle = 1620, Kd_angle = 0;       // coefficients PID angle
 float Kp_distance = 20, Ki_distance = 1.5, Kd_distance = 0; // coefficients PID distance
 
 bool distance_ok = false;
@@ -155,7 +156,7 @@ void setup()
   /***********************************/
 
   /******Initialisation de l'interruption pour l'échantillonnage************/
-  TIM_TypeDef *Instance = TIM6;
+  TIM_TypeDef *Instance = TIM5;
   HardwareTimer *MyTim = new HardwareTimer(Instance);
   MyTim->setOverflow(1 / dt, HERTZ_FORMAT);
   MyTim->attachInterrupt(Update_IT_callback);
@@ -167,14 +168,7 @@ void setup()
   PID_vitesse_D.SetOutputLimits(-1000, 1000, 10);
   PID_vitesse_G.SetOutputLimits(-1000, 1000, 10);
 
-  PID_angle.SetMode(AUTOMATIC);
-  PID_distance.SetMode(AUTOMATIC);
-  PID_vitesse_D.SetMode(AUTOMATIC);
-  PID_vitesse_G.SetMode(AUTOMATIC);
-
-  // newCommand = calculateMovement(500, 0); // calculate angle and distance with x,y point
-
-  // goTo(newCommand, 500); // angle, distance and speed
+  change_PID_mode(4);
 
   timeSetup = millis();
 }
@@ -191,8 +185,6 @@ void loop()
   {
     sendData();
   }
-  // Config_PID_Vitesse();
-  //   analogWrite(PWM1, 100);
 }
 /*************************************/
 /*************************************/
@@ -206,10 +198,3 @@ void loop()
  * donc 50 % vmax = 519.75 mm/s
  *     10 % vmax = 10.395 mm/s
  *     5 % de 255 = 13 et 50 % de 255 = 128*/
-
-
-
-void ARU_interrupt()
-{
-
-}

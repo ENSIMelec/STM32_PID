@@ -7,13 +7,13 @@
 /*****Structure********/
 struct MovementResult
 {
-    float angle_final = 0;
-    float distance_final = 0;
-    float angle_initial = 0;
-    float distance_initial = 0;
-    bool goto_ok = false;
-    bool rotate_ok = false;
-    bool moveOf_ok = false;
+    float angle_final = 0;      // angle voulu
+    float distance_final = 0;   // distance voulu
+    float angle_initial = 0;    // angle de départ
+    float distance_initial = 0; // distance de départ
+    bool goto_ok = false;       // mouvement terminé
+    bool rotate_ok = false;     // rotation terminé
+    bool recalage = false;      // si déplacement nécessite un recalage
 };
 /*********************/
 

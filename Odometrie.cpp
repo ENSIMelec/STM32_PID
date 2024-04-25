@@ -3,7 +3,7 @@
 /*Variables de sauvegarde pour l'odométrie*/
 float last_distance = 0;
 float angleTot = 0;
-const float Attenuantion_vit_ang = 0.5;
+const float Attenuantion_vit_ang = 0.7;
 /***************************************/
 
 /*Variables de temps pour les rampe*/
@@ -52,13 +52,20 @@ bool reset_angle(float angle_)
     return true;
 }
 
+bool reset_distance()
+{
+    last_distance = 0;
+    distance = 0;
+    return true;
+}
+
 bool calculate_distance_time(float distance_, float Vmax_)
 {
     distance_final = distance_;
     VMax = abs(Vmax_);
     Acc = abs(Acc);
 
-    if (distance < 0)
+    if (distance_final < 0)
     {
         VMax = -VMax;
         Acc = -Acc;
@@ -75,35 +82,6 @@ bool calculate_distance_time(float distance_, float Vmax_)
     {
         distance_t1 = VMax / Acc;
         distance_t2 = (distance_ - Acc * distance_t1 * distance_t1) / VMax + distance_t1;
-    }
-    return true;
-}
-
-bool calculate_angle_time(float angle_, float Vmax_)
-{
-    angle_initial = angle;
-    angle_final = angle_;
-    Vmax_ = abs(Vmax_);
-    VMaxAngulaire = V / empattementRoueCodeuse / 2 * Attenuantion_vit_ang;
-    AccAngulaire = Acc / empattementRoueCodeuse / 2;
-    if (angle_final < 0)
-    {
-        VMaxAngulaire = -VMaxAngulaire;
-        AccAngulaire = -AccAngulaire;
-    }
-
-    angle_lim = VMaxAngulaire * VMaxAngulaire / AccAngulaire;
-
-    if (abs(angle) < abs(angle_lim))
-    {
-        angle_t1 = sqrt(angle_ / AccAngulaire);
-        angle_t2 = angle_t1;
-        VMaxAngulaire = AccAngulaire * angle_t1;
-    }
-    else
-    {
-        angle_t1 = VMaxAngulaire / AccAngulaire;
-        angle_t2 = (angle_ - AccAngulaire * angle_t1 * angle_t1) / VMaxAngulaire + angle_t1;
     }
     return true;
 }
@@ -130,6 +108,36 @@ float distance_command_ramp(float interrupt_tick)
     }
 }
 
+bool calculate_angle_time(float angle_, float Vmax_)
+{
+    angle_initial = angle;
+    angle_final = angle_;
+    float angle_parcouru = angle_final - angle_initial;
+    Vmax_ = abs(Vmax_);
+    VMaxAngulaire = Vmax_ / empattementRoueCodeuse / 2 * Attenuantion_vit_ang;
+    AccAngulaire = Acc / empattementRoueCodeuse * 2;
+    if (angle_parcouru < 0)
+    {
+        VMaxAngulaire = -VMaxAngulaire;
+        AccAngulaire = -AccAngulaire;
+    }
+
+    angle_lim = VMaxAngulaire * VMaxAngulaire / AccAngulaire;
+
+    if (abs(angle_parcouru) < abs(angle_lim))
+    {
+        angle_t1 = sqrt(angle_parcouru / AccAngulaire);
+        angle_t2 = angle_t1;
+        VMaxAngulaire = AccAngulaire * angle_t1;
+    }
+    else
+    {
+        angle_t1 = VMaxAngulaire / AccAngulaire;
+        angle_t2 = (angle_parcouru - AccAngulaire * angle_t1 * angle_t1) / VMaxAngulaire + angle_t1;
+    }
+    return true;
+}
+
 float angle_command_ramp(float interrupt_tick)
 {
     float t = interrupt_tick * dt;
@@ -140,7 +148,7 @@ float angle_command_ramp(float interrupt_tick)
     }
     else if (t > angle_t2 + angle_t1)
     {
-        return angle_final + angle_initial;
+        return angle_final;
     }
     else if (t > angle_t2)
     {

@@ -2,6 +2,7 @@
 #include "FastInterruptEncoder.h"
 #include "PID.h"
 #include <digitalWriteFast.h>
+#include "Move.h"
 
 extern Encoder encGauche;
 extern Encoder encDroit;
@@ -17,3 +18,5 @@ extern "C"
 }
 
 void Update_IT_callback(void);
+
+void ARU_interrupt();

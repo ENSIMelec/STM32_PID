@@ -1,4 +1,4 @@
-#ifndef __FASTINTERRUPTENCODER_H__
+ #ifndef __FASTINTERRUPTENCODER_H__
 #define __FASTINTERRUPTENCODER_H__
 
 /******************************************************************************/

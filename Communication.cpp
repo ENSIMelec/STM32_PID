@@ -23,13 +23,13 @@ void printUsage()
 /*************************************/
 void asservCommandUSB(int argc, char **argv)
 {
-	Serial.print("asserv ");
+	// Serial.print("asserv ");
 	for (int i = 0; i < argc; i++)
 	{
 		Serial.print(argv[i]);
 		Serial.print(" ");
 	}
-	Serial.println(" ");
+	// Serial.println(" ");
 	if (argc == 0)
 	{
 		printUsage();
@@ -37,7 +37,7 @@ void asservCommandUSB(int argc, char **argv)
 	}
 	else if (!strcmp(argv[0], "enable"))
 	{
-		//enable de l'asservissement
+		change_PID_mode(4); // enable de l'asservissement
 	}
 	else if (!strcmp(argv[0], "goto"))
 	{
@@ -45,26 +45,44 @@ void asservCommandUSB(int argc, char **argv)
 		float y = atof(argv[2]);
 		newCommand = calculateMovement(x, y);
 		goTo(newCommand, 500);
-    newCommand.goto_ok = true;
+		newCommand.goto_ok = true;
 	}
 	else if (!strcmp(argv[0], "rotate"))
 	{
-		float angle = atof(argv[1]);
-		newCommand = calculate_rotation(angle);
+		float angle_ = atof(argv[1]);
+		newCommand = calculate_rotation(angle_);
 		rotate(newCommand, 500);
-    newCommand.rotate_ok = true;
+		newCommand.rotate_ok = true;
+	}
+	else if (!strcmp(argv[0], "moveof"))
+	{
+		float distance_ = atof(argv[1]);
+		newCommand = calculate_moveOf(distance_);
+		moveOf(newCommand, 500);
+		newCommand.goto_ok = true;
+	}
+	else if (!strcmp(argv[0], "stopmove"))
+	{
+	}
+	else if (!strcmp(argv[0], "restartmove"))
+	{
 	}
 	else if (!strcmp(argv[0], "reset"))
 	{
-		//reset de l'asservissement
+		change_PID_mode(0); // reset de l'asservissement
+		Output_PID_angle = 0;
+		Output_PID_distance = 0;
+		Output_PID_vitesse_G = 0;
+		Output_PID_vitesse_D = 0;
+		change_PID_mode(4);
 	}
 	else if (!strcmp(argv[0], "anglereset"))
 	{
-		//reset de l'angle
+		angle = 0; // reset de l'angle
 	}
 	else if (!strcmp(argv[0], "distreset"))
 	{
-		//reset de la distance
+		reset_distance(); // reset de la distance
 	}
 }
 /*************************************/

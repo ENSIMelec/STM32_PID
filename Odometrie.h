@@ -8,6 +8,8 @@ bool reset_last_distance(void);
 
 bool reset_angle(float angle_);
 
+bool reset_distance();
+
 bool calculate_distance_time(float distance_, float Vmax_);
 
 bool calculate_angle_time(float angle_, float Vmax_);
