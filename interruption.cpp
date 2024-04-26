@@ -23,7 +23,7 @@ void Update_IT_callback(void)
     cmd_distance = 0;
     distance = 0;
     reset_last_distance();
-
+    cmd_angle = angle;
     interrupt_tick = 0;
     angle_ok = false;
     if (newCommand.goto_ok)
@@ -75,12 +75,11 @@ void Update_IT_callback(void)
   /*************************************/
 
   // si l'erreur dans la distance ou l'angle est trop grande, on ne fait rien
-  if (abs(cmd_angle - angle) > 5 * PI / 180 && abs(cmd_distance - distance) > 10)
+  if ((abs(cmd_angle - angle) > 5 * PI / 180) && angle_ok || (abs(cmd_distance - distance) > 50) && distance_ok)
   {
+    change_PID_mode(0);
     Output_PID_angle = 0;
     Output_PID_distance = 0;
-    PID_vitesse_D.SetMode(MANUAL);
-    PID_vitesse_G.SetMode(MANUAL);
     Output_PID_vitesse_D = 0;
     Output_PID_vitesse_G = 0;
 

@@ -50,7 +50,7 @@ void asservCommandUSB(int argc, char **argv)
 	}
 	else if (!strcmp(argv[0], "rotate"))
 	{
-		float angle_ = atof(argv[1]);é
+		float angle_ = atof(argv[1]);
 		newCommand = calculate_rotation(angle_);
 		rotate(newCommand, 500);
 		newCommand.rotate_ok = true;
