@@ -197,8 +197,12 @@ void obstacle_detection()
         return;
     }
     distance_t2 = interrupt_tick * dt;
+    newCommand.distance_initial = Acc * distance_t1 * distance_t1 / 2 - Acc * (distance_t1) * (distance_t1) / 2 + VMax * (distance_t2);
 }
 
 void after_obstacle_detection(void)
 {
+    calculate_angle_time(newCommand.angle_final, VMax);
+    calculate_distance_time(newCommand.distance_final - newCommand.distance_initial, VMax);
+    newCommand.goto_ok = true;
 }

@@ -43,7 +43,7 @@ void asservCommandUSB(int argc, char **argv)
 	{
 		float x = atof(argv[1]);
 		float y = atof(argv[2]);
-    float speed = atof(argv[3]);
+		float speed = atof(argv[3]);
 		newCommand = calculateMovement(x, y);
 		goTo(newCommand, speed);
 		newCommand.goto_ok = true;
@@ -58,17 +58,18 @@ void asservCommandUSB(int argc, char **argv)
 	else if (!strcmp(argv[0], "moveof"))
 	{
 		float distance_ = atof(argv[1]);
-    float speed = atof(argv[2]);
+		float speed = atof(argv[2]);
 		newCommand = calculate_moveOf(distance_);
-		moveOf(newCommand, speed );
+		moveOf(newCommand, speed);
 		newCommand.goto_ok = true;
 	}
 	else if (!strcmp(argv[0], "stopmove"))
 	{
-    obstacle_detection();
+		obstacle_detection();
 	}
 	else if (!strcmp(argv[0], "restartmove"))
 	{
+		after_obstacle_detection();
 	}
 	else if (!strcmp(argv[0], "reset"))
 	{

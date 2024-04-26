@@ -1,10 +1,8 @@
 #include "move.h"
 #include "Odometrie.h"
 
-extern
-
-    MovementResult
-    calculateMovement(float targetX, float targetY)
+MovementResult
+calculateMovement(float targetX, float targetY)
 {
     MovementResult result;
 
@@ -59,8 +57,6 @@ bool moveOf(MovementResult mov, float speed)
     mov.goto_ok = true;
     return true;
 }
-
-
 
 void change_PID_mode(short mode)
 {
