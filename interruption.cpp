@@ -9,15 +9,13 @@ unsigned int interrupt_tick = 0;
 /*************************************/
 /*****FONCTION ÉCHANTILLONAGE*********/
 /*************************************/
-void Update_IT_callback(void)
-{
+void Update_IT_callback(void) {
   /****Récupération des valeurs des codeurs****/
   int16_t ticks_G = (encGauche.getTicks());
   int16_t ticks_D = (encDroit.getTicks());
   /********************************************/
 
-  if (distance_ok && angle_ok && newCommand.goto_ok || newCommand.rotate_ok && angle_ok)
-  {
+  if (distance_ok && angle_ok && newCommand.goto_ok || newCommand.rotate_ok && angle_ok) {
     change_PID_mode(4);
 
     cmd_distance = 0;
@@ -30,15 +28,12 @@ void Update_IT_callback(void)
       distance_ok = false;
     newCommand.goto_ok = false;
     newCommand.rotate_ok = false;
-  }
-  else if (!angle_ok)
-  {
+  } else if (!angle_ok) {
     interrupt_tick += 1;
     cmd_angle = angle_command_ramp(interrupt_tick);
   }
 
-  else if (!distance_ok && angle_ok)
-  {
+  else if (!distance_ok && angle_ok) {
     interrupt_tick += 1;
     cmd_distance = distance_command_ramp(interrupt_tick);
   }
@@ -55,29 +50,24 @@ void Update_IT_callback(void)
 
   /*****Calul de PID Angle et Vitesse****/
 
-  if ((abs(distance_final - distance) < epsilonDistance || interrupt_tick >= get_distance_tf()) && angle_ok && !distance_ok)
-  {
+  if ((abs(distance_final - distance) < epsilonDistance || interrupt_tick >= get_distance_tf()) && angle_ok && !distance_ok) {
 
     distance_ok = true;
     reset_time_distance();
     interrupt_tick = 0;
-  }
-  else
+  } else
     PID_distance.Compute();
 
-  if ((abs(angle_final - angle) < epsilonAngle || interrupt_tick >= get_angle_tf()) && !angle_ok)
-  {
+  if ((abs(angle_final - angle) < epsilonAngle || interrupt_tick >= get_angle_tf()) && !angle_ok) {
     angle_ok = true;
     reset_time_angle();
     interrupt_tick = 0;
-  }
-  else
+  } else
     PID_angle.Compute();
   /*************************************/
 
   // si l'erreur dans la distance ou l'angle est trop grande, on ne fait rien
-  if (abs(cmd_angle - angle) > 5 * PI / 180 && abs(cmd_distance - distance) > 10)
-  {
+  if (abs(cmd_angle - angle) > 5 * PI / 180 && abs(cmd_distance - distance) > 10) {
     Output_PID_angle = 0;
     Output_PID_distance = 0;
     PID_vitesse_D.SetMode(MANUAL);
@@ -156,26 +146,25 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
 
-  // Update_IT = true;
-  Serial.print("dOK:");
-  Serial.print(distance_ok);
-  Serial.print(" ");
-  Serial.print("aOK:");
-  Serial.print(angle_ok);
-  Serial.print(" ");
-  Serial.print(cmd_distance, 5);
-  Serial.print(" ");
-  Serial.print(distance, 5);
-  Serial.print(" ");
-  Serial.print(cmd_angle, 5);
-  Serial.print(" ");
-  Serial.println(angle, 5);
+  Update_IT = true;
+  // Serial.print("dOK:");
+  // Serial.print(distance_ok);
+  // Serial.print(" ");
+  // Serial.print("aOK:");
+  // Serial.print(angle_ok);
+  // Serial.print(" ");
+  // Serial.print(cmd_distance, 5);
+  // Serial.print(" ");
+  // Serial.print(distance, 5);
+  // Serial.print(" ");
+  // Serial.print(cmd_angle, 5);
+  // Serial.print(" ");
+  // Serial.println(angle, 5);
 }
 /*************************************/
 /*************************************/
 /*************************************/
 
-void ARU_interrupt()
-{
-  NVIC_SystemReset(); // redèmare le programme
+void ARU_interrupt() {
+  NVIC_SystemReset();  // redèmare le programme
 }
