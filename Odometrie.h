@@ -26,6 +26,6 @@ float get_angle_tf();
 
 float get_distance_tf();
 
-void obstacle_detection(unsigned int interrupt_tick);
+void obstacle_detection();
 
 void after_obstacle_detection(void);

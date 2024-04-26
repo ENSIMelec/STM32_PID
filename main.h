@@ -91,6 +91,7 @@ extern bool distance_ok;
 extern bool angle_ok;
 extern float angle_final;
 extern float distance_final;
+extern unsigned int interrupt_tick;
 extern MovementResult newCommand;
 extern short mode; // 0 stop PID, 1 PID angle ON, 2 PID distance ON, 3 PID Vitesse ON, PID angle et distance ON
 /*********************/

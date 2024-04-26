@@ -184,11 +184,12 @@ float get_distance_tf()
     return (distance_t1 + distance_t2) / dt + 10;
 }
 
-void obstacle_detection(unsigned int interrupt_tick)
+void obstacle_detection()
 {
-    if (interrupt_tick >= (distance_t1 + distance_t2))
+    float t = interrupt_tick * dt;
+    if (t >= (distance_t1 + distance_t2))
         return;
-    if (interrupt_tick < distance_t1)
+    if (t < distance_t1)
     {
         distance_t1 = interrupt_tick * dt;
         distance_t2 = distance_t1;
