@@ -96,7 +96,7 @@ float distance_command_ramp(float interrupt_tick)
     }
     else if (t > distance_t2 + distance_t1)
     {
-        return distance_final;
+        return Acc * distance_t1 * distance_t1 / 2 - Acc * (distance_t1) * (distance_t1) / 2 + VMax * (distance_t2);
     }
     else if (t > distance_t2)
     {
@@ -186,8 +186,16 @@ float get_distance_tf()
 
 void obstacle_detection(unsigned int interrupt_tick)
 {
+    if (interrupt_tick >= (distance_t1 + distance_t2))
+        return;
+    if (interrupt_tick < distance_t1)
+    {
+        distance_t1 = interrupt_tick * dt;
+        distance_t2 = distance_t1;
+        VMax = Acc * distance_t1;
+        return;
+    }
     distance_t2 = interrupt_tick * dt;
-    // calculer la distance final
 }
 
 void after_obstacle_detection(void)

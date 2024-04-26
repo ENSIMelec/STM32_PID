@@ -32,7 +32,7 @@ for tic in range (0,400):
         p = Amax*t*t/2 + d0
     elif t > tf:
         v = 0
-        p = d
+        p = Amax*t1*t1/2 + Vmax*(t2) -Amax*(t1)*(t1)/2 + d0
     elif t > t2:
         v = Vmax - Amax*(t-t2)
         p = Amax*t1*t1/2 + Vmax*(t-t1) -Amax*(t-t2)*(t-t2)/2 + d0
