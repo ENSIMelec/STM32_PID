@@ -94,12 +94,7 @@ void asservCommandUSB(int argc, char **argv)
 	{
 		if (argv[1] == "all")
 		{
-			change_PID_mode(0); // reset de tout l'asservissement
-			Output_PID_angle = 0;
-			Output_PID_distance = 0;
-			Output_PID_vitesse_G = 0;
-			Output_PID_vitesse_D = 0;
-			change_PID_mode(4);
+			ARU_interrupt();
 		}
 		else if (argv[1] == "angle")
 		{
@@ -127,10 +122,26 @@ void asservCommandUSB(int argc, char **argv)
 	}
 	else if (!strcmp(argv[0], "goto"))
 	{
+		if (argc < 3)
+		{
+			return;
+		}
 		float x = atof(argv[1]);
 		float y = atof(argv[2]);
-		float speed = atof(argv[3]);
+		float speed;
+		if (argc > 4)
+		{
+			speed = atof(argv[3]);
+		}
+		else
+		{
+			speed = 500;
+		}
 		newCommand = calculateMovement(x, y);
+		if (argc > 5)
+		{
+			newCommand.recalage = true;
+		}
 		goTo(newCommand, speed);
 		newCommand.goto_ok = true;
 	}
@@ -143,9 +154,25 @@ void asservCommandUSB(int argc, char **argv)
 	}
 	else if (!strcmp(argv[0], "moveof"))
 	{
+		if (argc < 2)
+		{
+			return;
+		}
 		float distance_ = atof(argv[1]);
-		float speed = atof(argv[2]);
+		float speed;
+		if (argc > 3)
+		{
+			speed = atof(argv[2]);
+		}
+		else
+		{
+			speed = 500;
+		}
 		newCommand = calculate_moveOf(distance_);
+		if (argc > 4)
+		{
+			newCommand.recalage = true;
+		}
 		moveOf(newCommand, speed);
 		newCommand.goto_ok = true;
 	}
@@ -156,6 +183,15 @@ void asservCommandUSB(int argc, char **argv)
 	else if (!strcmp(argv[0], "restartmove"))
 	{
 		after_obstacle_detection();
+	}
+	else if (!strcmp(argv[0], "setxy"))
+	{
+		if (argc < 2)
+		{
+			return;
+		}
+		x = atof(argv[1]);
+		y = atof(argv[2]);
 	}
 }
 /*************************************/
