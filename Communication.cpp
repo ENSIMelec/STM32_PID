@@ -44,7 +44,7 @@ void asservCommandUSB(int argc, char **argv)
 		{
 			// enable de l'asservissement de distance
 		}
-		else if (argv[1] == "vitesse"):
+		else if (argv[1] == "vitesse")
 			{
 				if (argv[2] == "all")
 				{
