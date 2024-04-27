@@ -37,7 +37,98 @@ void asservCommandUSB(int argc, char **argv)
 	}
 	else if (!strcmp(argv[0], "enable"))
 	{
-		change_PID_mode(4); // enable de l'asservissement
+		if(argv[1] == "all")
+		{
+			change_PID_mode(4); // enable de tout l'asservissement
+		}
+		else if (argv[1] == "angle")
+		{
+			// enable de l'asservissement d'angle
+		}
+		else if (argv[1] == "distance")
+		{
+			// enable de l'asservissement de distance
+		}
+		else if (argv[1] == "vitesse"):
+		{
+			if (argv[2] == "all")
+			{
+				// enable de l'asservissement de vitesse droite et gauche
+			}
+			else if (argv[2] == "gauche")
+			{
+				// enable de l'asservissement de vitesse gauche
+			}
+			else if (argv[2] == "droite")
+			{
+				// enable de l'asservissement de vitesse droite
+			}
+		}
+	}
+	else if (!strcmp(argv[0], "disable"))
+	{
+		if(argv[1] == "all")
+		{
+			// disable de tout l'asservissement
+		}
+		else if (argv[1] == "angle")
+		{
+			// disable de l'asservissement d'angle
+		}
+		else if (argv[1] == "distance")
+		{
+			// disable de l'asservissement de distance
+		}
+		else if (argv[1] == "vitesse"):
+		{
+			if (argv[2] == "all")
+			{
+				// disable de l'asservissement de vitesse droite et gauche
+			}
+			else if (argv[2] == "gauche")
+			{
+				// disable de l'asservissement de vitesse gauche
+			}
+			else if (argv[2] == "droite")
+			{
+				// disable de l'asservissement de vitesse droite
+			}
+		}
+	}
+	else if (!strcmp(argv[0], "reset"))
+	{
+		if(argv[1] == "all")
+		{
+			change_PID_mode(0); // reset de tout l'asservissement
+			Output_PID_angle = 0;
+			Output_PID_distance = 0;
+			Output_PID_vitesse_G = 0;
+			Output_PID_vitesse_D = 0;
+			change_PID_mode(4);
+		}
+		else if (argv[1] == "angle")
+		{
+			angle = 0;// reset de l'asservissement d'angle
+		}
+		else if (argv[1] == "distance")
+		{
+			reset_distance();// reset de l'asservissement de distance
+		}
+		else if (argv[1] == "vitesse"):
+		{
+			if (argv[2] == "all")
+			{
+				// reset de l'asservissement de vitesse droite et gauche
+			}
+			else if (argv[2] == "gauche")
+			{
+				// reset de l'asservissement de vitesse gauche
+			}
+			else if (argv[2] == "droite")
+			{
+				// reset de l'asservissement de vitesse droite
+			}
+		}
 	}
 	else if (!strcmp(argv[0], "goto"))
 	{
@@ -70,23 +161,6 @@ void asservCommandUSB(int argc, char **argv)
 	else if (!strcmp(argv[0], "restartmove"))
 	{
 		after_obstacle_detection();
-	}
-	else if (!strcmp(argv[0], "reset"))
-	{
-		change_PID_mode(0); // reset de l'asservissement
-		Output_PID_angle = 0;
-		Output_PID_distance = 0;
-		Output_PID_vitesse_G = 0;
-		Output_PID_vitesse_D = 0;
-		change_PID_mode(4);
-	}
-	else if (!strcmp(argv[0], "anglereset"))
-	{
-		angle = 0; // reset de l'angle
-	}
-	else if (!strcmp(argv[0], "distreset"))
-	{
-		reset_distance(); // reset de la distance
 	}
 }
 /*************************************/
