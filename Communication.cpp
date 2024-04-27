@@ -23,13 +23,7 @@ void printUsage()
 /*************************************/
 void asservCommandUSB(int argc, char **argv)
 {
-	// Serial.print("asserv ");
-	for (int i = 0; i < argc; i++)
-	{
-		Serial.print(argv[i]);
-		Serial.print(" ");
-	}
-	// Serial.println(" ");
+	// On vérifie le nombre d'argument
 	if (argc == 0)
 	{
 		printUsage();
