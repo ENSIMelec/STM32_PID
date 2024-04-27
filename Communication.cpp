@@ -2,6 +2,7 @@
 #include "main.h"
 #include "Odometrie.h"
 #include "Move.h"
+#include "interrupt.h"
 
 char inputBuffer[1024] = "\0"; // Buffer pour stocker les données entrantes
 int sizeBuffer = 0;			   // Taille du buffer
@@ -31,7 +32,7 @@ void asservCommandUSB(int argc, char **argv)
 	}
 	else if (!strcmp(argv[0], "enable"))
 	{
-		if(argv[1] == "all")
+		if (argv[1] == "all")
 		{
 			change_PID_mode(4); // enable de tout l'asservissement
 		}
@@ -44,24 +45,24 @@ void asservCommandUSB(int argc, char **argv)
 			// enable de l'asservissement de distance
 		}
 		else if (argv[1] == "vitesse"):
-		{
-			if (argv[2] == "all")
 			{
-				// enable de l'asservissement de vitesse droite et gauche
+				if (argv[2] == "all")
+				{
+					// enable de l'asservissement de vitesse droite et gauche
+				}
+				else if (argv[2] == "gauche")
+				{
+					// enable de l'asservissement de vitesse gauche
+				}
+				else if (argv[2] == "droite")
+				{
+					// enable de l'asservissement de vitesse droite
+				}
 			}
-			else if (argv[2] == "gauche")
-			{
-				// enable de l'asservissement de vitesse gauche
-			}
-			else if (argv[2] == "droite")
-			{
-				// enable de l'asservissement de vitesse droite
-			}
-		}
 	}
 	else if (!strcmp(argv[0], "disable"))
 	{
-		if(argv[1] == "all")
+		if (argv[1] == "all")
 		{
 			// disable de tout l'asservissement
 		}
@@ -74,24 +75,24 @@ void asservCommandUSB(int argc, char **argv)
 			// disable de l'asservissement de distance
 		}
 		else if (argv[1] == "vitesse"):
-		{
-			if (argv[2] == "all")
 			{
-				// disable de l'asservissement de vitesse droite et gauche
+				if (argv[2] == "all")
+				{
+					// disable de l'asservissement de vitesse droite et gauche
+				}
+				else if (argv[2] == "gauche")
+				{
+					// disable de l'asservissement de vitesse gauche
+				}
+				else if (argv[2] == "droite")
+				{
+					// disable de l'asservissement de vitesse droite
+				}
 			}
-			else if (argv[2] == "gauche")
-			{
-				// disable de l'asservissement de vitesse gauche
-			}
-			else if (argv[2] == "droite")
-			{
-				// disable de l'asservissement de vitesse droite
-			}
-		}
 	}
 	else if (!strcmp(argv[0], "reset"))
 	{
-		if(argv[1] == "all")
+		if (argv[1] == "all")
 		{
 			change_PID_mode(0); // reset de tout l'asservissement
 			Output_PID_angle = 0;
@@ -102,27 +103,27 @@ void asservCommandUSB(int argc, char **argv)
 		}
 		else if (argv[1] == "angle")
 		{
-			angle = 0;// reset de l'asservissement d'angle
+			angle = 0; // reset de l'asservissement d'angle
 		}
 		else if (argv[1] == "distance")
 		{
-			reset_distance();// reset de l'asservissement de distance
+			reset_distance(); // reset de l'asservissement de distance
 		}
 		else if (argv[1] == "vitesse"):
-		{
-			if (argv[2] == "all")
 			{
-				// reset de l'asservissement de vitesse droite et gauche
+				if (argv[2] == "all")
+				{
+					// reset de l'asservissement de vitesse droite et gauche
+				}
+				else if (argv[2] == "gauche")
+				{
+					// reset de l'asservissement de vitesse gauche
+				}
+				else if (argv[2] == "droite")
+				{
+					// reset de l'asservissement de vitesse droite
+				}
 			}
-			else if (argv[2] == "gauche")
-			{
-				// reset de l'asservissement de vitesse gauche
-			}
-			else if (argv[2] == "droite")
-			{
-				// reset de l'asservissement de vitesse droite
-			}
-		}
 	}
 	else if (!strcmp(argv[0], "goto"))
 	{

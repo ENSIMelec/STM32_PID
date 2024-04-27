@@ -6,6 +6,7 @@
 float epsilonDistance = 2;
 float epsilonAngle = PI / 180 / 2;
 unsigned int interrupt_tick = 0;
+float delta_recalage = 10;
 /*************************************/
 /*****FONCTION ÉCHANTILLONAGE*********/
 /*************************************/
@@ -75,47 +76,53 @@ void Update_IT_callback(void)
   /*************************************/
 
   // si l'erreur dans la distance ou l'angle est trop grande, on ne fait rien
-  if ((abs(cmd_angle - angle) > 5 * PI / 180) && angle_ok || (abs(cmd_distance - distance) > 50) && distance_ok)
+  if ((abs(cmd_angle - angle) > 5 * PI / 180) && angle_ok || (abs(cmd_distance - distance) > 50) && (distance_ok || newCommand.recalage) )
   {
     change_PID_mode(0);
     Output_PID_angle = 0;
     Output_PID_distance = 0;
     Output_PID_vitesse_D = 0;
     Output_PID_vitesse_G = 0;
-
-    // // vérifiacation pour un recalage
-    // if (-30 < x && x < 30)
-    // {
-    //   x = 0;
-    //   if (abs(abs(angle) - PI) < abs(angle))
-    //     angle = PI;
-    //   else
-    //     angle = 0;
-    // }
-    // if (2970 < x && x < 3030)
-    // {
-    //   x = 3000;
-    //   if (abs(abs(angle) - PI) < abs(angle))
-    //     angle = PI;
-    //   else
-    //     angle = 0;
-    // }
-    // if (-30 < y && y < 30)
-    // {
-    //   y = 0;
-    //   if (abs(angle - PI / 2) < abs(angle + PI / 2))
-    //     angle = PI / 2;
-    //   else
-    //     angle = -PI / 2;
-    // }
-    // if (1970 < y && y < 2030)
-    // {
-    //   y = 2000;
-    //   if (abs(angle - PI / 2) < abs(angle + PI / 2))
-    //     angle = PI / 2;
-    //   else
-    //     angle = -PI / 2;
-    // }
+    if (newCommand.recalage)
+    {
+      // vérifiacation pour un recalage
+      if (abs(x) < delta_recalage)
+      {
+        newCommand.recalage = false;
+        x = 0;
+        if (abs(abs(angle) - PI) < abs(angle))
+          angle = PI;
+        else
+          angle = 0;
+      }
+      if (abs(x - 3000) < delta_recalage)
+      {
+        newCommand.recalage = false;
+        x = 3000;
+        if (abs(abs(angle) - PI) < abs(angle))
+          angle = PI;
+        else
+          angle = 0;
+      }
+      if (abs(y) < delta_recalage)
+      {
+        newCommand.recalage = false;
+        y = 0;
+        if (abs(angle - PI / 2) < abs(angle + PI / 2))
+          angle = PI / 2;
+        else
+          angle = -PI / 2;
+      }
+      if (abs(y - 2000) < delta_recalage)
+      {
+        newCommand.recalage = false;
+        y = 2000;
+        if (abs(angle - PI / 2) < abs(angle + PI / 2))
+          angle = PI / 2;
+        else
+          angle = -PI / 2;
+            }
+    }
   }
 
   /***Ajustement Commandes Vitesse****/
@@ -175,5 +182,7 @@ void Update_IT_callback(void)
 
 void ARU_interrupt()
 {
-  NVIC_SystemReset(); // redèmare le programme
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(500);
+  HAL_NVIC_SystemReset(); // redèmare le programme
 }

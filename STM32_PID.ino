@@ -109,7 +109,7 @@ void setup()
   /*********************************************/
   Serial.println("Serial OK");
 
-  // attachInterrupt(digitalPinToInterrupt(ARU), ARU_interrupt, RISING);
+  attachInterrupt(digitalPinToInterrupt(ARU), ARU_interrupt, CHANGE);
 
 #ifdef DEBUG
   /****************************/
@@ -169,6 +169,8 @@ void setup()
   PID_vitesse_G.SetOutputLimits(-1000, 1000, 10);
 
   change_PID_mode(4);
+
+  NVIC_SetPriority(TIM5_IRQn, 1); // Priorité pour l'interruption du timer
 
   timeSetup = millis();
 }
