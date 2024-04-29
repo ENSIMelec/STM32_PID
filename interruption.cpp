@@ -30,19 +30,25 @@ void Update_IT_callback(void)
     if (newCommand.goto_ok)
       distance_ok = false;
     newCommand.goto_ok = false;
-    newCommand.rotate_ok = false;
+    // newCommand.rotate_ok = false;
   }
   else if (!angle_ok)
   {
     interrupt_tick += 1;
     cmd_angle = angle_command_ramp(interrupt_tick);
   }
-
   else if (!distance_ok && angle_ok)
   {
     interrupt_tick += 1;
     cmd_distance = distance_command_ramp(interrupt_tick);
   }
+
+  /*****RECALLAGE IMPOSSIBLE******/
+  if (interrupt_tick == 0 && distance_ok && newCommand.recalage)
+  {
+    newCommand.recalage = false;
+  }
+  /******************************/
 
   /****Calcul des vitesses des moteurs*******/
   vitesse_D = (float)(ticks_D - last_encDroit) * coefVitesseD;
@@ -55,10 +61,10 @@ void Update_IT_callback(void)
   /*********************************************/
 
   /*****Calul de PID Angle et Vitesse****/
-
   if ((abs(distance_final - distance) < epsilonDistance || interrupt_tick >= get_distance_tf()) && angle_ok && !distance_ok)
   {
     distance_ok = true;
+    send_new_command_available = true;
     reset_time_distance();
     interrupt_tick = 0;
   }
@@ -67,6 +73,11 @@ void Update_IT_callback(void)
 
   if ((abs(angle_final - angle) < epsilonAngle || interrupt_tick >= get_angle_tf()) && !angle_ok)
   {
+    if (newCommand.rotate_ok)
+    {
+      newCommand.rotate_ok = false;
+      send_new_command_available = true;
+    }
     angle_ok = true;
     reset_time_angle();
     interrupt_tick = 0;
@@ -76,7 +87,7 @@ void Update_IT_callback(void)
   /*************************************/
 
   // si l'erreur dans la distance ou l'angle est trop grande, on ne fait rien
-  if ((abs(cmd_angle - angle) > 5 * PI / 180) && angle_ok || (abs(cmd_distance - distance) > 50) && (distance_ok || newCommand.recalage) )
+  if ((abs(cmd_angle - angle) > 5 * PI / 180) && angle_ok || (abs(cmd_distance - distance) > 10) && distance_ok)
   {
     change_PID_mode(0);
     Output_PID_angle = 0;
@@ -86,7 +97,7 @@ void Update_IT_callback(void)
     if (newCommand.recalage)
     {
       // vérifiacation pour un recalage
-      if (abs(x) < delta_recalage)
+      if ((abs(x) < delta_recalage) && (abs(angle - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
       {
         newCommand.recalage = false;
         x = 0;
@@ -95,8 +106,9 @@ void Update_IT_callback(void)
         else
           angle = 0;
       }
-      if (abs(x - 3000) < delta_recalage)
+      if ((abs(x - 3000) < delta_recalage) && (abs(angle - PI) < 2 * PI / 180 || abs(angle) < 2 * PI / 180))
       {
+        Serial.println("recalage1");
         newCommand.recalage = false;
         x = 3000;
         if (abs(abs(angle) - PI) < abs(angle))
@@ -104,8 +116,9 @@ void Update_IT_callback(void)
         else
           angle = 0;
       }
-      if (abs(y) < delta_recalage)
+      if ((abs(y) < delta_recalage) && (abs(angle - PI / 2) < 2 * PI / 180 || abs(angle + PI / 2) < 2 * PI / 180))
       {
+        Serial.println("recalage2");
         newCommand.recalage = false;
         y = 0;
         if (abs(angle - PI / 2) < abs(angle + PI / 2))
@@ -113,15 +126,16 @@ void Update_IT_callback(void)
         else
           angle = -PI / 2;
       }
-      if (abs(y - 2000) < delta_recalage)
+      if ((abs(y - 2000) < delta_recalage) && (abs(angle - PI / 2) < 2 * PI / 180 || abs(angle + PI / 2) < 2 * PI / 180))
       {
+        Serial.println("recalage3");
         newCommand.recalage = false;
         y = 2000;
         if (abs(angle - PI / 2) < abs(angle + PI / 2))
           angle = PI / 2;
         else
           angle = -PI / 2;
-            }
+      }
     }
   }
 
@@ -139,7 +153,6 @@ void Update_IT_callback(void)
   digitalWriteFast(DIR2, (Output_PID_vitesse_G >= 0));
 
   /****Commande des moteurs ajout avec une deadzone*******/
-
   if (abs(Output_PID_vitesse_G) > 10)
     analogWrite(PWM1, abs(Output_PID_vitesse_G));
   else
@@ -149,7 +162,6 @@ void Update_IT_callback(void)
     analogWrite(PWM2, abs(Output_PID_vitesse_D));
   else
     analogWrite(PWM2, 0);
-
   /*****************************/
 
   /****Calcul de la position*******/
@@ -162,19 +174,19 @@ void Update_IT_callback(void)
   /********************************/
 
   Update_IT = true;
-  // Serial.print("dOK:");
-  // Serial.print(distance_ok);
-  // Serial.print(" ");
-  // Serial.print("aOK:");
-  // Serial.print(angle_ok);
-  // Serial.print(" ");
-  // Serial.print(cmd_distance, 5);
-  // Serial.print(" ");
-  // Serial.print(distance, 5);
-  // Serial.print(" ");
-  // Serial.print(cmd_angle, 5);
-  // Serial.print(" ");
-  // Serial.println(angle, 5);
+  //  Serial.print("dOK:");
+  //  Serial.print(distance_ok);
+  //  Serial.print(" ");
+  //  Serial.print("aOK:");
+  //  Serial.print(angle_ok);
+  //  Serial.print(" ");
+  //  Serial.print(cmd_distance, 5);
+  //  Serial.print(" ");
+  //  Serial.print(distance, 5);
+  //  Serial.print(" ");
+  //  Serial.print(cmd_angle, 5);
+  //  Serial.print(" ");
+  //  Serial.println(angle, 5);
 }
 /*************************************/
 /*************************************/

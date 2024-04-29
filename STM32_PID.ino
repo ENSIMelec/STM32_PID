@@ -52,17 +52,16 @@ float Kp_G = 100.0 / 475.0, Ki_G = 0.0, Kd_G = 0.00;        // coefficients PID 
 float Kp_D = 100.0 / 500.0, Ki_D = 0.0, Kd_D = 0.00;        // coefficients PID vitesse moteur droit
 float Kp_angle = 3500, Ki_angle = 1620, Kd_angle = 0;       // coefficients PID angle
 float Kp_distance = 20, Ki_distance = 1.5, Kd_distance = 0; // coefficients PID distance
+/*********************************/
 
+/*****ETAT DEPLACEMENT************/
 bool distance_ok = false;
 bool angle_ok = false;
 MovementResult newCommand;
+bool send_new_command_available = true;
 /*********************************/
 
-/******Declaration des codeurs************/
-// TODO : faire 1 metre avec le robot a la main pour voir combien de tick on fait les codeurs
-// et les étalonner
-
-// - Example for STM32, check datasheet for possible Timers for Encoder mode. TIM_CHANNEL_1 and TIM_CHANNEL_2 only
+/******ENCODEUR************/
 int16_t last_encGauche = 0;
 int16_t last_encDroit = 0;
 Encoder encGauche(CodGB, CodGA, TIM3, &last_encGauche, HALFQUAD, 250); // PWM2/1 pin A0 et PWM2/2 pin A1 Donc Timer 2 utilisé
@@ -186,6 +185,11 @@ void loop()
   if (Update_IT)
   {
     sendData();
+  }
+  if (send_new_command_available)
+  {
+    Serial.println("Z");
+    send_new_command_available = false;
   }
 }
 /*************************************/

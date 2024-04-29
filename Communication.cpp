@@ -123,7 +123,17 @@ void asservCommandUSB(int argc, char **argv)
 	}
 	else if (!strcmp(argv[0], "goto"))
 	{
-		if (argc < 3)
+
+		if (argc < 3 || !(distance_ok && angle_ok))
+		{
+			return;
+		}
+		{
+			return;
+		}
+		{
+			return;
+		}
 		{
 			return;
 		}
@@ -139,14 +149,14 @@ void asservCommandUSB(int argc, char **argv)
 			speed = 500;
 		}
 		newCommand = calculateMovement(x, y);
-		if (argc > 5)
+		if (argc == 5)
 		{
-			newCommand.recalage = true;
+			newCommand.recalage = atoi(argv[4]);
 		}
 		goTo(newCommand, speed);
 		newCommand.goto_ok = true;
 	}
-	else if (!strcmp(argv[0], "rotate"))
+	else if (!strcmp(argv[0], "rotate") && (distance_ok && angle_ok))
 	{
 		float angle_ = atof(argv[1]);
 		newCommand = calculate_rotation(angle_);
@@ -155,7 +165,8 @@ void asservCommandUSB(int argc, char **argv)
 	}
 	else if (!strcmp(argv[0], "moveof"))
 	{
-		if (argc < 2)
+		// Serial.println(argc);
+		if (argc < 2 || !(distance_ok && angle_ok))
 		{
 			return;
 		}
@@ -170,9 +181,9 @@ void asservCommandUSB(int argc, char **argv)
 			speed = 500;
 		}
 		newCommand = calculate_moveOf(distance_);
-		if (argc > 4)
+		if (argc == 4)
 		{
-			newCommand.recalage = true;
+			newCommand.recalage = atoi(argv[3]);
 		}
 		moveOf(newCommand, speed);
 		newCommand.goto_ok = true;
@@ -193,6 +204,14 @@ void asservCommandUSB(int argc, char **argv)
 		}
 		x = atof(argv[1]);
 		y = atof(argv[2]);
+	}
+	else if (!strcmp(argv[0], "setangle"))
+	{
+		if (argc < 1)
+		{
+			return;
+		}
+		angle = atof(argv[1]);
 	}
 }
 /*************************************/
