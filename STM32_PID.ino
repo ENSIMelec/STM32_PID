@@ -58,7 +58,7 @@ float Kp_distance = 20, Ki_distance = 1.5, Kd_distance = 0; // coefficients PID 
 bool distance_ok = false;
 bool angle_ok = false;
 MovementResult newCommand;
-bool send_new_command_available = true;
+bool send_new_command_available = false;
 /*********************************/
 
 /******ENCODEUR************/

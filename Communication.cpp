@@ -128,15 +128,6 @@ void asservCommandUSB(int argc, char **argv)
 		{
 			return;
 		}
-		{
-			return;
-		}
-		{
-			return;
-		}
-		{
-			return;
-		}
 		float x = atof(argv[1]);
 		float y = atof(argv[2]);
 		float speed;

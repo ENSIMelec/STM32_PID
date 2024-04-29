@@ -173,7 +173,7 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
 
-  Update_IT = true;
+  //Update_IT = true;
   //  Serial.print("dOK:");
   //  Serial.print(distance_ok);
   //  Serial.print(" ");
