@@ -293,10 +293,10 @@ void serialEvent()
 /*************************************/
 void sendData()
 {
-	Serial.print("A"); // Valeur du codeur Gauche
-	Serial.println(last_encGauche);
-	Serial.print("B"); // Valeur du codeur Droit
-	Serial.println(last_encDroit);
+	// Serial.print("A"); // Valeur du codeur Gauche
+	// Serial.println(last_encGauche);
+	// Serial.print("B"); // Valeur du codeur Droit
+	// Serial.println(last_encDroit);
 	Serial.print("C"); // Vitesse réel moteur Gauche
 	Serial.println(vitesse_G, 5);
 	Serial.print("D"); // Vitesse réel moteur Droit
@@ -311,20 +311,20 @@ void sendData()
 	Serial.println(cmd_vitesse_D, 5);
 	Serial.print("I"); // angle mesurer
 	Serial.println(angle, 5);
-	Serial.print("J"); // angle PID
-	Serial.println(Output_PID_angle);
+	// Serial.print("J"); // angle PID
+	// Serial.println(Output_PID_angle);
 	Serial.print("K");
 	Serial.println(cmd_angle, 5);
 	Serial.print("L"); // distance mesurer
 	Serial.println(distance, 5);
-	Serial.print("M"); // distance PID
-	Serial.println(Output_PID_distance, 5);
+	// Serial.print("M"); // distance PID
+	// Serial.println(Output_PID_distance, 5);
 	Serial.print("O"); // cmd distance
 	Serial.println(cmd_distance, 5);
-	Serial.print("P"); // angle ok
-	Serial.println(angle_ok);
-	Serial.print("Q"); // distance ok
-	Serial.println(distance_ok);
+	// Serial.print("P"); // angle ok
+	// Serial.println(angle_ok);
+	// Serial.print("Q"); // distance ok
+	// Serial.println(distance_ok);
 	Serial.print("X"); // position x
 	Serial.println(x);
 	Serial.print("Y"); // position y
