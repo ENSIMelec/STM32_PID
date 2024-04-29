@@ -21,7 +21,9 @@ calculateMovement(float targetX, float targetY)
 bool goTo(MovementResult mov, float speed)
 {
     calculate_distance_time(mov.distance_final, speed);
-    calculate_angle_time(mov.angle_final - mov.angle_initial, speed);
+    calculate_angle_time(mov.angle_final, speed);
+    Serial.println(mov.angle_final);
+    Serial.println(mov.angle_initial);
     mov.goto_ok = true;
     return true;
 }

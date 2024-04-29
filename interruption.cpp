@@ -21,9 +21,10 @@ void Update_IT_callback(void)
   {
     change_PID_mode(4);
 
+    reset_last_distance();
     cmd_distance = 0;
     distance = 0;
-    reset_last_distance();
+
     cmd_angle = angle;
     interrupt_tick = 0;
     angle_ok = false;
@@ -87,7 +88,7 @@ void Update_IT_callback(void)
   /*************************************/
 
   // si l'erreur dans la distance ou l'angle est trop grande, on ne fait rien
-  if ((abs(cmd_angle - angle) > 5 * PI / 180) && angle_ok || (abs(cmd_distance - distance) > 10) && distance_ok)
+  if ((abs(cmd_angle - angle) > 5 * PI / 180) && angle_ok && distance_ok || (abs(cmd_distance - distance) > 30) && distance_ok && angle_ok)
   {
     change_PID_mode(0);
     Output_PID_angle = 0;
@@ -173,12 +174,12 @@ void Update_IT_callback(void)
   last_encDroit = ticks_D;
   /********************************/
 
-  //Update_IT = true;
+  //Update_IT ++;
   //  Serial.print("dOK:");
   //  Serial.print(distance_ok);
   //  Serial.print(" ");
   //  Serial.print("aOK:");
-  //  Serial.print(angle_ok);
+  // Serial.print(angle_ok);
   //  Serial.print(" ");
   //  Serial.print(cmd_distance, 5);
   //  Serial.print(" ");
@@ -187,6 +188,10 @@ void Update_IT_callback(void)
   //  Serial.print(cmd_angle, 5);
   //  Serial.print(" ");
   //  Serial.println(angle, 5);
+  //  Serial.print(" ");
+  //  Serial.print(x);
+  //  Serial.print(" ");
+  //  Serial.println(y);
 }
 /*************************************/
 /*************************************/

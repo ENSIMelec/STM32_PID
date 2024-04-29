@@ -163,7 +163,7 @@ void asservCommandUSB(int argc, char **argv)
 		}
 		float distance_ = atof(argv[1]);
 		float speed;
-		if (argc > 3)
+		if (argc > 2)
 		{
 			speed = atof(argv[2]);
 		}
@@ -321,7 +321,7 @@ void sendData()
 	Serial.print("Y"); // position y
 	Serial.println(y);
 
-	Update_IT = false;
+	Update_IT = 0;
 }
 /*************************************/
 /*************************************/
