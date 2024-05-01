@@ -11,6 +11,7 @@ struct MovementResult
     float distance_final = 0;   // distance voulu
     float angle_initial = 0;    // angle de départ
     float distance_initial = 0; // distance de départ
+    float speed = 500;
     bool goto_ok = false;       // mouvement terminé
     bool rotate_ok = false;     // rotation terminé
     bool recalage = false;      // si déplacement nécessite un recalage
@@ -95,6 +96,7 @@ extern unsigned int interrupt_tick;
 extern MovementResult newCommand;
 extern short mode; // 0 stop PID, 1 PID angle ON, 2 PID distance ON, 3 PID Vitesse ON, PID angle et distance ON
 extern bool send_new_command_available;
+extern int arret_lidar;
 /*********************/
 
 extern unsigned long timeSetup;

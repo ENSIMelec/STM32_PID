@@ -9,10 +9,10 @@ MovementResult calculateMovement(float targetX, float targetY);
 MovementResult calculate_rotation(float angle_need);
 MovementResult calculate_moveOf(float distance_);
 
-bool goTo(MovementResult mov, float speed);
-bool rotate(MovementResult mov, float speed);
+bool goTo(MovementResult mov);
+bool rotate(MovementResult mov);
 bool updateVmax(int new_Vmax);
-bool moveOf(MovementResult mov, float speed);
+bool moveOf(MovementResult mov);
 void change_PID_mode(short mode);
 
 extern PID PID_vitesse_G;

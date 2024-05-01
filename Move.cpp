@@ -18,12 +18,10 @@ calculateMovement(float targetX, float targetY)
     return result;
 }
 
-bool goTo(MovementResult mov, float speed)
+bool goTo(MovementResult mov)
 {
-    calculate_distance_time(mov.distance_final, speed);
-    calculate_angle_time(mov.angle_final, speed);
-    Serial.println(mov.angle_final);
-    Serial.println(mov.angle_initial);
+    calculate_distance_time(mov.distance_final, mov.speed);
+    calculate_angle_time(mov.angle_final, mov.speed);
     mov.goto_ok = true;
     return true;
 }
@@ -45,17 +43,17 @@ MovementResult calculate_moveOf(float distance_)
     return result;
 }
 
-bool rotate(MovementResult mov, float speed)
+bool rotate(MovementResult mov)
 {
-    calculate_angle_time(mov.angle_final, speed);
+    calculate_angle_time(mov.angle_final, mov.speed);
     mov.rotate_ok = true;
     return true;
 }
 
-bool moveOf(MovementResult mov, float speed)
+bool moveOf(MovementResult mov)
 {
-    calculate_angle_time(mov.angle_final, speed);
-    calculate_distance_time(mov.distance_final, speed);
+    calculate_angle_time(mov.angle_final, mov.speed);
+    calculate_distance_time(mov.distance_final, mov.speed);
     mov.goto_ok = true;
     return true;
 }

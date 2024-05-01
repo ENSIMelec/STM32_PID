@@ -31,7 +31,6 @@ void Update_IT_callback(void)
     if (newCommand.goto_ok)
       distance_ok = false;
     newCommand.goto_ok = false;
-    // newCommand.rotate_ok = false;
   }
   else if (!angle_ok)
   {
@@ -56,6 +55,23 @@ void Update_IT_callback(void)
   vitesse_G = (float)(ticks_G - last_encGauche) * coefVitesseG;
   /******************************************/
 
+  /************Arret moteur Blocage**********************/
+  if (abs(vitesse_G) < 5 && abs(cmd_vitesse_G) > 300)
+  {
+    PID_vitesse_G.SetMode(MANUAL);
+    Output_PID_vitesse_G = 0;
+  }
+  else
+    PID_vitesse_G.SetMode(AUTOMATIC);
+  if (abs(vitesse_D) < 5 && abs(cmd_vitesse_D) > 300)
+  {
+    PID_vitesse_D.SetMode(MANUAL);
+    Output_PID_vitesse_D = 0;
+  }
+  else
+    PID_vitesse_D.SetMode(AUTOMATIC);
+  /*********************************************************/
+
   /****Calcul de l'angle et de la distance*******/
   angle += (vitesse_G - vitesse_D) * coefAngle;
   distance += (vitesse_D + vitesse_G) / 2 * dt;
@@ -65,6 +81,7 @@ void Update_IT_callback(void)
   if ((abs(distance_final - distance) < epsilonDistance || interrupt_tick >= get_distance_tf()) && angle_ok && !distance_ok)
   {
     distance_ok = true;
+    arret_lidar++;
     send_new_command_available = true;
     reset_time_distance();
     interrupt_tick = 0;
@@ -88,7 +105,7 @@ void Update_IT_callback(void)
   /*************************************/
 
   // si l'erreur dans la distance ou l'angle est trop grande, on ne fait rien
-  if ((abs(cmd_angle - angle) > 5 * PI / 180) && angle_ok && distance_ok || (abs(cmd_distance - distance) > 30) && distance_ok && angle_ok)
+  if ((abs(cmd_angle - angle) > 2 * PI / 180) && angle_ok || (abs(cmd_distance - distance) > 10) && distance_ok)
   {
     change_PID_mode(0);
     Output_PID_angle = 0;
@@ -97,17 +114,20 @@ void Update_IT_callback(void)
     Output_PID_vitesse_G = 0;
     if (newCommand.recalage)
     {
+      Serial.println("recalage");
       // vérifiacation pour un recalage
-      if ((abs(x) < delta_recalage) && (abs(angle - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
+      if ((abs(x) < delta_recalage) && (abs(abs(angle) - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
       {
+        Serial.println("recalage0");
         newCommand.recalage = false;
         x = 0;
         if (abs(abs(angle) - PI) < abs(angle))
           angle = PI;
         else
           angle = 0;
+        Serial.println(angle);
       }
-      if ((abs(x - 3000) < delta_recalage) && (abs(angle - PI) < 2 * PI / 180 || abs(angle) < 2 * PI / 180))
+      if ((abs(x - 3000) < delta_recalage) && (abs(angle - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
       {
         Serial.println("recalage1");
         newCommand.recalage = false;
@@ -116,8 +136,9 @@ void Update_IT_callback(void)
           angle = PI;
         else
           angle = 0;
+        Serial.println(angle);
       }
-      if ((abs(y) < delta_recalage) && (abs(angle - PI / 2) < 2 * PI / 180 || abs(angle + PI / 2) < 2 * PI / 180))
+      if ((abs(y) < delta_recalage) && (abs(angle - PI / 2) < 5 * PI / 180 || abs(angle + PI / 2) < 5 * PI / 180))
       {
         Serial.println("recalage2");
         newCommand.recalage = false;
@@ -127,7 +148,7 @@ void Update_IT_callback(void)
         else
           angle = -PI / 2;
       }
-      if ((abs(y - 2000) < delta_recalage) && (abs(angle - PI / 2) < 2 * PI / 180 || abs(angle + PI / 2) < 2 * PI / 180))
+      if ((abs(y - 2000) < delta_recalage) && (abs(angle - PI / 2) < 5 * PI / 180 || abs(angle + PI / 2) < 5 * PI / 180))
       {
         Serial.println("recalage3");
         newCommand.recalage = false;
@@ -152,7 +173,7 @@ void Update_IT_callback(void)
 
   digitalWriteFast(DIR1, (Output_PID_vitesse_D >= 0));
   digitalWriteFast(DIR2, (Output_PID_vitesse_G >= 0));
-
+  // Serial.println(erreurVD);
   /****Commande des moteurs ajout avec une deadzone*******/
   if (abs(Output_PID_vitesse_G) > 10)
     analogWrite(PWM1, abs(Output_PID_vitesse_G));
@@ -173,25 +194,24 @@ void Update_IT_callback(void)
   last_encGauche = ticks_G;
   last_encDroit = ticks_D;
   /********************************/
-
-  //Update_IT ++;
-  //  Serial.print("dOK:");
-  //  Serial.print(distance_ok);
-  //  Serial.print(" ");
-  //  Serial.print("aOK:");
-  // Serial.print(angle_ok);
-  //  Serial.print(" ");
-  //  Serial.print(cmd_distance, 5);
-  //  Serial.print(" ");
-  //  Serial.print(distance, 5);
-  //  Serial.print(" ");
-  //  Serial.print(cmd_angle, 5);
-  //  Serial.print(" ");
-  //  Serial.println(angle, 5);
-  //  Serial.print(" ");
-  //  Serial.print(x);
-  //  Serial.print(" ");
-  //  Serial.println(y);
+  Update_IT++;
+  //   Serial.print("dOK:");
+  //   Serial.print(distance_ok);
+  //   Serial.print(" ");
+  //   Serial.print("aOK:");
+  // Serial.println(angle_ok);
+  //   Serial.print(" ");
+  //   Serial.print(cmd_distance, 5);
+  //   Serial.print(" ");
+  //   Serial.print(distance, 5);
+  //   Serial.print(" ");
+  // Serial.println(cmd_angle, 5);
+  //   Serial.print(" ");
+  //   Serial.println(angle, 5);
+  //   Serial.print(" ");
+  //   Serial.print(x);
+  //   Serial.print(" ");
+  //   Serial.println(y);
 }
 /*************************************/
 /*************************************/

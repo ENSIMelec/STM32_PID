@@ -12,6 +12,9 @@
 /******Mode********/
 #define DEBUG  // mode debug
 /******************/
+
+bool debug = false;
+
 unsigned long timeSetup;
 short mode = 4;
 /******ECHANTILLONAGE********/
@@ -59,6 +62,7 @@ bool distance_ok = false;
 bool angle_ok = false;
 MovementResult newCommand;
 bool send_new_command_available = false;
+int arret_lidar = 2;
 /*********************************/
 
 /******ENCODEUR************/
@@ -107,7 +111,7 @@ void setup() {
   /*********************************************/
   Serial.println("Serial OK");
 
-  //attachInterrupt(digitalPinToInterrupt(ARU), ARU_interrupt, CHANGE);
+  // attachInterrupt(digitalPinToInterrupt(ARU), ARU_interrupt, CHANGE);
 
 #ifdef DEBUG
   /****************************/
@@ -176,10 +180,10 @@ void setup() {
 /*****LOOP**************************/
 /*************************************/
 void loop() {
-  if (Update_IT >= 5) {
+  if (Update_IT >= 10 && debug) {
     sendData();
   }
-  if (send_new_command_available) {
+  if (send_new_command_available && arret_lidar >= 2) {
     Serial.println("Z");
     send_new_command_available = false;
   }

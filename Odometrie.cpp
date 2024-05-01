@@ -89,7 +89,6 @@ bool calculate_distance_time(float distance_, float Vmax_)
 float distance_command_ramp(float interrupt_tick)
 {
     float t = interrupt_tick * dt;
-
     if (t < distance_t1)
     {
         return Acc * t * t / 2;
@@ -114,8 +113,8 @@ bool calculate_angle_time(float angle_, float Vmax_)
     angle_final = angle_;
     float angle_parcouru = angle_final - angle_initial;
     Vmax_ = abs(Vmax_);
-    VMaxAngulaire = Vmax_ / empattementRoueCodeuse * 2 ;
-    AccAngulaire = Acc / empattementRoueCodeuse * Attenuantion_vit_ang;
+    VMaxAngulaire = Vmax_ / empattementRoueCodeuse * 2;
+    AccAngulaire = abs(Acc) / empattementRoueCodeuse * Attenuantion_vit_ang;
     if (angle_parcouru < 0)
     {
         VMaxAngulaire = -VMaxAngulaire;
@@ -126,17 +125,15 @@ bool calculate_angle_time(float angle_, float Vmax_)
 
     if (abs(angle_parcouru) < abs(angle_lim))
     {
-        angle_t1 = roundf(sqrt(angle_parcouru / AccAngulaire)*100)/100;
+        angle_t1 = sqrt(angle_parcouru / AccAngulaire);
         angle_t2 = angle_t1;
         VMaxAngulaire = AccAngulaire * angle_t1;
     }
     else
     {
-        angle_t1 = roundf(VMaxAngulaire / AccAngulaire*100)/100;
-        angle_t2 = roundf(((angle_parcouru - AccAngulaire * angle_t1 * angle_t1) / VMaxAngulaire + angle_t1)*100)/100;
+        angle_t1 = VMaxAngulaire / AccAngulaire;
+        angle_t2 = (angle_parcouru - AccAngulaire * angle_t1 * angle_t1) / VMaxAngulaire + angle_t1;
     }
-    Serial.println(angle_t1);
-    Serial.println(angle_t2);
     return true;
 }
 
@@ -159,7 +156,6 @@ float angle_command_ramp(float interrupt_tick)
     {
         return AccAngulaire * angle_t1 * angle_t1 / 2 + VMaxAngulaire * (t - angle_t1) + angle_initial;
     }
-  
 }
 
 bool reset_time_angle()

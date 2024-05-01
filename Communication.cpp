@@ -29,6 +29,9 @@ void asservCommandUSB(int argc, char **argv)
 		printUsage();
 		return;
 	}
+  else if(argv[0][0] == 'Z'){
+    send_new_command_available = false;
+  }
 	else if (!strcmp(argv[0], "enable"))
 	{
 		if (argv[1] == "all")
@@ -124,73 +127,69 @@ void asservCommandUSB(int argc, char **argv)
 	else if (!strcmp(argv[0], "goto"))
 	{
 
-		if (argc < 3 || !(distance_ok && angle_ok))
+		if (argc < 3 || !(distance_ok && angle_ok) || arret_lidar < 2)
 		{
+			Serial.println("Erreur");
 			return;
 		}
 		float x = atof(argv[1]);
 		float y = atof(argv[2]);
-		float speed;
+		newCommand = calculateMovement(x, y);
 		if (argc > 4)
 		{
-			speed = atof(argv[3]);
+			newCommand.speed = atof(argv[3]);
 		}
-		else
-		{
-			speed = 500;
-		}
-		newCommand = calculateMovement(x, y);
 		if (argc == 5)
 		{
 			newCommand.recalage = atoi(argv[4]);
 		}
-		goTo(newCommand, speed);
+		goTo(newCommand);
 		newCommand.goto_ok = true;
 	}
 	else if (!strcmp(argv[0], "rotate") && (distance_ok && angle_ok))
 	{
 		float angle_ = atof(argv[1]);
 		newCommand = calculate_rotation(angle_);
-		rotate(newCommand, 500);
+		newCommand.speed = 500;
+		rotate(newCommand);
 		newCommand.rotate_ok = true;
 	}
 	else if (!strcmp(argv[0], "moveof"))
 	{
 		// Serial.println(argc);
-		if (argc < 2 || !(distance_ok && angle_ok))
+		if (argc < 2 || !(distance_ok && angle_ok) || arret_lidar < 2)
 		{
+			Serial.println("Erreur");
 			return;
 		}
 		float distance_ = atof(argv[1]);
-		float speed;
+		newCommand = calculate_moveOf(distance_);
 		if (argc > 2)
 		{
-			speed = atof(argv[2]);
+			newCommand.speed = atof(argv[2]);
 		}
-		else
-		{
-			speed = 500;
-		}
-		newCommand = calculate_moveOf(distance_);
 		if (argc == 4)
 		{
 			newCommand.recalage = atoi(argv[3]);
 		}
-		moveOf(newCommand, speed);
+		moveOf(newCommand);
 		newCommand.goto_ok = true;
 	}
 	else if (!strcmp(argv[0], "stopmove"))
 	{
+		arret_lidar = 0;
 		obstacle_detection();
 	}
 	else if (!strcmp(argv[0], "restartmove"))
 	{
-		after_obstacle_detection();
+		if (arret_lidar < 2)
+			after_obstacle_detection();
 	}
 	else if (!strcmp(argv[0], "setxy"))
 	{
 		if (argc < 2)
 		{
+			Serial.println("Erreur");
 			return;
 		}
 		x = atof(argv[1]);
