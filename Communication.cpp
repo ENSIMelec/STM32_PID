@@ -29,9 +29,20 @@ void asservCommandUSB(int argc, char **argv)
 		printUsage();
 		return;
 	}
-  else if(argv[0][0] == 'Z'){
-    send_new_command_available = false;
-  }
+	else if(argv[0][0] == 'Z'){
+		send_new_command_available = false;
+	}
+	else if (!strcmp(argv[0], "debug"))
+	{
+		if (!strcmp(argv[1], "enable"))
+		{
+			debug = true;
+		}
+		else if (!strcmp(argv[1], "disable"))
+		{
+			debug = false;
+		}
+	}
 	else if (!strcmp(argv[0], "enable"))
 	{
 		if (argv[1] == "all")
@@ -287,30 +298,36 @@ void sendData()
 	// Serial.println(last_encGauche);
 	// Serial.print("B"); // Valeur du codeur Droit
 	// Serial.println(last_encDroit);
-	Serial.print("C"); // Vitesse réel moteur Gauche
-	Serial.println(vitesse_G, 5);
-	Serial.print("D"); // Vitesse réel moteur Droit
-	Serial.println(vitesse_D, 5);
-	Serial.print("E"); // Sortie du PID vitesse moteur Gauche
-	Serial.println(Output_PID_vitesse_G, 5);
-	Serial.print("F"); // Sortie du PID vitesse moteur Droit
-	Serial.println(Output_PID_vitesse_D, 5);
-	Serial.print("G"); // Consigne de vitesse moteur Gauche
-	Serial.println(cmd_vitesse_G, 5);
-	Serial.print("H"); // Consigne de vitesse moteur Droit
-	Serial.println(cmd_vitesse_D, 5);
-	Serial.print("I"); // angle mesurer
-	Serial.println(angle, 5);
+
+	// Serial.print("C"); // Vitesse réel moteur Gauche
+	// Serial.println(vitesse_G, 5);
+	// Serial.print("D"); // Vitesse réel moteur Droit
+	// Serial.println(vitesse_D, 5);
+	// Serial.print("E"); // Sortie du PID vitesse moteur Gauche
+	// Serial.println(Output_PID_vitesse_G, 5);
+	// Serial.print("F"); // Sortie du PID vitesse moteur Droit
+	// Serial.println(Output_PID_vitesse_D, 5);
+	// Serial.print("G"); // Consigne de vitesse moteur Gauche
+	// Serial.println(cmd_vitesse_G, 5);
+	// Serial.print("H"); // Consigne de vitesse moteur Droit
+	// Serial.println(cmd_vitesse_D, 5);
+	// Serial.print("I"); // angle mesurer
+	// Serial.println(angle, 5);
+
 	// Serial.print("J"); // angle PID
 	// Serial.println(Output_PID_angle);
-	Serial.print("K");
-	Serial.println(cmd_angle, 5);
-	Serial.print("L"); // distance mesurer
-	Serial.println(distance, 5);
+
+	// Serial.print("K");
+	// Serial.println(cmd_angle, 5);
+	// Serial.print("L"); // distance mesurer
+	// Serial.println(distance, 5);
+
 	// Serial.print("M"); // distance PID
 	// Serial.println(Output_PID_distance, 5);
-	Serial.print("O"); // cmd distance
-	Serial.println(cmd_distance, 5);
+
+	// Serial.print("O"); // cmd distance
+	// Serial.println(cmd_distance, 5);
+
 	// Serial.print("P"); // angle ok
 	// Serial.println(angle_ok);
 	// Serial.print("Q"); // distance ok

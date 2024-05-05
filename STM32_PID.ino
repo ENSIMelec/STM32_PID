@@ -13,7 +13,7 @@
 #define DEBUG  // mode debug
 /******************/
 
-bool debug = false;
+bool debug = true;
 
 unsigned long timeSetup;
 short mode = 4;
