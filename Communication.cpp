@@ -135,6 +135,24 @@ void asservCommandUSB(int argc, char **argv)
 			}
 		}
 	}
+	else if (!strcmp(argv[0], "set"))
+	{
+		if (!strcmp(argv[1], "coord"))
+		{
+			x = (float)atof(argv[2]);
+			y = (float)atof(argv[3]);
+		}
+		else if (!strcmp(argv[1], "angle"))
+		{
+			angle = (float)atof(argv[2]); // set de l'angle
+		}
+		else if (!strcmp(argv[1], "position"))
+		{
+			x = (float)atof(argv[2]);
+			y = (float)atof(argv[3]);
+			angle = (float)atof(argv[4]); // set de l'angle
+		}
+	}
 	else if (!strcmp(argv[0], "goto"))
 	{
 
@@ -195,24 +213,6 @@ void asservCommandUSB(int argc, char **argv)
 	{
 		if (arret_lidar < 2)
 			after_obstacle_detection();
-	}
-	else if (!strcmp(argv[0], "setxy"))
-	{
-		if (argc < 2)
-		{
-			Serial.println("Erreur");
-			return;
-		}
-		x = atof(argv[1]);
-		y = atof(argv[2]);
-	}
-	else if (!strcmp(argv[0], "setangle"))
-	{
-		if (argc < 1)
-		{
-			return;
-		}
-		angle = atof(argv[1]);
 	}
 }
 /*************************************/
@@ -311,16 +311,16 @@ void sendData()
 	// Serial.println(cmd_vitesse_G, 5);
 	// Serial.print("H"); // Consigne de vitesse moteur Droit
 	// Serial.println(cmd_vitesse_D, 5);
-	// Serial.print("I"); // angle mesurer
-	// Serial.println(angle, 5);
+	Serial.print("I"); // angle mesurer
+	Serial.println(angle, 5);
 
 	// Serial.print("J"); // angle PID
 	// Serial.println(Output_PID_angle);
 
 	// Serial.print("K");
 	// Serial.println(cmd_angle, 5);
-	// Serial.print("L"); // distance mesurer
-	// Serial.println(distance, 5);
+	Serial.print("L"); // distance mesurer
+	Serial.println(distance, 5);
 
 	// Serial.print("M"); // distance PID
 	// Serial.println(Output_PID_distance, 5);
