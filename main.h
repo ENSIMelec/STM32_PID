@@ -33,6 +33,7 @@ struct MovementResult
 /******ECHANTILLONAGE********/
 extern float dt;
 extern volatile int Update_IT;
+extern bool debug;
 /****************************/
 
 /******CONSIGNES PID**********/
