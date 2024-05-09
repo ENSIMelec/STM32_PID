@@ -43,34 +43,34 @@ void Update_IT_callback(void)
     cmd_distance = distance_command_ramp(interrupt_tick);
   }
 
-  /*****RECALLAGE IMPOSSIBLE******/
-  if (interrupt_tick == 0 && distance_ok && newCommand.recalage)
-  {
-    newCommand.recalage = false;
-  }
-  /******************************/
+  // /*****RECALLAGE IMPOSSIBLE******/
+  // if (interrupt_tick == 0 && distance_ok && newCommand.recalage)
+  // {
+  //   newCommand.recalage = false;
+  // }
+  // /******************************/
 
   /****Calcul des vitesses des moteurs*******/
   vitesse_D = (float)(ticks_D - last_encDroit) * coefVitesseD;
   vitesse_G = (float)(ticks_G - last_encGauche) * coefVitesseG;
   /******************************************/
 
-  /************Arret moteur Blocage**********************/
-  if (abs(vitesse_G) < 5 && abs(cmd_vitesse_G) > 300)
-  {
-    PID_vitesse_G.SetMode(MANUAL);
-    Output_PID_vitesse_G = 0;
-  }
-  else
-    PID_vitesse_G.SetMode(AUTOMATIC);
-  if (abs(vitesse_D) < 5 && abs(cmd_vitesse_D) > 300)
-  {
-    PID_vitesse_D.SetMode(MANUAL);
-    Output_PID_vitesse_D = 0;
-  }
-  else
-    PID_vitesse_D.SetMode(AUTOMATIC);
-  /*********************************************************/
+  // /************Arret moteur Blocage**********************/
+  // if (abs(vitesse_G) < 5 && abs(cmd_vitesse_G) > 300)
+  // {
+  //   PID_vitesse_G.SetMode(MANUAL);
+  //   Output_PID_vitesse_G = 0;
+  // }
+  // else
+  //   PID_vitesse_G.SetMode(AUTOMATIC);
+  // if (abs(vitesse_D) < 5 && abs(cmd_vitesse_D) > 300)
+  // {
+  //   PID_vitesse_D.SetMode(MANUAL);
+  //   Output_PID_vitesse_D = 0;
+  // }
+  // else
+  //   PID_vitesse_D.SetMode(AUTOMATIC);
+  // /*********************************************************/
 
   /****Calcul de l'angle et de la distance*******/
   angle += (vitesse_G - vitesse_D) * coefAngle;
@@ -82,6 +82,8 @@ void Update_IT_callback(void)
   {
     distance_ok = true;
     arret_lidar++;
+    newCommand.distance_final = 0;
+    newCommand.distance_initial = 0;
     send_new_command_available = true;
     reset_time_distance();
     interrupt_tick = 0;
@@ -105,60 +107,60 @@ void Update_IT_callback(void)
   /*************************************/
 
   // si l'erreur dans la distance ou l'angle est trop grande, on ne fait rien
-  if ((abs(cmd_angle - angle) > 2 * PI / 180) && angle_ok || (abs(cmd_distance - distance) > 10) && distance_ok)
+  if ((abs(cmd_angle - angle) > 10 * PI / 180) && distance_ok || (abs(cmd_distance - distance) > 150) && angle_ok)
   {
     change_PID_mode(0);
     Output_PID_angle = 0;
     Output_PID_distance = 0;
     Output_PID_vitesse_D = 0;
     Output_PID_vitesse_G = 0;
-    if (newCommand.recalage)
-    {
-      Serial.println("recalage");
-      // vérifiacation pour un recalage
-      if ((abs(x) < delta_recalage) && (abs(abs(angle) - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
-      {
-        Serial.println("recalage0");
-        newCommand.recalage = false;
-        x = 0;
-        if (abs(abs(angle) - PI) < abs(angle))
-          angle = PI;
-        else
-          angle = 0;
-        Serial.println(angle);
-      }
-      if ((abs(x - 3000) < delta_recalage) && (abs(angle - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
-      {
-        Serial.println("recalage1");
-        newCommand.recalage = false;
-        x = 3000;
-        if (abs(abs(angle) - PI) < abs(angle))
-          angle = PI;
-        else
-          angle = 0;
-        Serial.println(angle);
-      }
-      if ((abs(y) < delta_recalage) && (abs(angle - PI / 2) < 5 * PI / 180 || abs(angle + PI / 2) < 5 * PI / 180))
-      {
-        Serial.println("recalage2");
-        newCommand.recalage = false;
-        y = 0;
-        if (abs(angle - PI / 2) < abs(angle + PI / 2))
-          angle = PI / 2;
-        else
-          angle = -PI / 2;
-      }
-      if ((abs(y - 2000) < delta_recalage) && (abs(angle - PI / 2) < 5 * PI / 180 || abs(angle + PI / 2) < 5 * PI / 180))
-      {
-        Serial.println("recalage3");
-        newCommand.recalage = false;
-        y = 2000;
-        if (abs(angle - PI / 2) < abs(angle + PI / 2))
-          angle = PI / 2;
-        else
-          angle = -PI / 2;
-      }
-    }
+    // if (newCommand.recalage)
+    // {
+    //   Serial.println("recalage");
+    //   // vérifiacation pour un recalage
+    //   if ((abs(x) < delta_recalage) && (abs(abs(angle) - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
+    //   {
+    //     Serial.println("recalage0");
+    //     newCommand.recalage = false;
+    //     x = 0;
+    //     if (abs(abs(angle) - PI) < abs(angle))
+    //       angle = PI;
+    //     else
+    //       angle = 0;
+    //     Serial.println(angle);
+    //   }
+    //   if ((abs(x - 3000) < delta_recalage) && (abs(angle - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
+    //   {
+    //     Serial.println("recalage1");
+    //     newCommand.recalage = false;
+    //     x = 3000;
+    //     if (abs(abs(angle) - PI) < abs(angle))
+    //       angle = PI;
+    //     else
+    //       angle = 0;
+    //     Serial.println(angle);
+    //   }
+    //   if ((abs(y) < delta_recalage) && (abs(angle - PI / 2) < 5 * PI / 180 || abs(angle + PI / 2) < 5 * PI / 180))
+    //   {
+    //     Serial.println("recalage2");
+    //     newCommand.recalage = false;
+    //     y = 0;
+    //     if (abs(angle - PI / 2) < abs(angle + PI / 2))
+    //       angle = PI / 2;
+    //     else
+    //       angle = -PI / 2;
+    //   }
+    //   if ((abs(y - 2000) < delta_recalage) && (abs(angle - PI / 2) < 5 * PI / 180 || abs(angle + PI / 2) < 5 * PI / 180))
+    //   {
+    //     Serial.println("recalage3");
+    //     newCommand.recalage = false;
+    //     y = 2000;
+    //     if (abs(angle - PI / 2) < abs(angle + PI / 2))
+    //       angle = PI / 2;
+    //     else
+    //       angle = -PI / 2;
+    //   }
+    // }
   }
 
   /***Ajustement Commandes Vitesse****/
@@ -173,7 +175,7 @@ void Update_IT_callback(void)
 
   digitalWriteFast(DIR1, (Output_PID_vitesse_D >= 0));
   digitalWriteFast(DIR2, (Output_PID_vitesse_G >= 0));
-  // Serial.println(erreurVD);
+
   /****Commande des moteurs ajout avec une deadzone*******/
   if (abs(Output_PID_vitesse_G) > 10)
     analogWrite(PWM1, abs(Output_PID_vitesse_G));

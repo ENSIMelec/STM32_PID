@@ -13,7 +13,7 @@
 #define DEBUG // mode debug
 /******************/
 
-bool debug = true;
+bool debug = false;
 
 unsigned long timeSetup;
 short mode = 4;
@@ -40,12 +40,12 @@ float distance_encoder_droit = 1000.0 / 4715.0;
 /**************************************/
 
 /********Coef Vitesse ******/
-float coefVitesseG = distance_encoder_gauche / dt*1.05;
+float coefVitesseG = distance_encoder_gauche / dt*1.032;
 float coefVitesseD = distance_encoder_droit / dt;
 /**************************/
 
 /********Coef Angle****/
-float correction_angle = 0.93;
+float correction_angle = 0.947;
 float empattementRoueCodeuse = 241;
 float coefAngle = dt / empattementRoueCodeuse * correction_angle;
 /**********************/
