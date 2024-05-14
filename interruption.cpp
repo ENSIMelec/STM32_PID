@@ -3,9 +3,9 @@
 #include <Arduino.h>
 #include "main.h"
 
-float epsilonDistance = 2;
-float epsilonAngle = PI / 180 / 2;
-unsigned int interrupt_tick = 0;
+float epsilonDistance = 2;         // erreur acceptable pour la distance
+float epsilonAngle = PI / 180 / 2; // erreur acceptable pour l'angle
+unsigned int interrupt_tick = 0;   // temps écoulé depuis le début de la commande
 
 /************************************************************************************/
 /*************************Explication des fonction***********************************/
