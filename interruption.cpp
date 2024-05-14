@@ -7,6 +7,13 @@ float epsilonDistance = 2;
 float epsilonAngle = PI / 180 / 2;
 unsigned int interrupt_tick = 0;
 float delta_recalage = 10;
+
+unsigned int block_gauche = 0;
+unsigned int block_droit = 0;
+
+long save_tick_gauche = 0;
+long save_tick_droit = 0;
+
 /*************************************/
 /*****FONCTION ÉCHANTILLONAGE*********/
 /*************************************/
@@ -27,6 +34,17 @@ void Update_IT_callback(void)
 
     cmd_angle = angle;
     interrupt_tick = 0;
+
+    if (encDroit.getTicks() > 2500 || encGauche.getTicks() > 2500)
+    {
+      last_encGauche = -ticks_D + last_encDroit;
+      last_encDroit = -ticks_D + last_encDroit;
+      encDroit.resetTicks();
+      encGauche.resetTicks();
+      ticks_G=0;
+      ticks_D=0;
+    }
+
     angle_ok = false;
     if (newCommand.goto_ok)
       distance_ok = false;
@@ -36,11 +54,44 @@ void Update_IT_callback(void)
   {
     interrupt_tick += 1;
     cmd_angle = angle_command_ramp(interrupt_tick);
+    // if (interrupt_tick > 30) {
+    //   if (abs(cmd_vitesse_G) > 0 && vitesse_G == 0) {
+    //     PID_vitesse_G.SetMode(MANUAL);
+    //     Output_PID_vitesse_G = 0;
+    //   }
+    //   if (abs(cmd_vitesse_D) > 0 && vitesse_D == 0) {
+    //     PID_vitesse_D.SetMode(MANUAL);
+    //     Output_PID_vitesse_D = 0;
+    //   }
+    // }
   }
   else if (!distance_ok && angle_ok)
   {
     interrupt_tick += 1;
     cmd_distance = distance_command_ramp(interrupt_tick);
+    // if (interrupt_tick > 20)
+    // {
+    //   if (abs(cmd_vitesse_G) > 50 && abs(vitesse_G) < 10 && block_gauche > 1)
+    //   {
+    //     PID_vitesse_G.SetMode(MANUAL);
+    //     Output_PID_vitesse_G = 0;
+    //   }
+    //   else if (abs(cmd_vitesse_G) > 50 && abs(vitesse_G) < 10)
+    //   {
+    //   block_gauche++;
+    //   }
+    //   else block_gauche = 0;
+
+    //   if (abs(cmd_vitesse_D) > 50 && abs(vitesse_D) < 10 && block_droit > 1)
+    //   {
+    //     PID_vitesse_D.SetMode(MANUAL);
+    //     Output_PID_vitesse_D = 0;
+    //   }
+    //   else if (abs(cmd_vitesse_D) > 50 && abs(vitesse_D) < 10)
+    //     block_droit++;
+    //   else
+    //     block_droit = 0;
+    // }
   }
 
   // /*****RECALLAGE IMPOSSIBLE******/
@@ -87,6 +138,10 @@ void Update_IT_callback(void)
     send_new_command_available = true;
     reset_time_distance();
     interrupt_tick = 0;
+    /****Sauvegarde des ticks*****/
+    save_tick_gauche = ticks_G;
+    save_tick_droit = ticks_D;
+    /*****************************/
   }
   else
     PID_distance.Compute();
@@ -107,7 +162,7 @@ void Update_IT_callback(void)
   /*************************************/
 
   // si l'erreur dans la distance ou l'angle est trop grande, on ne fait rien
-  if ((abs(cmd_angle - angle) > 10 * PI / 180) && distance_ok || (abs(cmd_distance - distance) > 150) && angle_ok)
+  if (((abs(cmd_angle - angle) > 3 * PI / 180) && angle_ok && distance_ok || (abs(cmd_distance - distance) > 10) && distance_ok && angle_ok) && PID_angle.GetMode())
   {
     change_PID_mode(0);
     Output_PID_angle = 0;
@@ -196,6 +251,7 @@ void Update_IT_callback(void)
   last_encGauche = ticks_G;
   last_encDroit = ticks_D;
   /********************************/
+
   Update_IT++;
   //   Serial.print("dOK:");
   //   Serial.print(distance_ok);

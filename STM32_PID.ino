@@ -40,7 +40,7 @@ float distance_encoder_droit = 1000.0 / 4715.0;
 /**************************************/
 
 /********Coef Vitesse ******/
-float coefVitesseG = distance_encoder_gauche / dt*1.032;
+float coefVitesseG = distance_encoder_gauche / dt * 1.032;
 float coefVitesseD = distance_encoder_droit / dt;
 /**************************/
 

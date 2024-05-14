@@ -79,7 +79,7 @@ int16_t Encoder::getTicks()
 void Encoder::resetTicks()
 {
 	LL_TIM_SetCounter(_timer, 32767);
-	*_last_ticks = 0;
+	//*_last_ticks = 0;
 }
 
 void Encoder::overflowCallback()
