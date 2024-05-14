@@ -41,8 +41,8 @@ void Update_IT_callback(void)
       last_encDroit = -ticks_D + last_encDroit;
       encDroit.resetTicks();
       encGauche.resetTicks();
-      ticks_G=0;
-      ticks_D=0;
+      ticks_G = 0;
+      ticks_D = 0;
     }
 
     angle_ok = false;
@@ -54,74 +54,17 @@ void Update_IT_callback(void)
   {
     interrupt_tick += 1;
     cmd_angle = angle_command_ramp(interrupt_tick);
-    // if (interrupt_tick > 30) {
-    //   if (abs(cmd_vitesse_G) > 0 && vitesse_G == 0) {
-    //     PID_vitesse_G.SetMode(MANUAL);
-    //     Output_PID_vitesse_G = 0;
-    //   }
-    //   if (abs(cmd_vitesse_D) > 0 && vitesse_D == 0) {
-    //     PID_vitesse_D.SetMode(MANUAL);
-    //     Output_PID_vitesse_D = 0;
-    //   }
-    // }
   }
   else if (!distance_ok && angle_ok)
   {
     interrupt_tick += 1;
     cmd_distance = distance_command_ramp(interrupt_tick);
-    // if (interrupt_tick > 20)
-    // {
-    //   if (abs(cmd_vitesse_G) > 50 && abs(vitesse_G) < 10 && block_gauche > 1)
-    //   {
-    //     PID_vitesse_G.SetMode(MANUAL);
-    //     Output_PID_vitesse_G = 0;
-    //   }
-    //   else if (abs(cmd_vitesse_G) > 50 && abs(vitesse_G) < 10)
-    //   {
-    //   block_gauche++;
-    //   }
-    //   else block_gauche = 0;
-
-    //   if (abs(cmd_vitesse_D) > 50 && abs(vitesse_D) < 10 && block_droit > 1)
-    //   {
-    //     PID_vitesse_D.SetMode(MANUAL);
-    //     Output_PID_vitesse_D = 0;
-    //   }
-    //   else if (abs(cmd_vitesse_D) > 50 && abs(vitesse_D) < 10)
-    //     block_droit++;
-    //   else
-    //     block_droit = 0;
-    // }
   }
-
-  // /*****RECALLAGE IMPOSSIBLE******/
-  // if (interrupt_tick == 0 && distance_ok && newCommand.recalage)
-  // {
-  //   newCommand.recalage = false;
-  // }
-  // /******************************/
 
   /****Calcul des vitesses des moteurs*******/
   vitesse_D = (float)(ticks_D - last_encDroit) * coefVitesseD;
   vitesse_G = (float)(ticks_G - last_encGauche) * coefVitesseG;
   /******************************************/
-
-  // /************Arret moteur Blocage**********************/
-  // if (abs(vitesse_G) < 5 && abs(cmd_vitesse_G) > 300)
-  // {
-  //   PID_vitesse_G.SetMode(MANUAL);
-  //   Output_PID_vitesse_G = 0;
-  // }
-  // else
-  //   PID_vitesse_G.SetMode(AUTOMATIC);
-  // if (abs(vitesse_D) < 5 && abs(cmd_vitesse_D) > 300)
-  // {
-  //   PID_vitesse_D.SetMode(MANUAL);
-  //   Output_PID_vitesse_D = 0;
-  // }
-  // else
-  //   PID_vitesse_D.SetMode(AUTOMATIC);
-  // /*********************************************************/
 
   /****Calcul de l'angle et de la distance*******/
   angle += (vitesse_G - vitesse_D) * coefAngle;
@@ -138,6 +81,7 @@ void Update_IT_callback(void)
     send_new_command_available = true;
     reset_time_distance();
     interrupt_tick = 0;
+
     /****Sauvegarde des ticks*****/
     save_tick_gauche = ticks_G;
     save_tick_droit = ticks_D;
@@ -169,53 +113,6 @@ void Update_IT_callback(void)
     Output_PID_distance = 0;
     Output_PID_vitesse_D = 0;
     Output_PID_vitesse_G = 0;
-    // if (newCommand.recalage)
-    // {
-    //   Serial.println("recalage");
-    //   // vérifiacation pour un recalage
-    //   if ((abs(x) < delta_recalage) && (abs(abs(angle) - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
-    //   {
-    //     Serial.println("recalage0");
-    //     newCommand.recalage = false;
-    //     x = 0;
-    //     if (abs(abs(angle) - PI) < abs(angle))
-    //       angle = PI;
-    //     else
-    //       angle = 0;
-    //     Serial.println(angle);
-    //   }
-    //   if ((abs(x - 3000) < delta_recalage) && (abs(angle - PI) < 5 * PI / 180 || abs(angle) < 5 * PI / 180))
-    //   {
-    //     Serial.println("recalage1");
-    //     newCommand.recalage = false;
-    //     x = 3000;
-    //     if (abs(abs(angle) - PI) < abs(angle))
-    //       angle = PI;
-    //     else
-    //       angle = 0;
-    //     Serial.println(angle);
-    //   }
-    //   if ((abs(y) < delta_recalage) && (abs(angle - PI / 2) < 5 * PI / 180 || abs(angle + PI / 2) < 5 * PI / 180))
-    //   {
-    //     Serial.println("recalage2");
-    //     newCommand.recalage = false;
-    //     y = 0;
-    //     if (abs(angle - PI / 2) < abs(angle + PI / 2))
-    //       angle = PI / 2;
-    //     else
-    //       angle = -PI / 2;
-    //   }
-    //   if ((abs(y - 2000) < delta_recalage) && (abs(angle - PI / 2) < 5 * PI / 180 || abs(angle + PI / 2) < 5 * PI / 180))
-    //   {
-    //     Serial.println("recalage3");
-    //     newCommand.recalage = false;
-    //     y = 2000;
-    //     if (abs(angle - PI / 2) < abs(angle + PI / 2))
-    //       angle = PI / 2;
-    //     else
-    //       angle = -PI / 2;
-    //   }
-    // }
   }
 
   /***Ajustement Commandes Vitesse****/
@@ -241,7 +138,7 @@ void Update_IT_callback(void)
     analogWrite(PWM2, abs(Output_PID_vitesse_D));
   else
     analogWrite(PWM2, 0);
-  /*****************************/
+  /********************************************************/
 
   /****Calcul de la position*******/
   update_Position(distance, angle);
@@ -253,31 +150,20 @@ void Update_IT_callback(void)
   /********************************/
 
   Update_IT++;
-  //   Serial.print("dOK:");
-  //   Serial.print(distance_ok);
-  //   Serial.print(" ");
-  //   Serial.print("aOK:");
-  // Serial.println(angle_ok);
-  //   Serial.print(" ");
-  //   Serial.print(cmd_distance, 5);
-  //   Serial.print(" ");
-  //   Serial.print(distance, 5);
-  //   Serial.print(" ");
-  // Serial.println(cmd_angle, 5);
-  //   Serial.print(" ");
-  //   Serial.println(angle, 5);
-  //   Serial.print(" ");
-  //   Serial.print(x);
-  //   Serial.print(" ");
-  //   Serial.println(y);
 }
 /*************************************/
 /*************************************/
 /*************************************/
 
+/*************************************/
+/***********INTERUPTION***************/
+/*********ARRET D'URGENCE*************/
 void ARU_interrupt()
 {
   digitalWrite(LED_BUILTIN, LOW);
   delay(500);
   HAL_NVIC_SystemReset(); // redèmare le programme
 }
+/*************************************/
+/*************************************/
+/*************************************/
