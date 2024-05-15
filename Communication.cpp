@@ -108,9 +108,6 @@ void asservCommandUSB(int argc, char **argv) {
     if (argc > 4) {
       newCommand.speed = atof(argv[3]);
     }
-    if (argc == 5) {
-      newCommand.recalage = atoi(argv[4]);
-    }
     goTo(newCommand);
     newCommand.goto_ok = true;
   } else if (!strcmp(argv[0], "rotate") && (distance_ok && angle_ok)) {
@@ -129,9 +126,6 @@ void asservCommandUSB(int argc, char **argv) {
     newCommand = calculate_moveOf(distance_);
     if (argc > 2) {
       newCommand.speed = atof(argv[2]);
-    }
-    if (argc == 4) {
-      newCommand.recalage = atoi(argv[3]);
     }
     moveOf(newCommand);
     newCommand.goto_ok = true;
