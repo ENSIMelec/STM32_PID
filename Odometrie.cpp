@@ -2,23 +2,22 @@
 
 /*Variables de sauvegarde pour l'odométrie*/
 float last_distance = 0;
-float angleTot = 0;
-const float Attenuantion_vit_ang = 0.7;
 /***************************************/
 
 /*Variables de temps pour les rampe*/
-float distance_t1;
-float distance_t2;
+float distance_t1; // temps de fin de la rampe d'accélération
+float distance_t2; // temps de début de la rampe de décélération
 float angle_t1;
 float angle_t2;
 /***********************************/
 
 /*Variable pour calcul des rampes de vitesse*/
-float Acc = 1000;   // acceleration
+float Acc = 1000;   // acceleration linéaire
 float distance_lim; // distance limite
 
 float angle_initial = 0;
 
+const float Attenuantion_vit_ang = 0.7;
 float VMaxAngulaire; // Vitesse angulaire max
 float AccAngulaire;  // Acceleration angulaire
 float angle_lim;     // angle limite
