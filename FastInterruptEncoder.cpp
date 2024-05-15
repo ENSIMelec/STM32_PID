@@ -2,26 +2,31 @@
 #include "FastInterruptEncoder.h"
 #include "main.h"
 
-Encoder::Encoder(int pinA, int pinB, TIM_TypeDef *timer, int16_t *last_ticks, encoder_mode_t mode, uint8_t filter)
+Encoder::Encoder(int pinA, int pinB, TIM_TypeDef *timer, encoder_mode_t mode, uint8_t filter)
 {
 	_pinA = pinA;
 	_pinB = pinB;
 	_mode = mode;
 	_filter = filter;
 	_timer = timer;
-	_last_ticks = last_ticks;
 }
 
 bool Encoder::init()
 {
+	// Initialisation des pins
 	pinMode(_pinA, INPUT_PULLUP);
 	pinMode(_pinB, INPUT_PULLUP);
 
+	// Affiliation des pins au timer
 	pin_function(digitalPinToPinName(_pinA), pinmap_function(digitalPinToPinName(_pinA), PinMap_TIM));
 	pin_function(digitalPinToPinName(_pinB), pinmap_function(digitalPinToPinName(_pinB), PinMap_TIM));
+
+	// Vidage de la structure de configuration
 	TIM_Encoder_InitTypeDef sEncoderConfig = {0};
 
-	Encoder_Handle.Init.Period = 65534;
+	Encoder_Handle.Init.Period = 65534; // valeur max pour un timer 16 bits
+
+	/*********Configuration des registres du timer*********/
 	if (_mode == SINGLE)
 	{
 		Encoder_Handle.Init.Prescaler = 1;
@@ -55,11 +60,13 @@ bool Encoder::init()
 	sEncoderConfig.IC2Filter = _filter;
 
 	Encoder_Handle.Instance = _timer;
-	enableTimerClock(&Encoder_Handle);
+	/*******************************************************/
+
+	enableTimerClock(&Encoder_Handle); // Activation de l'horloge du timer
 	if (HAL_TIM_Encoder_Init(&Encoder_Handle, &sEncoderConfig) != HAL_OK)
 		return 0;
-	LL_TIM_SetCounter(Encoder_Handle.Instance, 32767); // set la valeur registre
-	HAL_TIM_Encoder_Start(&Encoder_Handle, TIM_CHANNEL_ALL);
+	LL_TIM_SetCounter(Encoder_Handle.Instance, 32767);		 // set la valeur registre
+	HAL_TIM_Encoder_Start(&Encoder_Handle, TIM_CHANNEL_ALL); // Activation du timer
 	return 1;
 }
 
@@ -70,7 +77,11 @@ void Encoder::setInvert(bool invert)
 
 int16_t Encoder::getTicks()
 {
+	// récupération de la valeur registre du timer
 	uint16_t codeur_value = LL_TIM_GetCounter(_timer);
+
+	// convertion en entier signer sur 16 bits
+	// Attention possible améliration en supprimant cette conversion
 	if (_invert)
 		return -static_cast<int16_t>(codeur_value - 32767);
 	return static_cast<int16_t>(codeur_value - 32767);
@@ -79,52 +90,4 @@ int16_t Encoder::getTicks()
 void Encoder::resetTicks()
 {
 	LL_TIM_SetCounter(_timer, 32767);
-	//*_last_ticks = 0;
 }
-
-void Encoder::overflowCallback()
-{
-	if (__HAL_TIM_GET_FLAG(&Encoder_Handle, TIM_FLAG_UPDATE) != RESET)
-	{
-		if (__HAL_TIM_GET_IT_SOURCE(&Encoder_Handle, TIM_IT_UPDATE) != RESET)
-		{
-			__HAL_TIM_CLEAR_IT(&Encoder_Handle, TIM_IT_UPDATE);
-			LL_TIM_SetCounter(_timer, 32767);
-			if (_invert)
-				*_last_ticks = *_last_ticks + 32767;
-			else
-				*_last_ticks = *_last_ticks - 32767;
-		}
-	}
-}
-
-/******* FONCTION DE BASE
-
-void Encoder::loop()
-{
-	int c = LL_TIM_GetCounter((TIM_TypeDef *)pinmap_peripheral(digitalPinToPinName(_pinA), PinMap_TIM));
-	int change = c - _prevTicks;
-	_prevTicks = c;
-	if (change > 40000)
-	{
-		change = 65535 - change;
-	}
-	else if (change < -40000)
-	{
-		change = -65535 - change;
-	}
-	if (_invert)
-	{
-		_ticks -= change;
-	}
-	else
-	{
-		_ticks += change;
-	}
-}
-
-
-
-
-
-********/
