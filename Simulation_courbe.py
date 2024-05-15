@@ -11,6 +11,9 @@ Il permet de comprendre plus facilement le fonctionnement
 des courbes d'accélération et de décélération, en affichant
 les courbes. Si la vitesse max est ateingnable, on obtient
 une courbe en trapèze. Sinon, on obtient une courbe en triangle.
+Les calculs sont effectués pour un pas de 10ms, comme dans le
+code Arduino. A chaque pas, on calcule la vitesse et la position
+en fonction du temps, selon les équations de la cinématique.
 
 '''
 
