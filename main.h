@@ -29,8 +29,8 @@ struct MovementResult
     float angle_initial = 0;    // angle de départ
     float distance_initial = 0; // distance de départ
     float speed = 500;          // vitesse max par défaut
-    bool goto_ok = false;       // mouvement terminé
-    bool rotate_ok = false;     // rotation terminé
+    bool goto_ok = false;       // mouvement goTo ou moveOf voulu
+    bool rotate_ok = false;     // mouvement de rotation voulu
 };
 /*********************/
 
