@@ -35,9 +35,16 @@ int sizeBuffer = 0;            // Taille du buffer
 /**************************************/
 /******EXEMPLE DE COMMANDE SHELL*******/
 /**************************************/
-// asserv goto 100 100
-// asserv rotate 90
-// asserv moveof 100
+// asserv debug [enable|disable]
+// asserv recalage [1|0]
+// asserv [enable|disable|reset] [all|angle|distance]
+// asserv [enable|disable|reset] vitesse [all|gauche|droite]
+// asserv set coord [x] [y]
+// asserv set angle [angle]
+// asserv set position [x] [y] [angle]
+// asserv goto [x] [y] [speed]
+// asserv rotate [angle]
+// asserv moveof [distance] [speed]
 // asserv stopmove
 // asserv restartmove
 /**************************************/
@@ -349,8 +356,8 @@ void sendData()
 
   // Serial.print("K");
   // Serial.println(cmd_angle, 5);
-  Serial.print("L"); // distance mesurer
-  Serial.println(distance, 5);
+  // Serial.print("L"); // distance mesurer
+  // Serial.println(distance, 5);
 
   // Serial.print("M"); // distance PID
   // Serial.println(Output_PID_distance, 5);
