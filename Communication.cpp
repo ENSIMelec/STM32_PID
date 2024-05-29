@@ -84,6 +84,10 @@ void asservCommandUSB(int argc, char **argv)
       debug = false;
     }
   }
+  else if (!strcmp(argv[0], "asservmanette"))
+  {
+    Output_PID_distance = atof(argv[1]);
+  }
   else if (!strcmp(argv[0], "recalage"))
   {
     recalage(atoi(argv[1]));
