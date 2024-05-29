@@ -100,7 +100,7 @@ void asservCommandUSB(int argc, char **argv)
     }
     else if (argv[1] == "angle")
     {
-      // enable de l'asservissement d'angle
+      change_PID_mode(1); // enable de l'asservissement d'angle
     }
     else if (argv[1] == "distance")
     {
