@@ -23,7 +23,7 @@ lors de la coupe nous avons rencontré un problème avec le débordement du TIME
 Les 
 
 ## Comunication Série
-La liason série fonctionne avec un cable USB et elle est défini à 115000 bauds. Elle fonctionne via l'interruption sur la liason série.  
+La liason série fonctionne avec un cable USB et elle est défini à 115200 bauds. Elle fonctionne via l'interruption sur la liason série.  
 
 **ATTENTION**  
 nous avons eu plusieurs problèmes de transimissions et de vitesse de transmission avec la liaison USB série. Je vous conseille d'essayer la liasons série via les I/O qui devrait être plus fiable qu'avec un cable USB. Il faudra donc revoir l'électronique.
