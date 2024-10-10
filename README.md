@@ -15,16 +15,20 @@ Au niveau de l'odométrie les calculs sont assez simple, pour obtenir des coordo
 (réf: Bourns ENS1J-B28-L002 )  
 Les encodeurs utilisé sont des encodeurs de quadratures. Ce type d'encodeur requiert sur un système classique des interruptions afin de compter le nombre de tick sur chaque roues ([petit tuto sur arudino](https://www.locoduino.org/spip.php?article82) pour mieux comprendre).
 Cependant dans notre cas pour optimiser le systèmes au lieu d'utiliser des interruptions, nous avons délégué cette tâche au TIMER, d'ou l'importance que les encodeurs soit de quadratures.  
-ATTENTION lors de la coupe nous avons rencontré un problème avec le débordement du TIMER ce cas n'avait malheuresmsent pas été étudié. Il a été néanmmoins partiellement réglé afin de rendre le robot fonctionelle mais à améliorer.
+
+**ATTENTION**   
+lors de la coupe nous avons rencontré un problème avec le débordement du TIMER ce cas n'avait malheuresmsent pas été étudié. Il a été néanmmoins partiellement réglé afin de rendre le robot fonctionelle mais à améliorer.
 
 ## PID
 Les 
 
 ## Comunication Série
-La liason série fonctionne avec un cable USB et elle est défini à 115000 bauds. Elle fonctionne via l'interruption sur la liason série.   
-ATTENTION nous avons eu plusieurs problèmes de transimissions et de vitesse de transmission avec la liaison USB série. Je vous conseille d'essayer la liasons série via les I/O qui devrait être plus fiable qu'avec un cable USB. Il faudra donc revoir l'électronique.
+La liason série fonctionne avec un cable USB et elle est défini à 115000 bauds. Elle fonctionne via l'interruption sur la liason série.  
 
-### Exemple de commandes
+**ATTENTION**  
+nous avons eu plusieurs problèmes de transimissions et de vitesse de transmission avec la liaison USB série. Je vous conseille d'essayer la liasons série via les I/O qui devrait être plus fiable qu'avec un cable USB. Il faudra donc revoir l'électronique.
+
+#### Exemple de commandes
 ```plaintext
 asserv debug [enable|disable]
 asserv recalage [1|0]
