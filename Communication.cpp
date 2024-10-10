@@ -84,9 +84,18 @@ void asservCommandUSB(int argc, char **argv)
       debug = false;
     }
   }
-  else if (!strcmp(argv[0], "asservmanette"))
+  else if (!strcmp(argv[0], "manette"))
   {
-    Output_PID_distance = atof(argv[1]);
+    if (!strcmp(argv[1], "vitesse"))
+    {
+      Output_PID_distance = min(max(atoi(argv[2]), -500), 500);
+      Serial.println("ok");
+    }
+    else if (!strcmp(argv[1], "angle"))
+    {
+      Output_PID_angle = min(max(atoi(argv[2]), -350), 350);
+      Serial.println("ok");
+    }
   }
   else if (!strcmp(argv[0], "recalage"))
   {
@@ -110,7 +119,8 @@ void asservCommandUSB(int argc, char **argv)
     {
       if (argv[2] == "all")
       {
-        // enable de l'asservissement de vitesse droite et gauche
+        change_PID_mode(3); // enable de l'asservissement de vitesse droite et gauche
+        Serial.println("send");
       }
       else if (argv[2] == "gauche")
       {
@@ -355,16 +365,16 @@ void sendData()
   Serial.print("I"); // angle mesurer
   Serial.println(angle, 5);
 
-  // Serial.print("J"); // angle PID
-  // Serial.println(Output_PID_angle);
+  Serial.print("J"); // angle PID
+  Serial.println(Output_PID_angle);
 
   // Serial.print("K");
   // Serial.println(cmd_angle, 5);
   // Serial.print("L"); // distance mesurer
   // Serial.println(distance, 5);
 
-  // Serial.print("M"); // distance PID
-  // Serial.println(Output_PID_distance, 5);
+   Serial.print("M"); // distance PID
+   Serial.println(Output_PID_distance, 5);
 
   // Serial.print("O"); // cmd distance
   // Serial.println(cmd_distance, 5);
